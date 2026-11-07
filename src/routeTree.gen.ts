@@ -34,6 +34,7 @@ import { Route as ApiReadUrlRouteImport } from './routes/api/read-url'
 import { Route as ApiRenderPdfRouteImport } from './routes/api/render-pdf'
 import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
 import { Route as ApiVoiceRouteImport } from './routes/api/voice'
+import { Route as ApiVoiceCallRouteImport } from './routes/api/voice-call'
 import { Route as ApiVoiceTranscribeRouteImport } from './routes/api/voice-transcribe'
 import { Route as ApiWebSearchRouteImport } from './routes/api/web-search'
 import { Route as ApiAgentSplatRouteImport } from './routes/api/agent.$'
@@ -172,6 +173,11 @@ const ApiVoiceRoute = ApiVoiceRouteImport.update({
   path: '/api/voice',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiVoiceCallRoute = ApiVoiceCallRouteImport.update({
+  id: '/api/voice-call',
+  path: '/api/voice-call',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiVoiceTranscribeRoute = ApiVoiceTranscribeRouteImport.update({
   id: '/api/voice-transcribe',
   path: '/api/voice-transcribe',
@@ -262,6 +268,7 @@ export interface FileRoutesByFullPath {
   '/api/render-pdf': typeof ApiRenderPdfRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/api/voice': typeof ApiVoiceRoute
+  '/api/voice-call': typeof ApiVoiceCallRoute
   '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
   '/api/web-search': typeof ApiWebSearchRoute
   '/api/agent/$': typeof ApiAgentSplatRoute
@@ -301,6 +308,7 @@ export interface FileRoutesByTo {
   '/api/render-pdf': typeof ApiRenderPdfRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/api/voice': typeof ApiVoiceRoute
+  '/api/voice-call': typeof ApiVoiceCallRoute
   '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
   '/api/web-search': typeof ApiWebSearchRoute
   '/api/agent/$': typeof ApiAgentSplatRoute
@@ -341,6 +349,7 @@ export interface FileRoutesById {
   '/api/render-pdf': typeof ApiRenderPdfRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/api/voice': typeof ApiVoiceRoute
+  '/api/voice-call': typeof ApiVoiceCallRoute
   '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
   '/api/web-search': typeof ApiWebSearchRoute
   '/api/agent/$': typeof ApiAgentSplatRoute
@@ -382,6 +391,7 @@ export interface FileRouteTypes {
     | '/api/render-pdf'
     | '/api/transcribe'
     | '/api/voice'
+    | '/api/voice-call'
     | '/api/voice-transcribe'
     | '/api/web-search'
     | '/api/agent/$'
@@ -421,6 +431,7 @@ export interface FileRouteTypes {
     | '/api/render-pdf'
     | '/api/transcribe'
     | '/api/voice'
+    | '/api/voice-call'
     | '/api/voice-transcribe'
     | '/api/web-search'
     | '/api/agent/$'
@@ -460,6 +471,7 @@ export interface FileRouteTypes {
     | '/api/render-pdf'
     | '/api/transcribe'
     | '/api/voice'
+    | '/api/voice-call'
     | '/api/voice-transcribe'
     | '/api/web-search'
     | '/api/agent/$'
@@ -500,6 +512,7 @@ export interface RootRouteChildren {
   ApiRenderPdfRoute: typeof ApiRenderPdfRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
   ApiVoiceRoute: typeof ApiVoiceRoute
+  ApiVoiceCallRoute: typeof ApiVoiceCallRoute
   ApiVoiceTranscribeRoute: typeof ApiVoiceTranscribeRoute
   ApiWebSearchRoute: typeof ApiWebSearchRoute
   ApiAgentSplatRoute: typeof ApiAgentSplatRoute
@@ -691,6 +704,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiVoiceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/voice-call': {
+      id: '/api/voice-call'
+      path: '/api/voice-call'
+      fullPath: '/api/voice-call'
+      preLoaderRoute: typeof ApiVoiceCallRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/voice-transcribe': {
       id: '/api/voice-transcribe'
       path: '/api/voice-transcribe'
@@ -804,6 +824,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiRenderPdfRoute: ApiRenderPdfRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,
   ApiVoiceRoute: ApiVoiceRoute,
+  ApiVoiceCallRoute: ApiVoiceCallRoute,
   ApiVoiceTranscribeRoute: ApiVoiceTranscribeRoute,
   ApiWebSearchRoute: ApiWebSearchRoute,
   ApiAgentSplatRoute: ApiAgentSplatRoute,
