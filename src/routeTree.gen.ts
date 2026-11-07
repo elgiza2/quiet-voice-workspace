@@ -40,6 +40,7 @@ import { Route as ApiVideoCallRouteImport } from './routes/api/video-call'
 import { Route as ApiVoiceRouteImport } from './routes/api/voice'
 import { Route as ApiVoiceCallRouteImport } from './routes/api/voice-call'
 import { Route as ApiVoiceTranscribeRouteImport } from './routes/api/voice-transcribe'
+import { Route as ApiWalletRouteImport } from './routes/api/wallet'
 import { Route as ApiWebSearchRouteImport } from './routes/api/web-search'
 import { Route as ApiAgentSplatRouteImport } from './routes/api/agent.$'
 import { Route as ApiPublicCeyoJobsRouteImport } from './routes/api/public/ceyo-jobs'
@@ -207,6 +208,11 @@ const ApiVoiceTranscribeRoute = ApiVoiceTranscribeRouteImport.update({
   path: '/api/voice-transcribe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWalletRoute = ApiWalletRouteImport.update({
+  id: '/api/wallet',
+  path: '/api/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiWebSearchRoute = ApiWebSearchRouteImport.update({
   id: '/api/web-search',
   path: '/api/web-search',
@@ -298,6 +304,7 @@ export interface FileRoutesByFullPath {
   '/api/voice': typeof ApiVoiceRoute
   '/api/voice-call': typeof ApiVoiceCallRoute
   '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
+  '/api/wallet': typeof ApiWalletRoute
   '/api/web-search': typeof ApiWebSearchRoute
   '/api/agent/$': typeof ApiAgentSplatRoute
   '/api/public/ceyo-jobs': typeof ApiPublicCeyoJobsRoute
@@ -342,6 +349,7 @@ export interface FileRoutesByTo {
   '/api/voice': typeof ApiVoiceRoute
   '/api/voice-call': typeof ApiVoiceCallRoute
   '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
+  '/api/wallet': typeof ApiWalletRoute
   '/api/web-search': typeof ApiWebSearchRoute
   '/api/agent/$': typeof ApiAgentSplatRoute
   '/api/public/ceyo-jobs': typeof ApiPublicCeyoJobsRoute
@@ -387,6 +395,7 @@ export interface FileRoutesById {
   '/api/voice': typeof ApiVoiceRoute
   '/api/voice-call': typeof ApiVoiceCallRoute
   '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
+  '/api/wallet': typeof ApiWalletRoute
   '/api/web-search': typeof ApiWebSearchRoute
   '/api/agent/$': typeof ApiAgentSplatRoute
   '/api/public/ceyo-jobs': typeof ApiPublicCeyoJobsRoute
@@ -433,6 +442,7 @@ export interface FileRouteTypes {
     | '/api/voice'
     | '/api/voice-call'
     | '/api/voice-transcribe'
+    | '/api/wallet'
     | '/api/web-search'
     | '/api/agent/$'
     | '/api/public/ceyo-jobs'
@@ -477,6 +487,7 @@ export interface FileRouteTypes {
     | '/api/voice'
     | '/api/voice-call'
     | '/api/voice-transcribe'
+    | '/api/wallet'
     | '/api/web-search'
     | '/api/agent/$'
     | '/api/public/ceyo-jobs'
@@ -521,6 +532,7 @@ export interface FileRouteTypes {
     | '/api/voice'
     | '/api/voice-call'
     | '/api/voice-transcribe'
+    | '/api/wallet'
     | '/api/web-search'
     | '/api/agent/$'
     | '/api/public/ceyo-jobs'
@@ -566,6 +578,7 @@ export interface RootRouteChildren {
   ApiVoiceRoute: typeof ApiVoiceRoute
   ApiVoiceCallRoute: typeof ApiVoiceCallRoute
   ApiVoiceTranscribeRoute: typeof ApiVoiceTranscribeRoute
+  ApiWalletRoute: typeof ApiWalletRoute
   ApiWebSearchRoute: typeof ApiWebSearchRoute
   ApiAgentSplatRoute: typeof ApiAgentSplatRoute
   ApiPublicCeyoJobsRoute: typeof ApiPublicCeyoJobsRoute
@@ -798,6 +811,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiVoiceTranscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/wallet': {
+      id: '/api/wallet'
+      path: '/api/wallet'
+      fullPath: '/api/wallet'
+      preLoaderRoute: typeof ApiWalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/web-search': {
       id: '/api/web-search'
       path: '/api/web-search'
@@ -910,6 +930,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiVoiceRoute: ApiVoiceRoute,
   ApiVoiceCallRoute: ApiVoiceCallRoute,
   ApiVoiceTranscribeRoute: ApiVoiceTranscribeRoute,
+  ApiWalletRoute: ApiWalletRoute,
   ApiWebSearchRoute: ApiWebSearchRoute,
   ApiAgentSplatRoute: ApiAgentSplatRoute,
   ApiPublicCeyoJobsRoute: ApiPublicCeyoJobsRoute,
