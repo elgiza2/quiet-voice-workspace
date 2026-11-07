@@ -1,3 +1,9 @@
+## Clean calls and voice recordings — 2026-11-07 13:01 UTC
+- [ ] Remove switch-to-video from the voice call only.
+- [ ] Restyle video controls and screen to match the clean voice-call visual language.
+- [ ] Repair recording/release/upward-lock and audio playback; replace native audio/download presentation with a clean voice-message player.
+- [ ] Verify gestures, playback and mobile/desktop layout; update handoff.
+
 ## Chat, one-time ringing and call settings — 2026-11-07 12:32 UTC
 - [x] Upgrade active chat and inline specialists to GPT-6.1 Terra without changing call providers; real model response verified. External host needs a private Gateway key.
 - [x] Prevent stale/settled calls and repeated tool requests from ringing again; conditional state saves and deterministic IDs, regression tests pass.
