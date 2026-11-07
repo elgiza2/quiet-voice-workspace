@@ -456,11 +456,6 @@ export function HubChat({
           settings={voiceSettings}
           agentIds={agents.map((a) => a.id)}
           lang={lang}
-          busy={s.running || starting}
-          replyError={s.error || lastAgent?.error}
-          replyId={lastAgent?.id}
-          lastReply={lastAgent?.text || ""}
-          onSay={(text) => { setPinned(true); if (!sessionId && !demo) void startConversation(text); else s.send(text); }}
           onEnd={() => setCalling(false)}
         />
       )}

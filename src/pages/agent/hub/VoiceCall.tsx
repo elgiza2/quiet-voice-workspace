@@ -34,7 +34,7 @@ export function VoiceCallBar({ agent, lang, onEnd, settings, agentIds }: {
     setError(""); setPhase("connecting");
     startRealtimeCall({
       voiceId: choice.voiceId, language: choice.language, agentName: agent.name, agentPrompt: agent.prompt || agent.description || "",
-      onPhase: (p) => { if (!cancelled) setPhase(p); },
+      onPhase: (p) => { if (!cancelled) { setPhase(p); if (p === "speaking") setError(""); } },
       onError: (m) => { if (!cancelled) setError(m); },
     }).then((c) => { if (cancelled) c.end(); else { live = c; call.current = c; } })
       .catch((e) => {
