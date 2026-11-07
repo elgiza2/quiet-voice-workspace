@@ -21,6 +21,7 @@ import {
 } from "./lazyPages";
 
 const OnboardingPage = lazy(() => import("@/pages/onboarding/OnboardingPage"));
+const WalletPage = lazy(() => import("@/pages/wallet/WalletPage"));
 const CeyoSettings = lazy(() => import("@/pages/ceyo/CeyoSettings"));
 
 const guard = (el: React.ReactNode, guest?: string) => <ProtectedRoute guestEntry={guest}>{el}</ProtectedRoute>;
@@ -53,6 +54,7 @@ export const AppRoutes = (_props: { currentUserId: string | null }) => (
       <Route path="/settings/delete-account" element={guard(<DeleteAccountPage />)} />
     </Route>
 
+    <Route path="/wallet" element={guard(<WalletPage />)} />
     <Route path="/settings" element={guard(<CeyoSettings />)} />
     <Route path="/settings/:section" element={guard(<CeyoSettings />)} />
     <Route path="/settings/:section/:sub" element={guard(<CeyoSettings />)} />
