@@ -41,6 +41,7 @@ function audioContext() {
   if (!context || context.state === "closed") context = new Ctor();
   return context;
 }
+export function sharedAudioContext() { return audioContext(); }
 export function callAudioElement() {
   if (!callPlayer) { callPlayer = new Audio(); callPlayer.preload = "auto"; callPlayer.setAttribute("playsinline", ""); }
   return callPlayer;
