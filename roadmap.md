@@ -1,3 +1,9 @@
+## Live calls + header order — 2026-11-07 12:06 UTC
+- [x] Header order: voice/video on the left, three-dot button at the far right, joined cleanly.
+- [x] Call waiting/voice background: slow multi-color moving gradient instead of the bright avatar.
+- [ ] ChatGPT-style live voice call (speak/interrupt naturally, agent audio always plays): waiting on owner choice of live provider vs. hosting.
+- [ ] Video call input still unreliable on device: revisit after live voice choice.
+
 ## Header call controls — 2026-11-07 11:59 UTC
 - [x] Keep menu → voice → video visible in a connected, waisted header control. Isolated header CSS verified at 320/434/1280 widths; mobile screenshot reviewed, build OK, 6 existing call tests passed. Signed-in chat remains unverified.
 
