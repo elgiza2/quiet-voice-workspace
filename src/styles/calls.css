@@ -24,6 +24,19 @@
 
 /* backdrop: blurred enlarged avatar + darkening scrim */
 .ig-call-backdrop { position: absolute; inset: -25%; z-index: 0; display: grid; place-items: center; filter: blur(64px) saturate(1.5); opacity: .95; pointer-events: none; }
+/* waiting/voice backdrop: slow-moving multi-color gradient instead of the bright avatar */
+.ig-call-aurora { inset: 0; display: block; filter: blur(70px) saturate(1.4); opacity: 1; overflow: hidden;
+  background: linear-gradient(135deg, oklch(0.32 0.16 290), oklch(0.3 0.14 220) 50%, oklch(0.32 0.15 340)); background-size: 300% 300%; animation: ig-aurora-bg 14s ease-in-out infinite; }
+.ig-call-aurora i { position: absolute; width: 70vmax; height: 70vmax; border-radius: 50%; opacity: .75; mix-blend-mode: screen; }
+.ig-call-aurora i:nth-child(1) { background: oklch(0.6 0.24 330); top: -25%; left: -20%; animation: ig-aurora-a 18s ease-in-out infinite; }
+.ig-call-aurora i:nth-child(2) { background: oklch(0.6 0.2 250); bottom: -30%; right: -25%; animation: ig-aurora-b 22s ease-in-out infinite; }
+.ig-call-aurora i:nth-child(3) { background: oklch(0.72 0.17 60); top: 30%; left: 35%; width: 50vmax; height: 50vmax; opacity: .5; animation: ig-aurora-c 20s ease-in-out infinite; }
+.ig-call-aurora i:nth-child(4) { background: oklch(0.65 0.17 175); top: 55%; left: -25%; width: 55vmax; height: 55vmax; opacity: .55; animation: ig-aurora-a 26s ease-in-out infinite reverse; }
+@keyframes ig-aurora-bg { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+@keyframes ig-aurora-a { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(30vw,20vh) scale(1.15); } 66% { transform: translate(10vw,45vh) scale(.9); } }
+@keyframes ig-aurora-b { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-35vw,-40vh) scale(1.2); } }
+@keyframes ig-aurora-c { 0%,100% { transform: translate(0,0) rotate(0); } 50% { transform: translate(-30vw,25vh) rotate(180deg); } }
+@media (prefers-reduced-motion: reduce) { .ig-call-aurora, .ig-call-aurora i { animation: none; } }
 .ig-call-scrim { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to bottom, oklch(0 0 0 / 38%), oklch(0 0 0 / 10%) 35%, oklch(0 0 0 / 22%) 65%, oklch(0 0 0 / 62%)); }
 .ig-call .ag-orb__halo, .ig-call .ag-orb__dots, .ig-call-bubble .ag-orb__halo, .ig-call-bubble .ag-orb__dots { display: none !important; }
 .ig-call .ag-orb__body, .ig-call-bubble .ag-orb__body { box-shadow: none !important; }

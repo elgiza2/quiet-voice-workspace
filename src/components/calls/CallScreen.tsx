@@ -30,8 +30,8 @@ function statusLabel(s: string, ar: boolean) {
 }
 
 /** Blurred, enlarged avatar behind the call — the Instagram backdrop. */
-export function CallBackdrop({ agent }: { agent: AgentInfo }) {
-  return <div className="ig-call-backdrop" aria-hidden><BotAvatar agent={agent} size={520} state="idle" /></div>;
+export function CallBackdrop(_props: { agent: AgentInfo }) {
+  return <div className="ig-call-backdrop ig-call-aurora" aria-hidden><i /><i /><i /><i /></div>;
 }
 
 export function CallButton({ label, on, danger, accept, disabled, onClick, children }: { label: string; on?: boolean; danger?: boolean; accept?: boolean; disabled?: boolean; onClick: () => void; children: React.ReactNode }) {
