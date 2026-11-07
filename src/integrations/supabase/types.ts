@@ -496,6 +496,146 @@ export type Database = {
           },
         ]
       }
+      people_messages: {
+        Row: {
+          bot_id: string | null
+          content: string
+          created_at: string
+          id: string
+          sender_id: string | null
+          thread_id: string
+        }
+        Insert: {
+          bot_id?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          sender_id?: string | null
+          thread_id: string
+        }
+        Update: {
+          bot_id?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          sender_id?: string | null
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "people_messages_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: false
+            referencedRelation: "bots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "people_messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "people_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      people_thread_bots: {
+        Row: {
+          added_by: string
+          bot_id: string
+          created_at: string
+          thread_id: string
+        }
+        Insert: {
+          added_by: string
+          bot_id: string
+          created_at?: string
+          thread_id: string
+        }
+        Update: {
+          added_by?: string
+          bot_id?: string
+          created_at?: string
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "people_thread_bots_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: false
+            referencedRelation: "bots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "people_thread_bots_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "people_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      people_thread_members: {
+        Row: {
+          joined_at: string
+          last_read_at: string
+          role: string
+          thread_id: string
+          user_id: string
+        }
+        Insert: {
+          joined_at?: string
+          last_read_at?: string
+          role?: string
+          thread_id: string
+          user_id: string
+        }
+        Update: {
+          joined_at?: string
+          last_read_at?: string
+          role?: string
+          thread_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "people_thread_members_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "people_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      people_threads: {
+        Row: {
+          created_at: string
+          created_by: string
+          direct_key: string | null
+          id: string
+          kind: string
+          name: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          direct_key?: string | null
+          id?: string
+          kind?: string
+          name?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          direct_key?: string | null
+          id?: string
+          kind?: string
+          name?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           age: number | null
@@ -508,6 +648,7 @@ export type Database = {
           primary_bot_id: string | null
           updated_at: string
           user_type: string | null
+          username: string | null
         }
         Insert: {
           age?: number | null
@@ -520,6 +661,7 @@ export type Database = {
           primary_bot_id?: string | null
           updated_at?: string
           user_type?: string | null
+          username?: string | null
         }
         Update: {
           age?: number | null
@@ -532,6 +674,7 @@ export type Database = {
           primary_bot_id?: string | null
           updated_at?: string
           user_type?: string | null
+          username?: string | null
         }
         Relationships: [
           {
@@ -629,6 +772,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_people_bot: {
+        Args: { p_bot: string; p_thread: string }
+        Returns: undefined
+      }
+      add_people_member: {
+        Args: { p_thread: string; p_username: string }
+        Returns: undefined
+      }
       claim_agent_routines: {
         Args: never
         Returns: {
@@ -666,6 +817,10 @@ export type Database = {
         }
         Returns: string
       }
+      create_people_group: {
+        Args: { p_bot_ids: string[]; p_name: string; p_usernames: string[] }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -673,6 +828,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_people_member: { Args: { _thread: string }; Returns: boolean }
+      leave_people_thread: { Args: { p_thread: string }; Returns: undefined }
+      my_people_threads: { Args: never; Returns: Json }
+      open_direct_thread: { Args: { p_username: string }; Returns: string }
+      people_thread_info: { Args: { p_thread: string }; Returns: Json }
       read_agentsky_api_key: { Args: never; Returns: string }
       read_telegram_bot_token: { Args: never; Returns: string }
       save_bot_group: {
@@ -700,6 +860,15 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      search_people: {
+        Args: { p_query: string }
+        Returns: {
+          avatar_url: string
+          display_name: string
+          id: string
+          username: string
+        }[]
       }
       store_agentsky_api_key: { Args: { p_key: string }; Returns: undefined }
       store_telegram_bot_token: {
