@@ -273,3 +273,5 @@
 - [x] Replace Inngest with free built-in background jobs
 
 - [x] Live voice call via Deepgram Voice Agent — key with Member role saved; server-side Arabic round trip verified. Phone test pending.
+- [ ] Wallet sending (sign + broadcast, 0.5% fee to owner address) — needs owner's fee-receiving address
+- [ ] Phone number per agent (Telnyx/Twilio) — needs provider key
