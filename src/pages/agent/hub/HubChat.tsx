@@ -28,6 +28,7 @@ import {
   Mic,
   AudioLines,
   Video,
+  Phone,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { agentApi, type AgentInfo, type SessionInfo } from "@/lib/agentsky/client";
@@ -35,6 +36,7 @@ import { refreshSessions, workspace } from "@/lib/agentsky/store";
 import { useAgentSession } from "@/hooks/useAgentSession";
 import { MediaCard, PlanCard, TaskCard, VideoProposalCard } from "@/components/agent/Cards";
 import { calls } from "@/lib/calls/callStore";
+import { HoldToRecord } from "./HoldToRecord";
 import { VoiceMessage } from "./VoiceControls";
 import { FilePreview, AttachmentPreview } from "./FilePreview";
 import { MediaCreator } from "./MediaCreator";
@@ -92,7 +94,7 @@ function Composer({
   onUnqueue,
   onNew,
   onConnect,
-  members = [], onCall, onVideoCall,
+  members = [],
 }: {
   lang: HubLang;
   placeholder: string;
@@ -106,8 +108,6 @@ function Composer({
   onUnqueue: (id: string) => void;
   onNew: () => void;
   onConnect: () => void;
-  onCall?: () => void;
-  onVideoCall?: () => void;
   members?: AgentInfo[];
 }) {
   const [text, setText] = useState("");
@@ -120,9 +120,7 @@ function Composer({
   const mediaIn = useRef<HTMLInputElement>(null);
   const addFiles = (list: FileList | null) => { if (list?.length) setFiles((c) => [...c, ...Array.from(list)].slice(0, 6)); };
   const [listening, setListening] = useState(false);
-  const recognition = useRef<{ stop: () => void } | null>(null);
   const recordingAlive = useRef(true);
-  const recordingStarting = useRef(false);
   const textarea = useRef<HTMLTextAreaElement>(null);
   const ar = lang === "ar";
 
@@ -133,7 +131,7 @@ function Composer({
     el.style.height = `${Math.min(el.scrollHeight, 140)}px`;
   }, [text]);
   useEffect(() => { if (replyTo) textarea.current?.focus(); }, [replyTo]);
-  useEffect(() => { recordingAlive.current = true; return () => { recordingAlive.current = false; recognition.current?.stop(); }; }, []);
+  useEffect(() => { recordingAlive.current = true; return () => { recordingAlive.current = false; }; }, []);
 
   const submit = async () => {
     const typed = text.trim();
@@ -153,25 +151,16 @@ function Composer({
     finally { setUploading(false); }
   };
 
-  const listen = async () => {
-    if (listening) { recognition.current?.stop(); return; }
-    if (recordingStarting.current) return;
-    recordingStarting.current = true;
+  const sendRecording = async (blob: Blob) => {
+    setUploading(true);
     try {
-      const recording = await microphoneRecording();
-      if (!recordingAlive.current) { recording.stop(); return; }
-      recognition.current = recording; setListening(true);
-      const blob = await recording.result;
-      if (!recordingAlive.current) return;
-      setListening(false); setUploading(true);
       const words = await transcribeRecording(blob, ar ? "ar" : "en");
-      if (recordingAlive.current) {
-        const recordingId = crypto.randomUUID();
-        await cacheRecording(recordingId, blob).catch(() => {});
-        onSend(words, { voiceOrigin: "recording", recordingId });
-      }
+      if (!recordingAlive.current) return;
+      const recordingId = crypto.randomUUID();
+      await cacheRecording(recordingId, blob).catch(() => {});
+      onSend(words, { voiceOrigin: "recording", recordingId });
     } catch (error) { if (recordingAlive.current) toast.error(error instanceof Error ? error.message : "Recording unavailable"); }
-    finally { recordingStarting.current = false; if (recordingAlive.current) { setListening(false); setUploading(false); } }
+    finally { if (recordingAlive.current) setUploading(false); }
   };
 
   const mentionQuery = members.length ? /(?:^|\s)@([^\s@]*)$/.exec(text)?.[1] : undefined;
@@ -211,7 +200,6 @@ function Composer({
             </div>
           )}
         </div>
-        {listening && <div className="cx-rec" aria-hidden><span className="cx-rec-dot" />{Array.from({ length: 18 }, (_, i) => <i key={i} style={{ animationDelay: `${(i % 6) * 0.11}s` }} />)}</div>}
         <textarea
           ref={textarea}
           rows={1}
@@ -229,9 +217,7 @@ function Composer({
           <Button variant="ghost" size="icon" type="button" className="cx-circle cx-send" aria-label="Send" disabled={uploading} onClick={() => void submit()}><ArrowUp size={18} /></Button>
         ) : (
           <>
-            <button type="button" className="cx-circle cx-mic" data-active={listening} aria-label="Voice" onClick={listen}><Mic size={18} /></button>
-            {onVideoCall && !listening && <button type="button" className="cx-circle cx-mic" aria-label={ar ? "مكالمة فيديو" : "Video call"} onClick={onVideoCall}><Video size={18} /></button>}
-            {onCall && !listening && <button type="button" className="cx-circle cx-send" aria-label={ar ? "مكالمة صوتية" : "Voice call"} onClick={onCall}><AudioLines size={18} /></button>}
+            <HoldToRecord ar={ar} disabled={uploading} onRecording={setListening} onRecorded={sendRecording} />
           </>
         )}
       </div>
@@ -442,6 +428,10 @@ export function HubChat({
           {group ? <span className="cx-stack">{group.memberIds.slice(0, 4).flatMap((id) => { const member = agents.find((a) => a.id === id); return member ? [<BotAvatar key={member.id} agent={member} size={22} />] : []; })}</span> : <BotAvatar agent={agent} size={24} state="idle" />}
           <strong dir="auto">{title}</strong>
         </button>
+        {!group && agent && <div className="cx-head-calls">
+          <button type="button" className="cx-circle cx-glass" aria-label={ar ? "مكالمة فيديو" : "Video call"} onClick={() => calls.start({ kind: "video", agent, agentIds: agents.map((a) => a.id) })}><Video size={19} /></button>
+          <button type="button" className="cx-circle cx-glass" aria-label={ar ? "مكالمة صوتية" : "Voice call"} onClick={() => { unlockCallAudio(); calls.start({ kind: "voice", agent, agentIds: agents.map((a) => a.id) }); }}><Phone size={19} /></button>
+        </div>}
         <button type="button" className="cx-circle cx-glass cx-more" aria-label="Menu" onClick={() => setMenuOpen((o) => !o)}><MoreHorizontal size={20} /></button>
         {menuOpen && <div className="cx-scrim" onPointerDown={() => setMenuOpen(false)} />}
         {menuOpen && (
@@ -604,8 +594,6 @@ export function HubChat({
           onUnqueue={s.unqueue}
           onNew={() => onSession(null)}
           onConnect={() => nav("/settings/apps")}
-          onCall={group || !agent ? undefined : () => { unlockCallAudio(); calls.start({ kind: "voice", agent, agentIds: agents.map((a) => a.id) }); }}
-          onVideoCall={group || !agent ? undefined : () => { calls.start({ kind: "video", agent, agentIds: agents.map((a) => a.id) }); }}
           members={group ? agents.filter((a) => group.memberIds.includes(a.id)) : undefined}
         />
       )}
