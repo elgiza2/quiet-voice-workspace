@@ -204,13 +204,12 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
   let pending: Int16Array<ArrayBuffer>[] = [];
   // Cartesia sends a final transcript when it hears a pause; answer shortly after unless more speech arrives.
   let turnTimer: ReturnType<typeof setTimeout> | null = null;
-  let lastHeardAt = 0, lastLoudAt = 0;
+  let lastHeardAt = 0;
   const scheduleTurnEnd = () => {
     if (turnTimer) clearTimeout(turnTimer);
     turnTimer = setTimeout(() => {
       turnTimer = null;
       if (ended || phase !== "listening" || !finals.length) return;
-      if (performance.now() - lastLoudAt < 450) { scheduleTurnEnd(); return; }
       void finishTurn(false);
     }, 700);
   };
@@ -299,8 +298,7 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
       ws.send(pcm);
     } else { pending.push(pcm); if (pending.length > 40) pending.shift(); if (!ws) void openStt().catch(() => {}); }
     const step = detector.push(db, performance.now() - turnStart);
-    if (db > -50) lastLoudAt = performance.now();
-    // Backup when the recognizer stays quiet: our own silence detector, or 12s of talking with transcripts pending.
+    // Backups: our own silence detector, or a final transcript left unanswered for 2.5s.
     if (step.stop && step.heard) void finishTurn();
     else if (finals.length && performance.now() - lastHeardAt > 2500) void finishTurn(false);
   };
