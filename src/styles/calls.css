@@ -1,39 +1,97 @@
-/* Full-screen call surfaces (voice, video, incoming). Neutral by design: no colored rings or glows. */
-.agent-hub.cx-callscreen {
-  position: fixed; inset: 0; z-index: 9990; display: flex; flex-direction: column; align-items: stretch;
-  width: 100%; height: 100dvh; grid-template-columns: none;
-  background: var(--hub-bg); color: var(--hub-ink);
-  padding: max(16px, env(safe-area-inset-top)) 20px max(28px, env(safe-area-inset-bottom));
-  animation: cx-callscreen-in .22s ease-out;
+/* Instagram-style call surfaces (voice, video, incoming, minimized bubble).
+   Calls are always dark like Instagram; colors are call-scoped tokens. No colored rings or glows. */
+.ig-call, .ig-call-bubble {
+  --call-base: oklch(0.16 0.01 270);
+  --call-ink: oklch(0.99 0 0);
+  --call-muted: oklch(0.99 0 0 / 72%);
+  --call-btn: oklch(1 0 0 / 18%);
+  --call-btn-on: oklch(0.99 0 0);
+  --call-btn-on-ink: oklch(0.18 0 0);
+  --call-tray: oklch(0.12 0 0 / 55%);
+  --call-danger: oklch(0.62 0.23 27);
+  --call-accept: oklch(0.7 0.18 150);
+  --call-shadow: 0 8px 28px oklch(0 0 0 / 40%);
 }
-.agent-hub.cx-callscreen[data-minimized="true"] { display: none; }
-.cx-callscreen-top { position: relative; z-index: 2; display: flex; justify-content: flex-start; }
-.cx-callscreen-icon { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--hub-surface); color: var(--hub-ink); cursor: pointer; }
-.cx-callscreen-who { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; min-height: 0; }
-.cx-callscreen-who h2 { margin: 18px 0 0; font-size: 30px; font-weight: 600; letter-spacing: -0.01em; }
-.cx-callscreen-who p { margin: 0; color: var(--hub-muted); font-size: 15px; font-variant-numeric: tabular-nums; min-height: 1.4em; }
-.cx-callscreen-avatar { display: grid; place-items: center; width: 168px; height: 168px; border-radius: 50%; background: var(--hub-surface); }
-.cx-callscreen .ag-orb__halo, .cx-callscreen .ag-orb__dots, .cx-callbubble .ag-orb__halo, .cx-callbubble .ag-orb__dots { display: none !important; }
-.cx-callscreen .ag-orb__body, .cx-callbubble .ag-orb__body { box-shadow: none !important; }
-.cx-callscreen-controls { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 22px; padding-top: 16px; }
-.cx-callscreen-btn { display: grid; place-items: center; width: 64px; height: 64px; border: 0; border-radius: 50%; background: var(--hub-surface-raised); color: var(--hub-ink); cursor: pointer; transition: transform .12s ease, background .15s ease; }
-.cx-callscreen-btn:active { transform: scale(.94); }
-.cx-callscreen-btn[data-on="true"] { background: var(--hub-ink); color: var(--hub-bg); }
-.cx-callscreen-end { width: 72px; height: 72px; background: var(--hub-danger); color: var(--hub-ink); }
-.cx-callscreen-accept { width: 72px; height: 72px; background: var(--hub-online); color: var(--hub-bg); }
-.cx-callscreen-pill, .cx-callscreen-error { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 10px 16px; border: 0; border-radius: 999px; background: var(--hub-surface-raised); color: var(--hub-ink); font-size: 14px; cursor: pointer; max-width: 92%; overflow-wrap: anywhere; }
-.cx-callscreen-error { color: var(--hub-danger); background: var(--hub-surface); }
-.cx-callscreen-video { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; background: var(--hub-bg); }
-.cx-callscreen[data-kind="video"] .cx-callscreen-who { justify-content: flex-start; padding-top: 8px; }
-.cx-callscreen[data-kind="video"] .cx-callscreen-who h2 { margin-top: 0; font-size: 22px; text-shadow: 0 1px 8px oklch(0 0 0 / 55%); }
-.cx-callscreen[data-kind="video"] .cx-callscreen-who p { color: var(--hub-ink); text-shadow: 0 1px 8px oklch(0 0 0 / 55%); }
-.cx-callbubble { position: fixed; z-index: 9989; top: max(12px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 10px; padding: 6px 16px 6px 6px; border: 0; border-radius: 999px; background: var(--hub-online); color: var(--hub-bg); font: 600 14px/1 "DM Sans", system-ui, sans-serif; font-variant-numeric: tabular-nums; cursor: pointer; }
-.cx-incoming-label { font-size: 14px !important; letter-spacing: .02em; }
-.cx-incoming-reason { max-width: 320px; color: var(--hub-muted); }
-.cx-incoming-controls { gap: 40px; }
-.cx-incoming-controls > span { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.cx-incoming-controls small { color: var(--hub-muted); font-size: 13px; }
-.cx-incoming-pulse { animation: cx-ring-pulse 1.6s ease-in-out infinite; }
-@keyframes cx-ring-pulse { 50% { transform: scale(1.05); } }
-@keyframes cx-callscreen-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .agent-hub.cx-callscreen, .cx-incoming-pulse { animation: none; } }
+.agent-hub.ig-call {
+  position: fixed; inset: 0; z-index: 9990; display: flex; flex-direction: column; align-items: stretch;
+  width: 100%; height: 100dvh; grid-template-columns: none; overflow: hidden;
+  background: var(--call-base); color: var(--call-ink);
+  padding: max(10px, env(safe-area-inset-top)) 14px max(18px, env(safe-area-inset-bottom));
+  font-family: -apple-system, "SF Pro Text", "Segoe UI", Roboto, system-ui, sans-serif;
+  animation: ig-call-in .24s ease-out;
+}
+.agent-hub.ig-call[data-minimized="true"] { display: none; }
+
+/* backdrop: blurred enlarged avatar + darkening scrim */
+.ig-call-backdrop { position: absolute; inset: -25%; z-index: 0; display: grid; place-items: center; filter: blur(64px) saturate(1.5); opacity: .95; pointer-events: none; }
+.ig-call-scrim { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to bottom, oklch(0 0 0 / 38%), oklch(0 0 0 / 10%) 35%, oklch(0 0 0 / 22%) 65%, oklch(0 0 0 / 62%)); }
+.ig-call .ag-orb__halo, .ig-call .ag-orb__dots, .ig-call-bubble .ag-orb__halo, .ig-call-bubble .ag-orb__dots { display: none !important; }
+.ig-call .ag-orb__body, .ig-call-bubble .ag-orb__body { box-shadow: none !important; }
+
+/* top bar */
+.ig-call-top { position: relative; z-index: 3; display: flex; align-items: center; gap: 8px; min-height: 48px; }
+.ig-call-icon, .ig-call-icon-space { flex: none; width: 44px; height: 44px; }
+.ig-call-icon { display: grid; place-items: center; border: 0; border-radius: 50%; background: transparent; color: var(--call-ink); cursor: pointer; }
+.ig-call-icon:active { background: var(--call-btn); }
+.ig-call-topinfo { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; text-align: center; min-width: 0; }
+.ig-call-topinfo strong { font-size: 16px; font-weight: 600; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ig-call-topinfo span { font-size: 13px; color: var(--call-muted); font-variant-numeric: tabular-nums; min-height: 1.3em; }
+
+/* center identity */
+.ig-call-center { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 9vh; gap: 6px; text-align: center; min-height: 0; }
+.ig-call-center h2 { margin: 16px 0 0; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
+.ig-call-center p { margin: 0; color: var(--call-muted); font-size: 15px; font-variant-numeric: tabular-nums; min-height: 1.4em; }
+.ig-call-avatar { display: grid; place-items: center; width: 132px; height: 132px; border-radius: 50%; overflow: hidden; }
+.ig-call-reason { max-width: 300px; margin-top: 8px !important; font-size: 14px !important; }
+.ig-call-ringing { animation: ig-ring 1.8s ease-in-out infinite; }
+.ig-call-center--video { justify-content: center; padding-top: 0; }
+.ig-call-waiting { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+.ig-call-pill { display: inline-flex; align-items: center; gap: 8px; margin: 14px auto 0; padding: 10px 16px; border: 0; border-radius: 999px; background: var(--call-tray); color: var(--call-ink); font-size: 14px; cursor: pointer; max-width: 92%; overflow-wrap: anywhere; backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
+.ig-call-pill[data-error] { color: var(--call-ink); background: color-mix(in oklch, var(--call-danger) 70%, transparent); }
+
+/* bottom control tray */
+.ig-call-tray { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-evenly; gap: 6px; margin: 0 auto; width: min(100%, 420px); padding: 14px 10px; border-radius: 28px; background: var(--call-tray); backdrop-filter: blur(24px) saturate(1.3); -webkit-backdrop-filter: blur(24px) saturate(1.3); }
+.ig-call-btn { flex: none; display: grid; place-items: center; width: 56px; height: 56px; border: 0; border-radius: 50%; background: var(--call-btn); color: var(--call-ink); cursor: pointer; transition: transform .12s ease, background .15s ease, opacity .15s ease; -webkit-tap-highlight-color: transparent; }
+.ig-call-btn:active:not(:disabled) { transform: scale(.92); }
+.ig-call-btn:disabled { opacity: .38; cursor: default; }
+.ig-call-btn[data-on] { background: var(--call-btn-on); color: var(--call-btn-on-ink); }
+.ig-call-btn[data-danger] { background: var(--call-danger); color: var(--call-ink); }
+.ig-call-btn[data-accept] { background: var(--call-accept); color: var(--call-ink); }
+
+/* incoming */
+.ig-call-answer { position: relative; z-index: 3; display: flex; justify-content: space-around; padding: 0 24px 22px; }
+.ig-call-answer > span { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.ig-call-answer .ig-call-btn { width: 72px; height: 72px; }
+.ig-call-answer small { color: var(--call-ink); font-size: 14px; }
+
+/* video: remote persona fills the screen, your camera sits top corner */
+.ig-call-remote { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .35s ease; background: var(--call-base); }
+.ig-call-remote[data-live] { opacity: 1; }
+.ig-call[data-kind="video"] .ig-call-scrim { background: linear-gradient(to bottom, oklch(0 0 0 / 45%), transparent 22%, transparent 70%, oklch(0 0 0 / 55%)); }
+.ig-call-self { position: absolute; z-index: 4; top: calc(max(10px, env(safe-area-inset-top)) + 58px); inset-inline-end: 14px; width: 104px; height: 156px; border-radius: 16px; overflow: hidden; background: var(--call-base); box-shadow: var(--call-shadow); transition: opacity .2s ease, transform .2s ease; }
+.ig-call-self[data-hidden] { opacity: 0; transform: scale(.85); pointer-events: none; }
+.ig-call-self video { width: 100%; height: 100%; object-fit: cover; }
+.ig-call-self[data-mirror] video { transform: scaleX(-1); }
+.ig-call-self-tag { position: absolute; inset-inline: 6px; bottom: 6px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 3px 6px; border-radius: 999px; background: var(--call-tray); color: var(--call-ink); font-size: 11px; }
+
+/* minimized bubble: draggable, snaps to the side, never over the header */
+.ig-call-bubble {
+  position: fixed; z-index: 9989; top: 0; left: 0; width: 104px; height: 140px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  padding: 0; border: 0; border-radius: 20px; overflow: hidden; cursor: grab; touch-action: none; user-select: none;
+  background: var(--call-base); color: var(--call-ink); box-shadow: var(--call-shadow);
+  font: 600 13px/1 -apple-system, "Segoe UI", Roboto, system-ui, sans-serif; font-variant-numeric: tabular-nums;
+  transition: transform .22s cubic-bezier(.2,.8,.2,1);
+  animation: ig-bubble-in .2s ease-out;
+}
+.ig-call-bubble[data-dragging] { transition: none; cursor: grabbing; }
+.ig-call-bubble-orb { display: grid; place-items: center; width: 64px; height: 64px; pointer-events: none; }
+.ig-call-bubble-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.ig-call-bubble-label { position: relative; z-index: 1; padding: 4px 8px; border-radius: 999px; background: var(--call-tray); pointer-events: none; }
+.ig-call-bubble[data-kind="video"] .ig-call-bubble-label { position: absolute; bottom: 8px; }
+
+@keyframes ig-ring { 50% { transform: scale(1.06); } }
+@keyframes ig-call-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes ig-bubble-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .agent-hub.ig-call, .ig-call-ringing, .ig-call-bubble { animation: none; } }
