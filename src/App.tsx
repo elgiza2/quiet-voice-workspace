@@ -29,6 +29,7 @@ import { lazyWithRetry } from "@/lib/lazyWithRetry";
 import { loadTikTokPixel, trackTikTokFunnelEvent } from "@/lib/analytics/tiktokPixel";
 
 /** Watches background jobs / agent runs and notifies the user when they finish. */
+const CallHost = lazyWithRetry(() => import("@/components/calls/CallHost"));
 const BackgroundJobNotifier = lazyWithRetry(
   () => import("@/lib/notifications/BackgroundJobNotifier"),
 );
@@ -182,6 +183,7 @@ const App = () => {
                       <CostConfirmationHost />
                       <CeyoConfirmHost />
                       <BackgroundJobNotifier />
+                      {currentUserId && <CallHost />}
                     </Suspense>
 
                     <Suspense fallback={<LazyFallback />}>

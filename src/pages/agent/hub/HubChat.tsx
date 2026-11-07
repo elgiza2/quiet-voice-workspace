@@ -33,7 +33,7 @@ import { agentApi, type AgentInfo, type SessionInfo } from "@/lib/agentsky/clien
 import { refreshSessions, workspace } from "@/lib/agentsky/store";
 import { useAgentSession } from "@/hooks/useAgentSession";
 import { MediaCard, PlanCard, TaskCard, VideoProposalCard } from "@/components/agent/Cards";
-import { VoiceCallBar } from "./VoiceCall";
+import { calls } from "@/lib/calls/callStore";
 import { VoiceMessage } from "./VoiceControls";
 import { FilePreview, AttachmentPreview } from "./FilePreview";
 import { MediaCreator } from "./MediaCreator";
@@ -91,7 +91,7 @@ function Composer({
   onUnqueue,
   onNew,
   onConnect,
-  members = [], onCall,
+  members = [], onCall, onVideoCall,
 }: {
   lang: HubLang;
   placeholder: string;
@@ -106,6 +106,7 @@ function Composer({
   onNew: () => void;
   onConnect: () => void;
   onCall?: () => void;
+  onVideoCall?: () => void;
   members?: AgentInfo[];
 }) {
   const [text, setText] = useState("");
@@ -228,6 +229,7 @@ function Composer({
         ) : (
           <>
             <button type="button" className="cx-circle cx-mic" data-active={listening} aria-label="Voice" onClick={listen}><Mic size={18} /></button>
+            {onVideoCall && !listening && <button type="button" className="cx-circle cx-mic" aria-label={ar ? "مكالمة فيديو" : "Video call"} onClick={onVideoCall}><Video size={18} /></button>}
             {onCall && !listening && <button type="button" className="cx-circle cx-send" aria-label={ar ? "مكالمة صوتية" : "Voice call"} onClick={onCall}><AudioLines size={18} /></button>}
           </>
         )}
@@ -450,13 +452,6 @@ export function HubChat({
           </div>
         )}
       </header>
-      {calling && !group && agent && (
-        <VoiceCallBar
-          agent={agent}
-          settings={voiceSettings}
-          agentIds={agents.map((a) => a.id)}
-          lang={lang}
-          onEnd={() => setCalling(false)}
         />
       )}
 
@@ -609,7 +604,8 @@ export function HubChat({
           onUnqueue={s.unqueue}
           onNew={() => onSession(null)}
           onConnect={() => nav("/settings/apps")}
-          onCall={group ? undefined : () => { unlockCallAudio(); setCalling(true); }}
+          onCall={group || !agent ? undefined : () => { unlockCallAudio(); calls.start({ kind: "voice", agent, agentIds: agents.map((a) => a.id) }); }}
+          onVideoCall={group || !agent ? undefined : () => { calls.start({ kind: "video", agent, agentIds: agents.map((a) => a.id) }); }}
           members={group ? agents.filter((a) => group.memberIds.includes(a.id)) : undefined}
         />
       )}
