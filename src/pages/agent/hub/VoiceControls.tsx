@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Download, Loader2, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getSpeech, getVoices } from "@/lib/audio/voiceClient";
 import { speechText, type Voice } from "@/lib/audio/voiceSchema";
@@ -7,6 +7,7 @@ import { resolveLanguage, resolveVoice, voicesForLanguage, type AgentVoiceSettin
 import { ChoiceList } from "@/components/ui/choice-list";
 import { agentApi } from "@/lib/agentsky/client";
 import { cachedRecording, cacheRecording } from "@/lib/audio/recordingCache";
+import { VoiceMessagePlayer } from "./VoiceMessagePlayer";
 
 let assignmentPromise: Promise<Record<string, string>> | undefined;
 
@@ -49,38 +50,15 @@ export function VoiceSettingsFields({ value, onChange }: { value: AgentVoiceSett
   </div>;
 }
 
-export function VoiceMessage({ text, recordingId, agentId, agentIds, settings, ar, own = false }: {
+export function VoiceMessage(props: {
   text: string; recordingId: string; agentId: string; agentIds: string[]; settings: AgentVoiceSettings; ar: boolean; own?: boolean;
 }) {
+  if (props.own) return <VoiceMessagePlayer {...props} own />;
+  return <AgentVoiceMessage {...props} />;
+}
+function AgentVoiceMessage({ text, recordingId, agentId, agentIds, settings, ar }: {
+  text: string; recordingId: string; agentId: string; agentIds: string[]; settings: AgentVoiceSettings; ar: boolean;
+}) {
   const choice = useVoiceChoice(ar ? "ar" : "en", agentId, agentIds, settings);
-  const [url, setUrl] = useState("");
-  const [error, setError] = useState("");
-  const [retry, setRetry] = useState(0);
-  const [loading, setLoading] = useState(true);
-  const currentUrl = useRef("");
-  useEffect(() => {
-    if (!own && !choice.voiceId) return;
-    const controller = new AbortController();
-    setLoading(true); setUrl(""); setError("");
-    void (async () => {
-      try {
-        const key = own ? recordingId : `${recordingId}:${agentId}:${choice.voiceId}:${choice.language}`;
-        let blob = await cachedRecording(key).catch(() => undefined);
-        if (!blob) {
-          if (own) throw new Error(ar ? "التسجيل متاح على جهاز الإرسال فقط" : "Recording is available on the sending device only");
-          blob = await getSpeech(speechText(text), choice.voiceId, choice.language, controller.signal);
-          await cacheRecording(key, blob).catch(() => {});
-        }
-        if (controller.signal.aborted) return;
-        const next = URL.createObjectURL(blob); currentUrl.current = next; setUrl(next);
-      } catch (e) { if (!controller.signal.aborted) setError(e instanceof Error ? e.message : "Audio unavailable"); }
-      finally { if (!controller.signal.aborted) setLoading(false); }
-    })();
-    return () => { controller.abort(); if (currentUrl.current) URL.revokeObjectURL(currentUrl.current); currentUrl.current = ""; };
-  }, [recordingId, agentId, choice.voiceId, choice.language, text, own, retry, ar]);
-  return <div className="cx-voice-message">
-    {loading && !error && !choice.error && <Loader2 size={18} className="animate-spin" />}
-    {url && <><audio controls preload="metadata" src={url} aria-label={own ? "Voice recording" : "Voice reply"} /><a href={url} download="voice-message.wav" aria-label={ar ? "تنزيل الريكورد" : "Download recording"}><Download size={16} /></a></>}
-    {(error || choice.error) && <><span role="alert">{error || choice.error}</span>{!own && <Button size="icon" variant="ghost" aria-label="Retry voice reply" onClick={() => { choice.reload(); setRetry((n) => n + 1); }}><RotateCcw size={16} /></Button>}<details><summary>{ar ? "النص" : "Transcript"}</summary>{text}</details></>}
-  </div>;
+  return <VoiceMessagePlayer text={text} recordingId={recordingId} agentId={agentId} ar={ar} own={false} voiceId={choice.voiceId} language={choice.language} catalogueError={choice.error || (choice.voices.length && !choice.voiceId ? (ar ? "لا يوجد صوت متاح للغة دي" : "No voice available for this language") : "")} reload={choice.reload} />;
 }
