@@ -51,6 +51,7 @@ import { groupTranscript, type AgentGroup } from "./hubStorage";
 import { BotAvatar, HubSpinner, type HubLang } from "./HubParts";
 import { readReactions, writeReactions, REACTIONS } from "./chatPrefs";
 import { IntegrationApprovalCard } from "@/components/agent/IntegrationApprovalCard";
+import { WalletApprovalCard } from "@/components/agent/WalletApprovalCard";
 import { readTextAttachment } from "@/lib/ceyo/content";
 import { saveDocument } from "@/lib/ceyo/resources";
 import { toast } from "sonner";
@@ -527,6 +528,7 @@ export function HubChat({
                           if (card.kind === "widget") {
                             const d = (card.data || {}) as Record<string, any>;
                             if (card.name === "connect_app") return <ConnectAppsCard key={card.id} apps={readConnectApps(d)} title={d.title || d.question} ar={ar} onAuthorize={(app) => nav(`/settings/apps/${encodeURIComponent(app.id || app.name.toLowerCase())}`)} />;
+                            if (card.name === "wallet_approval") return <WalletApprovalCard key={card.id} data={d} />;
                             if (card.name === "integration_approval") return <IntegrationApprovalCard key={card.id} data={d} onDone={() => window.dispatchEvent(new Event("ceyo-action-completed"))} />;
                             if (card.name === "secret" || card.name === "api_key") return <SecretCard key={card.id} name={String(d.name || d.title || "API key")} ar={ar} onOpen={() => nav("/settings/vault")} />;
                             if (card.name === "question" || card.name === "option_picker") {

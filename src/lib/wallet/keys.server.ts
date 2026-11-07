@@ -32,7 +32,7 @@ export async function loadKeys(userId: string): Promise<WalletKeys> {
 }
 
 /** Optional platform fee receiver per chain family (provider_api_keys rows `wallet_fee_<family>`). Unset = no fee. */
-export async function feeAddress(family: "evm" | "solana" | "ton" | "bitcoin"): Promise<string | null> {
+export async function feeAddress(family: "evm" | "solana" | "ton" | "bitcoin" | "tron"): Promise<string | null> {
   const { data } = await admin().from("provider_api_keys").select("api_key").eq("provider", `wallet_fee_${family}`).order("created_at", { ascending: false }).limit(1).maybeSingle();
   return data?.api_key || null;
 }

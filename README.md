@@ -196,3 +196,10 @@ bunx vitest run
 
 ## Current work
 - Voice calls switched to Deepgram Voice Agent (src/lib/audio/liveAgentCall.ts). Verified with a server-side Arabic test; Member key saved; Arabic speech in → Arabic spoken reply verified via the same browser token path. Not yet tested on a phone.
+
+### المحفظة — 2026-11-07 15:15 UTC
+- عناوين استلام الرسوم محفوظة كمفاتيح `wallet_fee_evm|solana|ton|bitcoin|tron`؛ رسوم 0.5% على الإرسال والتداول.
+- أضيفت Avalanche وTron (TRX وUSDT-TRC20) للإرسال والأرصدة؛ عنوان Tron مشتق من حساب EVM.
+- التداول: Solana عبر Jupiter، وEthereum/BNB/Polygon/Base/Arbitrum/Avalanche عبر KyberSwap (الرسوم داخل المسار).
+- الوكيل: `wallet_overview` للقراءة و`wallet_propose_send|trade` يعرضون بطاقة تأكيد؛ لا تنفيذ بدون ضغطة المستخدم.
+- التحقق: اختبارات الاشتقاق، استجابة KyberSwap وTronGrid الحية. لم تُنفذ أي معاملة بأموال حقيقية. غير مدعوم: Robinhood Chain، تداول TON/BTC.

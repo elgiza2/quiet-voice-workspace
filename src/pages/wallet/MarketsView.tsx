@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import TradePanel from "./TradePanel";
+import { tradeTarget } from "./walletTokens";
 import { ArrowDownToLine, Check, ChevronLeft, ChevronRight, Copy, ExternalLink, Globe, Send, TrendingUp } from "lucide-react";
 
 const CG = "https://api.coingecko.com/api/v3";
@@ -87,7 +88,8 @@ export function CoinDetail({ id, balance = 0, onBack, onReceive, onSend }: { id:
   const links = info?.links;
   const about = (info?.description?.en || "").replace(/<[^>]+>/g, "").trim();
   const sym = (info?.symbol || "").toUpperCase();
-  const solMint: string | undefined = info?.platforms?.solana || undefined;
+  const target = tradeTarget(info?.platforms);
+  const solMint = target?.token;
 
   return (
     <div className="wl-detail">
@@ -158,7 +160,7 @@ export function CoinDetail({ id, balance = 0, onBack, onReceive, onSend }: { id:
           <button type="button" className="wl-btn wl-btn-main" disabled={!onSend || balance <= 0} onClick={onSend}><Send size={18} />Send</button>
         </div>
       )}
-      {trade && solMint && <TradePanel mint={solMint} symbol={sym} side={trade} onClose={() => setTrade(null)} />}
+      {trade && target && <TradePanel network={target.network} mint={target.token} symbol={sym} side={trade} onClose={() => setTrade(null)} />}
     </div>
   );
 }

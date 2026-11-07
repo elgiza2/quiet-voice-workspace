@@ -1,7 +1,7 @@
 /** Server-only: one self-custodial wallet per account, phrase encrypted with AES-GCM and kept in
  *  non-user-editable auth app_metadata; balances read from free, keyless public endpoints. */
 import { createClient } from "@supabase/supabase-js";
-import { deriveAddresses, newMnemonic, type WalletAddresses } from "./derive";
+import { deriveAddresses, newMnemonic, tronFromEvm, type WalletAddresses } from "./derive";
 
 function admin() {
   const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
@@ -34,6 +34,10 @@ async function addTon(db: ReturnType<typeof admin>, user: { id: string; app_meta
 }
 
 export async function getOrCreateWallet(userId: string): Promise<WalletAddresses> {
+  const a = await getOrCreateBase(userId);
+  return { ...a, tron: tronFromEvm(a.evm) };
+}
+async function getOrCreateBase(userId: string): Promise<WalletAddresses> {
   const db = admin();
   const { data, error } = await db.auth.admin.getUserById(userId);
   if (error || !data.user) throw new Error("Account not found");
@@ -57,6 +61,7 @@ const EVM_RPC = {
   base: "https://base-rpc.publicnode.com",
   polygon: "https://polygon-bor-rpc.publicnode.com",
   arbitrum: "https://arbitrum-one-rpc.publicnode.com",
+  avalanche: "https://avalanche-c-chain-rpc.publicnode.com",
 } as const;
 
 async function rpc(url: string, method: string, params: unknown[]) {
@@ -71,7 +76,8 @@ const erc20 = async (chain: keyof typeof EVM_RPC, token: string, owner: string, 
 /** Balances keyed by token id from walletTokens.ts; a failed network reads as 0 instead of breaking the page. */
 export async function walletBalances(a: WalletAddresses): Promise<Record<string, number>> {
   const safe = (p: Promise<number>) => p.catch(() => 0);
-  const [btc, eth, sol, bnb, pol, usdt, usdc, arb, ton] = await Promise.all([
+  const tron = fetch(`https://api.trongrid.io/v1/accounts/${a.tron}`).then((r) => r.json()).then((j: any) => j.data?.[0] ?? {}).catch(() => ({}));
+  const [btc, eth, sol, bnb, pol, usdt, usdc, arb, ton, avax, tronAcc] = await Promise.all([
     safe(fetch(`https://mempool.space/api/address/${a.bitcoin}`).then((r) => r.json()).then((j: any) => (j.chain_stats.funded_txo_sum - j.chain_stats.spent_txo_sum) / 1e8)),
     safe(rpc(EVM_RPC.ethereum, "eth_getBalance", [a.evm, "latest"]).then((h) => hexToNum(h, 18))),
     safe(rpc("https://solana-rpc.publicnode.com", "getBalance", [a.solana]).then((r) => (r?.value ?? 0) / 1e9)),
@@ -81,6 +87,10 @@ export async function walletBalances(a: WalletAddresses): Promise<Record<string,
     safe(erc20("base", "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", a.evm, 6)),
     safe(erc20("arbitrum", "0x912CE59144191C1204E64559FE8253a0e49E6548", a.evm, 18)),
     safe(fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${a.ton}`).then((r) => r.json()).then((j: any) => Number(j.result || 0) / 1e9)),
+    safe(rpc(EVM_RPC.avalanche, "eth_getBalance", [a.evm, "latest"]).then((h) => hexToNum(h, 18))),
+    tron as Promise<any>,
   ]);
-  return { bitcoin: btc, ethereum: eth, solana: sol, binancecoin: bnb, "polygon-ecosystem-token": pol, tether: usdt, "usd-coin": usdc, arbitrum: arb, "the-open-network": ton };
+  const trx = Number(tronAcc.balance || 0) / 1e6;
+  const usdtTron = Number((tronAcc.trc20 || []).find((t: any) => t.TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t)?.TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t || 0) / 1e6;
+  return { bitcoin: btc, ethereum: eth, solana: sol, binancecoin: bnb, "polygon-ecosystem-token": pol, tether: usdt, "usd-coin": usdc, arbitrum: arb, "the-open-network": ton, "avalanche-2": avax, tron: trx, "tether-tron": usdtTron };
 }

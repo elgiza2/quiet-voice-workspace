@@ -1,7 +1,9 @@
 /** Server-only real transfers on every wallet network, plus Solana swaps through Jupiter (free, keyless). */
-import { createWalletClient, encodeFunctionData, http, parseUnits, erc20Abi, type Chain } from "viem";
+import { createWalletClient, createPublicClient, encodeFunctionData, http, parseUnits, erc20Abi, type Chain } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { mainnet, bsc, polygon, base, arbitrum } from "viem/chains";
+import { mainnet, bsc, polygon, base, arbitrum, avalanche } from "viem/chains";
+import { secp256k1 } from "@noble/curves/secp256k1.js";
+import { tronFromEvm, tronToHex } from "./derive";
 import { ed25519 } from "@noble/curves/ed25519.js";
 import { base58 } from "@scure/base";
 import * as btc from "@scure/btc-signer";
@@ -13,7 +15,10 @@ const hex = (u: Uint8Array) => ("0x" + Array.from(u, (b) => b.toString(16).padSt
 const SOL_RPC = "https://solana-rpc.publicnode.com";
 
 type EvmToken = { kind: "evm"; chain: Chain; rpc: string; decimals: number; contract?: `0x${string}` };
-const SENDABLE: Record<string, EvmToken | { kind: "solana" | "ton" | "bitcoin" }> = {
+const SENDABLE: Record<string, EvmToken | { kind: "solana" | "ton" | "bitcoin" } | { kind: "tron"; contract?: string }> = {
+  "avalanche-2": { kind: "evm", chain: avalanche, rpc: "https://avalanche-c-chain-rpc.publicnode.com", decimals: 18 },
+  tron: { kind: "tron" },
+  "tether-tron": { kind: "tron", contract: "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t" },
   ethereum: { kind: "evm", chain: mainnet, rpc: "https://ethereum-rpc.publicnode.com", decimals: 18 },
   binancecoin: { kind: "evm", chain: bsc, rpc: "https://bsc-rpc.publicnode.com", decimals: 18 },
   "polygon-ecosystem-token": { kind: "evm", chain: polygon, rpc: "https://polygon-bor-rpc.publicnode.com", decimals: 18 },
@@ -49,18 +54,48 @@ async function solRpc(method: string, params: unknown[]) {
 const u64 = (n: bigint) => { const b = new Uint8Array(8); new DataView(b.buffer).setBigUint64(0, n, true); return b; };
 const cat = (...a: Uint8Array[]) => { const o = new Uint8Array(a.reduce((s, x) => s + x.length, 0)); let i = 0; for (const x of a) { o.set(x, i); i += x.length; } return o; };
 
+async function solTransfer(k: WalletKeys, outs: [Uint8Array, bigint][]) {
+  const { value } = await solRpc("getLatestBlockhash", [{ commitment: "finalized" }]);
+  const keys = [k.solPub, ...outs.map((o) => o[0]), new Uint8Array(32)];
+  const sys = keys.length - 1;
+  const ixs = outs.map(([, lamports], i) => cat(Uint8Array.of(sys, 2, 0, i + 1, 12), Uint8Array.of(2, 0, 0, 0), u64(lamports)));
+  const msg = cat(Uint8Array.of(1, 0, 1, keys.length), ...keys, base58.decode(value.blockhash), Uint8Array.of(ixs.length), ...ixs);
+  const tx = cat(Uint8Array.of(1), ed25519.sign(msg, k.sol), msg);
+  return solRpc("sendTransaction", [Buffer.from(tx).toString("base64"), { encoding: "base64" }]);
+}
+
 async function sendSol(k: WalletKeys, to: string, amount: string) {
   const dest = base58.decode(to); if (dest.length !== 32) throw new Error("Invalid address");
   const feeTo = await feeAddress("solana");
   const { send, fee } = split(BigInt(Math.round(Number(amount) * 1e9)), feeTo);
-  const { value } = await solRpc("getLatestBlockhash", [{ commitment: "finalized" }]);
-  const keys = [k.solPub, dest, ...(fee > 0n && feeTo ? [base58.decode(feeTo)] : []), new Uint8Array(32)];
-  const sys = keys.length - 1;
-  const ix = (toIdx: number, lamports: bigint) => cat(Uint8Array.of(sys, 2, 0, toIdx, 12), Uint8Array.of(2, 0, 0, 0), u64(lamports));
-  const ixs = [ix(1, send), ...(keys.length === 4 ? [ix(2, fee)] : [])];
-  const msg = cat(Uint8Array.of(1, 0, 1, keys.length), ...keys, base58.decode(value.blockhash), Uint8Array.of(ixs.length), ...ixs);
-  const tx = cat(Uint8Array.of(1), ed25519.sign(msg, k.sol), msg);
-  return solRpc("sendTransaction", [Buffer.from(tx).toString("base64"), { encoding: "base64" }]);
+  return solTransfer(k, [[dest, send], ...(fee > 0n && feeTo ? [[base58.decode(feeTo), fee] as [Uint8Array, bigint]] : [])]);
+}
+
+/* ---------- Tron (TronGrid public API) ---------- */
+const TRON = "https://api.trongrid.io";
+const tpost = async (path: string, body: unknown) => { const r = await fetch(TRON + path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }); return r.json() as Promise<any>; };
+async function tronSign(k: WalletKeys, tx: any) {
+  if (!tx?.txID) throw new Error(tx?.Error || tx?.result?.message || "Tron transaction could not be built");
+  const rec = secp256k1.sign(Uint8Array.from(Buffer.from(tx.txID, "hex")), k.evm, { prehash: false, format: "recovered" });
+  const sig = cat(rec.slice(1), Uint8Array.of(rec[0] + 27));
+  const r = await tpost("/wallet/broadcasttransaction", { ...tx, signature: [Buffer.from(sig).toString("hex")] });
+  if (!r.result) throw new Error(r.message ? Buffer.from(r.message, "hex").toString() || r.message : "Tron broadcast failed");
+  return tx.txID as string;
+}
+async function tronTransfer(k: WalletKeys, from: string, to: string, units: bigint, contract?: string) {
+  if (!contract) return tronSign(k, await tpost("/wallet/createtransaction", { owner_address: from, to_address: to, amount: Number(units), visible: true }));
+  const param = tronToHex(to).slice(2).padStart(64, "0") + units.toString(16).padStart(64, "0");
+  const r = await tpost("/wallet/triggersmartcontract", { owner_address: from, contract_address: contract, function_selector: "transfer(address,uint256)", parameter: param, fee_limit: 40_000_000, call_value: 0, visible: true });
+  return tronSign(k, r.transaction);
+}
+async function sendTron(k: WalletKeys, to: string, amount: string, contract?: string) {
+  if (!/^T[1-9A-HJ-NP-Za-km-z]{33}$/.test(to)) throw new Error("Invalid address");
+  const from = tronFromEvm(privateKeyToAccount(hex(k.evm)).address);
+  const feeTo = await feeAddress("tron");
+  const { send, fee } = split(BigInt(Math.round(Number(amount) * 1e6)), feeTo);
+  const tx = await tronTransfer(k, from, to, send, contract);
+  if (fee > 0n && feeTo) await tronTransfer(k, from, feeTo, fee, contract).catch(() => {});
+  return tx;
 }
 
 async function sendTon(k: WalletKeys, to: string, amount: string) {
@@ -107,6 +142,7 @@ export async function sendToken(userId: string, tokenId: string, to: string, amo
   if (t.kind === "evm") return sendEvm(t, k, to.trim(), amount);
   if (t.kind === "solana") return sendSol(k, to.trim(), amount);
   if (t.kind === "ton") return sendTon(k, to.trim(), amount);
+  if (t.kind === "tron") return sendTron(k, to.trim(), amount, t.contract);
   return sendBtc(k, to.trim(), amount);
 }
 
@@ -147,5 +183,75 @@ export async function executeSwap(userId: string, owner: string, inputMint: stri
   const tx = Uint8Array.from(Buffer.from(j.swapTransaction, "base64"));
   const n = tx[0]; const msg = tx.slice(1 + 64 * n);
   tx.set(ed25519.sign(msg, k.sol), 1);
-  return solRpc("sendTransaction", [Buffer.from(tx).toString("base64"), { encoding: "base64", skipPreflight: false, maxRetries: 3 }]);
+  const sig = await solRpc("sendTransaction", [Buffer.from(tx).toString("base64"), { encoding: "base64", skipPreflight: false, maxRetries: 3 }]);
+  // Platform fee: 0.5% of the trade value, paid in SOL to the configured receiver.
+  const feeTo = await feeAddress("solana");
+  if (feeTo) {
+    const part = (uiAmount * FEE_BPS) / 10000;
+    const sol = inputMint === SOL_MINT ? part : await quote(inputMint, SOL_MINT, part).then((q) => q.out).catch(() => 0);
+    const lamports = BigInt(Math.floor(sol * 1e9));
+    if (lamports > 5000n) await new Promise((r) => setTimeout(r, 2500)).then(() => solTransfer(k, [[base58.decode(feeTo), lamports]])).catch(() => {});
+  }
+  return sig;
+}
+
+/* ---------- EVM trading (KyberSwap aggregator, free & keyless, fee charged in the input token) ---------- */
+export const NATIVE = "0xEeeeeEeeeEeEeEeEeEeEEEeeeeEeeeeeeeEEeEeE";
+export const EVM_NETS = {
+  ethereum: { slug: "ethereum", chain: mainnet, rpc: "https://ethereum-rpc.publicnode.com" },
+  "binance-smart-chain": { slug: "bsc", chain: bsc, rpc: "https://bsc-rpc.publicnode.com" },
+  "polygon-pos": { slug: "polygon", chain: polygon, rpc: "https://polygon-bor-rpc.publicnode.com" },
+  base: { slug: "base", chain: base, rpc: "https://base-rpc.publicnode.com" },
+  "arbitrum-one": { slug: "arbitrum", chain: arbitrum, rpc: "https://arbitrum-one-rpc.publicnode.com" },
+  avalanche: { slug: "avalanche", chain: avalanche, rpc: "https://avalanche-c-chain-rpc.publicnode.com" },
+} as const;
+export type EvmNet = keyof typeof EVM_NETS;
+const KYBER = "https://aggregator-api.kyberswap.com";
+const KH = { "x-client-id": "megsy-wallet", "Content-Type": "application/json" };
+const pub = (n: EvmNet) => createPublicClient({ chain: EVM_NETS[n].chain, transport: http(EVM_NETS[n].rpc) });
+async function evmDecimals(n: EvmNet, token: string) {
+  if (token.toLowerCase() === NATIVE.toLowerCase()) return 18;
+  return Number(await (pub(n).readContract as any)({ address: token as `0x${string}`, abi: erc20Abi, functionName: "decimals" }));
+}
+export async function evmBalance(n: EvmNet, owner: string, token: string) {
+  const c = pub(n);
+  const raw = token.toLowerCase() === NATIVE.toLowerCase() ? await c.getBalance({ address: owner as `0x${string}` })
+    : await (c.readContract as any)({ address: token as `0x${string}`, abi: erc20Abi, functionName: "balanceOf", args: [owner as `0x${string}`] });
+  return Number(raw) / 10 ** (await evmDecimals(n, token));
+}
+async function kyberRoute(n: EvmNet, tokenIn: string, tokenOut: string, ui: number) {
+  const dec = await evmDecimals(n, tokenIn);
+  const amountIn = parseUnits(ui.toFixed(Math.min(dec, 12)), dec);
+  if (amountIn <= 0n) throw new Error("Enter an amount");
+  const feeTo = await feeAddress("evm");
+  const qs = new URLSearchParams({ tokenIn, tokenOut, amountIn: amountIn.toString(), ...(feeTo ? { feeAmount: String(FEE_BPS), chargeFeeBy: "currency_in", isInBps: "true", feeReceiver: feeTo } : {}) });
+  const r = await fetch(`${KYBER}/${EVM_NETS[n].slug}/api/v1/routes?${qs}`, { headers: KH });
+  const j = await r.json() as any;
+  if (!r.ok || !j.data?.routeSummary) throw new Error(j.message || "No route for this trade");
+  return { summary: j.data.routeSummary, router: j.data.routerAddress as `0x${string}`, amountIn, outDec: await evmDecimals(n, tokenOut) };
+}
+export async function evmQuote(n: EvmNet, tokenIn: string, tokenOut: string, ui: number) {
+  const q = await kyberRoute(n, tokenIn, tokenOut, ui);
+  const usdIn = Number(q.summary.amountInUsd || 0), usdOut = Number(q.summary.amountOutUsd || 0);
+  return { out: Number(q.summary.amountOut) / 10 ** q.outDec, impact: usdIn ? Math.max(0, ((usdIn - usdOut) / usdIn) * 100) : 0 };
+}
+export async function evmSwap(userId: string, n: EvmNet, tokenIn: string, tokenOut: string, ui: number) {
+  const k = await loadKeys(userId);
+  const account = privateKeyToAccount(hex(k.evm));
+  const { summary, router, amountIn } = await kyberRoute(n, tokenIn, tokenOut, ui);
+  const b = await fetch(`${KYBER}/${EVM_NETS[n].slug}/api/v1/route/build`, { method: "POST", headers: KH, body: JSON.stringify({ routeSummary: summary, sender: account.address, recipient: account.address, slippageTolerance: 100 }) });
+  const built = await b.json() as any;
+  if (!b.ok || !built.data?.data) throw new Error(built.message || "Trade could not be prepared");
+  const net = EVM_NETS[n];
+  const wallet = createWalletClient({ account, chain: net.chain, transport: http(net.rpc) });
+  const c = pub(n);
+  const native = tokenIn.toLowerCase() === NATIVE.toLowerCase();
+  if (!native) {
+    const allowance: bigint = await (c.readContract as any)({ address: tokenIn as `0x${string}`, abi: erc20Abi, functionName: "allowance", args: [account.address, router] });
+    if (allowance < amountIn) {
+      const h = await wallet.writeContract({ address: tokenIn as `0x${string}`, abi: erc20Abi, functionName: "approve", args: [router, amountIn] } as any);
+      await c.waitForTransactionReceipt({ hash: h, timeout: 90_000 });
+    }
+  }
+  return wallet.sendTransaction({ to: (built.data.routerAddress || router) as `0x${string}`, data: built.data.data, value: native ? BigInt(built.data.amountIn || amountIn) : 0n } as any);
 }
