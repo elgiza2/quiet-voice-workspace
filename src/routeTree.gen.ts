@@ -19,6 +19,7 @@ import { Route as SecurityRouteImport } from './routes/security'
 import { Route as SubscriptionTermsRouteImport } from './routes/subscription-terms'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ApiAnythingRouteImport } from './routes/api/anything'
+import { Route as ApiCallVisionRouteImport } from './routes/api/call-vision'
 import { Route as ApiCeyoChatRouteImport } from './routes/api/ceyo-chat'
 import { Route as ApiCeyoTaskRouteImport } from './routes/api/ceyo-task'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
@@ -98,6 +99,11 @@ const TermsRoute = TermsRouteImport.update({
 const ApiAnythingRoute = ApiAnythingRouteImport.update({
   id: '/api/anything',
   path: '/api/anything',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCallVisionRoute = ApiCallVisionRouteImport.update({
+  id: '/api/call-vision',
+  path: '/api/call-vision',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiCeyoChatRoute = ApiCeyoChatRouteImport.update({
@@ -265,6 +271,7 @@ export interface FileRoutesByFullPath {
   '/subscription-terms': typeof SubscriptionTermsRoute
   '/terms': typeof TermsRoute
   '/api/anything': typeof ApiAnythingRoute
+  '/api/call-vision': typeof ApiCallVisionRoute
   '/api/ceyo-chat': typeof ApiCeyoChatRoute
   '/api/ceyo-task': typeof ApiCeyoTaskRoute
   '/api/chat': typeof ApiChatRoute
@@ -307,6 +314,7 @@ export interface FileRoutesByTo {
   '/subscription-terms': typeof SubscriptionTermsRoute
   '/terms': typeof TermsRoute
   '/api/anything': typeof ApiAnythingRoute
+  '/api/call-vision': typeof ApiCallVisionRoute
   '/api/ceyo-chat': typeof ApiCeyoChatRoute
   '/api/ceyo-task': typeof ApiCeyoTaskRoute
   '/api/chat': typeof ApiChatRoute
@@ -350,6 +358,7 @@ export interface FileRoutesById {
   '/subscription-terms': typeof SubscriptionTermsRoute
   '/terms': typeof TermsRoute
   '/api/anything': typeof ApiAnythingRoute
+  '/api/call-vision': typeof ApiCallVisionRoute
   '/api/ceyo-chat': typeof ApiCeyoChatRoute
   '/api/ceyo-task': typeof ApiCeyoTaskRoute
   '/api/chat': typeof ApiChatRoute
@@ -394,6 +403,7 @@ export interface FileRouteTypes {
     | '/subscription-terms'
     | '/terms'
     | '/api/anything'
+    | '/api/call-vision'
     | '/api/ceyo-chat'
     | '/api/ceyo-task'
     | '/api/chat'
@@ -436,6 +446,7 @@ export interface FileRouteTypes {
     | '/subscription-terms'
     | '/terms'
     | '/api/anything'
+    | '/api/call-vision'
     | '/api/ceyo-chat'
     | '/api/ceyo-task'
     | '/api/chat'
@@ -478,6 +489,7 @@ export interface FileRouteTypes {
     | '/subscription-terms'
     | '/terms'
     | '/api/anything'
+    | '/api/call-vision'
     | '/api/ceyo-chat'
     | '/api/ceyo-task'
     | '/api/chat'
@@ -521,6 +533,7 @@ export interface RootRouteChildren {
   SubscriptionTermsRoute: typeof SubscriptionTermsRoute
   TermsRoute: typeof TermsRoute
   ApiAnythingRoute: typeof ApiAnythingRoute
+  ApiCallVisionRoute: typeof ApiCallVisionRoute
   ApiCeyoChatRoute: typeof ApiCeyoChatRoute
   ApiCeyoTaskRoute: typeof ApiCeyoTaskRoute
   ApiChatRoute: typeof ApiChatRoute
@@ -623,6 +636,13 @@ declare module '@tanstack/react-router' {
       path: '/api/anything'
       fullPath: '/api/anything'
       preLoaderRoute: typeof ApiAnythingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/call-vision': {
+      id: '/api/call-vision'
+      path: '/api/call-vision'
+      fullPath: '/api/call-vision'
+      preLoaderRoute: typeof ApiCallVisionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ceyo-chat': {
@@ -849,6 +869,7 @@ const rootRouteChildren: RootRouteChildren = {
   SubscriptionTermsRoute: SubscriptionTermsRoute,
   TermsRoute: TermsRoute,
   ApiAnythingRoute: ApiAnythingRoute,
+  ApiCallVisionRoute: ApiCallVisionRoute,
   ApiCeyoChatRoute: ApiCeyoChatRoute,
   ApiCeyoTaskRoute: ApiCeyoTaskRoute,
   ApiChatRoute: ApiChatRoute,

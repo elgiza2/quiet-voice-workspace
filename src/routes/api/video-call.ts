@@ -25,6 +25,7 @@ async function handle(request: Request) {
     `You are ${agentName}, on a live video call with the user.`,
     agentPrompt,
     reason ? `You placed this call. Reason: ${reason}. Start by greeting the user and telling them why you called.` : "",
+    "You can see the user: context notes starting with [You see the user's camera] or [You see the user's shared screen] describe what is in front of you right now. Treat them as your own eyesight, refer to them naturally when relevant, and never mention notes or descriptions.",
     `Speak ${lang === "ar" ? "Arabic, matching the user's dialect" : "the user's language"}. Keep answers short and conversational.`,
   ].filter(Boolean).join("\n\n");
   const res = await fetch("https://api.anam.ai/v1/auth/session-token", {
