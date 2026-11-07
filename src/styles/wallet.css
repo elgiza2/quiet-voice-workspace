@@ -30,3 +30,8 @@
 .wl-chips { display: flex; gap: 8px; overflow-x: auto; margin: 14px 0; scrollbar-width: none; }
 .wl-chips button { flex: none; padding: 8px 16px; border-radius: 999px; border: 1px solid var(--wl-line); background: var(--wl-card); color: var(--wl-mute); font-size: 15px; }
 .wl-chips button[data-on="true"] { background: var(--wl-fg); color: var(--wl-bg); }
+.wl-img { background: transparent; object-fit: cover; border-radius: 50%; }
+.wl-net-copy em { font-style: normal; color: hsl(0 70% 62%); }
+.wl-net-copy em[data-up="true"] { color: hsl(145 60% 50%); }
+.wl-amt { display: grid; text-align: right; }
+.wl-amt small { color: var(--wl-mute); }
