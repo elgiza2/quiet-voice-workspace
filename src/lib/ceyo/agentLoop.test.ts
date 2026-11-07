@@ -28,4 +28,15 @@ describe("steerable execution", () => {
     const request = JSON.parse(fetcher.mock.calls[1][1].body);
     expect(request.messages.filter((m: any) => m.content === "Stop, don't create anything")).toHaveLength(1);
   });
+  it("refreshes Arabic reply context when the user changes language mid-run", async () => {
+    vi.stubEnv("CEREBRAS_API_KEY", "test-only");
+    vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "");
+    const fetcher = vi.fn().mockResolvedValueOnce(reply({ content: "Hello." })).mockResolvedValueOnce(reply({ content: "أهلاً يا صاحبي" }));
+    vi.stubGlobal("fetch", fetcher);
+    const poll = vi.fn().mockResolvedValueOnce(["كلمني بالمصري يا صاحبي"]).mockResolvedValue([]);
+    await runAgentLoop("Reply in English", [{ role: "user", content: "Hello" }], () => {}, new AbortController().signal, poll);
+    const request = JSON.parse(fetcher.mock.calls[1][1].body);
+    expect(request.messages[0].content).toContain("MUST be Arabic, not English");
+    expect(request.messages[0].content).toContain("كلمني بالمصري يا صاحبي");
+  });
 });

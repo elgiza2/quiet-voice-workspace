@@ -1,5 +1,6 @@
 import { getCerebrasKeys } from "@/lib/keys/cerebrasKey";
 import { getProviderKey } from "@/lib/keys/providerKey";
+import { replyLanguageInstruction } from "./replyLanguage";
 /** @doc Bot reply loop: Cerebras streams the answer and may call web tools (Browserbase) several times before it finishes. */
 const CEREBRAS_URL = "https://api.cerebras.ai/v1/chat/completions";
 /** Cheapest + fastest model on Cerebras. */
@@ -121,6 +122,8 @@ export async function runAgentLoop(
 
   for (let step = 0; step < maxSteps; step++) {
     signal.throwIfAborted();
+    // Refresh after user steering; append after specialization and saved context.
+    messages[0] = { role: "system", content: `${system}\n\n${replyLanguageInstruction(messages)}` };
     const res = opts.chatModel
       ? await (await import("./chatModel.server")).chatModelResponse(messages, allTools, signal)
       : await cerebrasRequest(keys, JSON.stringify({ model: MODEL, messages, tools: allTools, stream: true, reasoning_effort: "low" }), signal);
