@@ -767,8 +767,13 @@ html[data-ceyo-surface="bot"] .agent-hub.ceyo-page{--ceyo-page-bg:#1b1b20;--ceyo
 .cx-mentions button:first-child,.cx-mentions button:hover{background:rgba(255,255,255,.07)}
 
 /* Header call buttons */
-.cx-head-calls{display:flex;gap:6px;flex:none}
-.cx-head .cx-head-calls .cx-circle{width:40px;height:40px}
+.cx-head-actions{position:relative;display:flex;align-items:center;gap:6px;flex:none;margin-inline-start:auto;direction:ltr;isolation:isolate}
+.cx-head-actions[data-calls="true"]::before{content:"";position:absolute;left:34px;top:13px;width:24px;height:18px;background:var(--cx-card);z-index:-1}
+.cx-head .cx-head-menu{background:var(--cx-card);border:1px solid var(--cx-line);border-radius:50%;margin:0}
+.cx-head-calls{display:flex;gap:0;flex:none;padding:1px 3px;background:var(--cx-card);border:1px solid var(--cx-line);border-radius:24px}
+.cx-head .cx-head-calls .cx-circle{width:40px;height:40px;color:inherit}
+.cx-head-actions .cx-circle:hover{background:var(--cx-card2)}
+.cx-head-actions .cx-circle:focus-visible{outline:2px solid var(--ring);outline-offset:2px}
 
 /* WhatsApp-style voice notes */
 .cx-chat .cx-composer .cx-mic{width:32px;height:32px;background:#fff;color:#000;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .12s ease-out,background .15s}

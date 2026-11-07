@@ -1,3 +1,6 @@
+## Header call controls — 2026-11-07 11:59 UTC
+- [ ] Keep menu → voice → video visible in a connected, waisted header control; verify mobile and desktop presentation.
+
 ## Current call repair — 2026-11-07 11:48 UTC
 - [x] Repair voice delta assembly, flush trailing speech, reject stale undrained results and preserve PCM sample continuity. Regression-tested; physical microphone accuracy remains unverified.
 - [x] Repair video startup/retry, independent remote audio and autoplay recovery. Mocked Anam lifecycle verified, not a real provider call in this pass.
