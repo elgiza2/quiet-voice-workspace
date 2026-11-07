@@ -16,11 +16,13 @@ export interface RealtimeCallOptions {
   language: string;
   agentName: string;
   agentPrompt: string;
+  /** Set when the bot placed the call: it speaks first and explains why. */
+  reason?: string;
   onPhase: (phase: CallPhase) => void;
   onError: (message: string) => void;
 }
 
-export interface RealtimeCall { setMuted: (muted: boolean) => void; interrupt: () => void; end: () => void }
+export interface RealtimeCall { setMuted: (muted: boolean) => void; interrupt: () => void; end: () => void; resumeAudio: () => Promise<boolean> }
 
 const VERSION = "2026-08-14";
 const STT_RATE = 16000;
@@ -85,7 +87,8 @@ function decodeFloat32(b64: string) {
 export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<RealtimeCall> {
   const ctx = sharedAudioContext();
   if (!ctx) throw new Error("Audio is unavailable in this browser.");
-  await ctx.resume().catch(() => {});
+  // resume() never settles without a user gesture on some mobile browsers: never block the call on it.
+  void ctx.resume().catch(() => {});
   if (!navigator.mediaDevices?.getUserMedia) throw new Error("Microphone is unavailable in this browser.");
 
   let ended = false, muted = false;
@@ -202,7 +205,7 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
   };
 
   const respond = async (userText: string) => {
-    history.push({ role: "user", text: userText });
+    if (userText) history.push({ role: "user", text: userText });
     setPhase("thinking");
     const controller = new AbortController(); replyAbort = controller;
     const id = crypto.randomUUID(); contextId = id; ttsDone = false; nextTime = 0;
@@ -219,7 +222,7 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
       if (clean) sentAny = true;
     };
     try {
-      const response = await callApi({ action: "reply", agentName: opts.agentName, agentPrompt: opts.agentPrompt.slice(0, 6000), language: opts.language, history: history.slice(-20) }, controller.signal);
+      const response = await callApi({ action: "reply", agentName: opts.agentName, agentPrompt: opts.agentPrompt.slice(0, 6000), language: opts.language, reason: opts.reason || "", history: history.slice(-20) }, controller.signal);
       const reader = response.body!.getReader(); const decoder = new TextDecoder();
       for (;;) {
         const { done, value } = await reader.read();
@@ -277,9 +280,10 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
     if (step.stop && step.heard) void finishTurn();
   };
 
-  startListening();
+  if (opts.reason) void respond(""); else startListening();
 
   return {
+    async resumeAudio() { await ctx.resume().catch(() => {}); return ctx.state === "running"; },
     setMuted(next) {
       muted = next;
       if (!next && phase === "listening") startListening();

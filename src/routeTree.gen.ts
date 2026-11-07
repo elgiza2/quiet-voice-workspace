@@ -33,6 +33,7 @@ import { Route as ApiMcpRouteImport } from './routes/api/mcp'
 import { Route as ApiReadUrlRouteImport } from './routes/api/read-url'
 import { Route as ApiRenderPdfRouteImport } from './routes/api/render-pdf'
 import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
+import { Route as ApiVideoCallRouteImport } from './routes/api/video-call'
 import { Route as ApiVoiceRouteImport } from './routes/api/voice'
 import { Route as ApiVoiceCallRouteImport } from './routes/api/voice-call'
 import { Route as ApiVoiceTranscribeRouteImport } from './routes/api/voice-transcribe'
@@ -168,6 +169,11 @@ const ApiTranscribeRoute = ApiTranscribeRouteImport.update({
   path: '/api/transcribe',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiVideoCallRoute = ApiVideoCallRouteImport.update({
+  id: '/api/video-call',
+  path: '/api/video-call',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiVoiceRoute = ApiVoiceRouteImport.update({
   id: '/api/voice',
   path: '/api/voice',
@@ -267,6 +273,7 @@ export interface FileRoutesByFullPath {
   '/api/read-url': typeof ApiReadUrlRoute
   '/api/render-pdf': typeof ApiRenderPdfRoute
   '/api/transcribe': typeof ApiTranscribeRoute
+  '/api/video-call': typeof ApiVideoCallRoute
   '/api/voice': typeof ApiVoiceRoute
   '/api/voice-call': typeof ApiVoiceCallRoute
   '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
@@ -307,6 +314,7 @@ export interface FileRoutesByTo {
   '/api/read-url': typeof ApiReadUrlRoute
   '/api/render-pdf': typeof ApiRenderPdfRoute
   '/api/transcribe': typeof ApiTranscribeRoute
+  '/api/video-call': typeof ApiVideoCallRoute
   '/api/voice': typeof ApiVoiceRoute
   '/api/voice-call': typeof ApiVoiceCallRoute
   '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
@@ -348,6 +356,7 @@ export interface FileRoutesById {
   '/api/read-url': typeof ApiReadUrlRoute
   '/api/render-pdf': typeof ApiRenderPdfRoute
   '/api/transcribe': typeof ApiTranscribeRoute
+  '/api/video-call': typeof ApiVideoCallRoute
   '/api/voice': typeof ApiVoiceRoute
   '/api/voice-call': typeof ApiVoiceCallRoute
   '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
@@ -390,6 +399,7 @@ export interface FileRouteTypes {
     | '/api/read-url'
     | '/api/render-pdf'
     | '/api/transcribe'
+    | '/api/video-call'
     | '/api/voice'
     | '/api/voice-call'
     | '/api/voice-transcribe'
@@ -430,6 +440,7 @@ export interface FileRouteTypes {
     | '/api/read-url'
     | '/api/render-pdf'
     | '/api/transcribe'
+    | '/api/video-call'
     | '/api/voice'
     | '/api/voice-call'
     | '/api/voice-transcribe'
@@ -470,6 +481,7 @@ export interface FileRouteTypes {
     | '/api/read-url'
     | '/api/render-pdf'
     | '/api/transcribe'
+    | '/api/video-call'
     | '/api/voice'
     | '/api/voice-call'
     | '/api/voice-transcribe'
@@ -511,6 +523,7 @@ export interface RootRouteChildren {
   ApiReadUrlRoute: typeof ApiReadUrlRoute
   ApiRenderPdfRoute: typeof ApiRenderPdfRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
+  ApiVideoCallRoute: typeof ApiVideoCallRoute
   ApiVoiceRoute: typeof ApiVoiceRoute
   ApiVoiceCallRoute: typeof ApiVoiceCallRoute
   ApiVoiceTranscribeRoute: typeof ApiVoiceTranscribeRoute
@@ -697,6 +710,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTranscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/video-call': {
+      id: '/api/video-call'
+      path: '/api/video-call'
+      fullPath: '/api/video-call'
+      preLoaderRoute: typeof ApiVideoCallRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/voice': {
       id: '/api/voice'
       path: '/api/voice'
@@ -823,6 +843,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiReadUrlRoute: ApiReadUrlRoute,
   ApiRenderPdfRoute: ApiRenderPdfRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,
+  ApiVideoCallRoute: ApiVideoCallRoute,
   ApiVoiceRoute: ApiVoiceRoute,
   ApiVoiceCallRoute: ApiVoiceCallRoute,
   ApiVoiceTranscribeRoute: ApiVoiceTranscribeRoute,
