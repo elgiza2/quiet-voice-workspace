@@ -153,15 +153,15 @@ export function workspaceTools(ctx: Context): AgentTool[] {
     if (!t) throw new Error("Unsupported token");
     return JSON.stringify({ type: "ceyo.widget", widget: "wallet_approval", data: { id: crypto.randomUUID(), action: "send", token: t.id, symbol: t.symbol, network: undefined, chain: t.network, to: input.to.trim(), amount: input.amount, note: input.note }, instruction: "Card shown; tell the user to review and tap Confirm." });
   });
-  add("wallet_propose_trade", "Show a confirmation card to buy or sell a crypto asset or tokenized stock (CoinGecko id, e.g. bonk, pepe, apple-xstock) using the network's main coin (SOL, ETH, BNB, POL, AVAX). Buy amount is in the main coin; sell amount is in the asset. Nothing trades until the user taps Confirm. 0.5% platform fee applies.", { coingecko_id: str, side: { type: "string", enum: ["buy", "sell"] }, amount: { type: "number" }, note: str }, ["coingecko_id", "side", "amount"], async (args) => {
+  add("wallet_propose_trade", "Show a confirmation card to buy or sell a crypto asset or tokenized stock (CoinGecko id, e.g. bonk, pepe, apple-xstock) using the network's main coin (SOL, ETH, BNB, POL, AVAX, TON; bitcoin is bought with ETH; toncoin with USDT). Buy amount is in the main coin; sell amount is in the asset. Nothing trades until the user taps Confirm. 0.5% platform fee applies.", { coingecko_id: str, side: { type: "string", enum: ["buy", "sell"] }, amount: { type: "number" }, note: str }, ["coingecko_id", "side", "amount"], async (args) => {
     const { tradeTarget } = await import("@/pages/wallet/walletTokens");
     const input = z.object({ coingecko_id: z.string().regex(/^[a-z0-9-]{1,100}$/), side: z.enum(["buy", "sell"]), amount: z.number().positive(), note: z.string().max(300).optional() }).parse(args);
     const r = await fetch(`https://api.coingecko.com/api/v3/coins/${input.coingecko_id}?localization=false&tickers=false&market_data=false&community_data=false&developer_data=false`);
     if (!r.ok) throw new Error("Asset not found");
     const info = await r.json() as { symbol?: string; platforms?: Record<string, string> };
-    const target = tradeTarget(info.platforms);
-    if (!target) throw new Error("This asset can't be traded in the wallet (no Solana or EVM token)");
-    return JSON.stringify({ type: "ceyo.widget", widget: "wallet_approval", data: { id: crypto.randomUUID(), action: "trade", network: target.network, token: target.token, symbol: (info.symbol || "").toUpperCase(), side: input.side, amount: input.amount, note: input.note }, instruction: "Card shown; tell the user to review and tap Confirm." });
+    const target = tradeTarget(info.platforms, input.coingecko_id);
+    if (!target) throw new Error("This asset can't be traded in the wallet ");
+    return JSON.stringify({ type: "ceyo.widget", widget: "wallet_approval", data: { id: crypto.randomUUID(), action: "trade", network: target.network, token: target.token, pay: target.pay, paySym: target.paySym, label: target.label, symbol: (info.symbol || "").toUpperCase(), side: input.side, amount: input.amount, note: input.note }, instruction: "Card shown; tell the user to review and tap Confirm." });
   });
   add("ask_user", "Ask a necessary clarifying question with choices.", { question: str, options: { type: "array", items: str }, allow_free_text: { type: "boolean" } }, ["question"], async () => "Question shown. Wait for the user's answer before further dependent actions.");
   add("update_plan", "Display task progress with concrete steps.", { title: str, steps: { type: "array", items: { type: "object", properties: { title: str, status: str } } } }, ["title", "steps"], async () => "Plan updated.");

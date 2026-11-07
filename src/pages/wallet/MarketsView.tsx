@@ -88,7 +88,7 @@ export function CoinDetail({ id, balance = 0, onBack, onReceive, onSend }: { id:
   const links = info?.links;
   const about = (info?.description?.en || "").replace(/<[^>]+>/g, "").trim();
   const sym = (info?.symbol || "").toUpperCase();
-  const target = tradeTarget(info?.platforms);
+  const target = tradeTarget(info?.platforms, id);
   const solMint = target?.token;
 
   return (
@@ -160,7 +160,7 @@ export function CoinDetail({ id, balance = 0, onBack, onReceive, onSend }: { id:
           <button type="button" className="wl-btn wl-btn-main" disabled={!onSend || balance <= 0} onClick={onSend}><Send size={18} />Send</button>
         </div>
       )}
-      {trade && target && <TradePanel network={target.network} mint={target.token} symbol={sym} side={trade} onClose={() => setTrade(null)} />}
+      {trade && target && <TradePanel target={target} symbol={sym} side={trade} onClose={() => setTrade(null)} />}
     </div>
   );
 }
