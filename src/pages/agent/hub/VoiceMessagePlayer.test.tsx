@@ -2,7 +2,7 @@ import { act, cleanup, fireEvent, render, waitFor } from "@testing-library/react
 import { afterEach, expect, it, vi } from "vitest";
 const cache = vi.hoisted(() => vi.fn());
 vi.mock("@/lib/audio/recordingCache", () => ({ cachedRecording: cache, cacheRecording: vi.fn() }));
-vi.mock("@/lib/audio/voiceClient", () => ({ getSpeech: vi.fn() }));
+vi.mock("@/lib/audio/voiceClient", () => ({ getSpeech: vi.fn(), sharedAudioContext: () => undefined }));
 import { VoiceMessagePlayer } from "./VoiceMessagePlayer";
 afterEach(() => { cleanup(); vi.restoreAllMocks(); });
 it("plays the saved recording and pauses with a direct control", async () => {
