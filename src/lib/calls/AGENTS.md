@@ -1,0 +1,2 @@
+- Completed calls pass ephemeral turns to the authenticated follow-up endpoint; reserve one assistant message by call ID and refresh its owning conversation. Why: one follow-up without live-turn chat writes or fabricated execution.
+- One-time calls use a deterministic latest-user-message identity, and conditional terminal transitions suppress stale ringing events. Why: prevent history, retry and async-lookup driven duplicate calls.

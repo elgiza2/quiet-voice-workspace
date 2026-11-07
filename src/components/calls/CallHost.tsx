@@ -18,7 +18,7 @@ const db = supabase as any;
 const RING_MS = 45_000;
 const isAr = () => { try { return (localStorage.getItem("ceyo_language") || navigator.language || "").startsWith("ar"); } catch { return false; } };
 
-type CallRow = { id: string; bot_id: string | null; reason: string; kind: "voice" | "video"; status: string; ring_at: string };
+type CallRow = { id: string; bot_id: string | null; conversation_id?: string | null; reason: string; kind: "voice" | "video"; status: string; ring_at: string };
 
 function startRingtone() {
   let stopped = false;
@@ -73,7 +73,7 @@ function IncomingScreen({ call }: { call: IncomingCall }) {
     setBusy(true); setError(""); stopRing.current();
     unlockCallAudio();
     try {
-      if (await settleCall(call.callId, "answered")) calls.start({ kind, agent: call.agent, agentIds: agentIdsCache[call.callId] || [call.agent.id], reason: call.reason, callId: call.callId });
+      if (await settleCall(call.callId, "answered")) calls.start({ kind, agent: call.agent, agentIds: agentIdsCache[call.callId] || [call.agent.id], reason: call.reason, callId: call.callId, conversationId: call.conversationId });
     } catch { setError(ar ? "تعذّر حفظ الرد. حاول تاني." : "Could not save your answer. Retry."); setBusy(false); }
   };
   const decline = async () => { if (busy) return; setBusy(true); stopRing.current(); try { await settleCall(call.callId, "declined"); } catch { setError(ar ? "تعذّر حفظ الرفض. حاول تاني." : "Could not save your response. Retry."); setBusy(false); } };
@@ -131,7 +131,7 @@ export default function CallHost() {
       const kind = row.kind === "video" ? "video" : "voice";
       // App is on screen: ring here only, so the phone's scheduled ring doesn't double up.
       if (document.visibilityState === "visible" && handedToPhone.current.has(row.id)) cancelNativeCall(row.id);
-      calls.ring({ callId: row.id, kind, agent: bot.agent, reason: row.reason });
+      calls.ring({ callId: row.id, kind, agent: bot.agent, reason: row.reason, conversationId: row.conversation_id });
       // In the Android app the phone shows its own call screen (lock screen, other apps, app closed).
       if (document.visibilityState !== "visible" && hasNativeCalls()) {
         if (!handedToPhone.current.has(`now:${row.id}`)) { handedToPhone.current.add(`now:${row.id}`); showNativeIncomingCall({ id: row.id, botName: bot.agent.name, kind, reason: row.reason, at: Date.now() }); }
@@ -141,18 +141,18 @@ export default function CallHost() {
     };
     const scan = async () => {
       if (!userId) return;
-      const { data } = await db.from("agent_calls").select("id,bot_id,reason,kind,status,ring_at").eq("user_id", userId).in("status", ["ringing", "scheduled"]).order("ring_at").limit(20);
+      const { data } = await db.from("agent_calls").select("id,bot_id,conversation_id,reason,kind,status,ring_at").eq("user_id", userId).in("status", ["ringing", "scheduled"]).order("ring_at").limit(20);
       for (const row of (data || []) as CallRow[]) await ring(row);
     };
     // Answer/decline tapped on the phone's own call screen.
     const answerById = async (id: string) => {
-      const { data: row } = await db.from("agent_calls").select("id,bot_id,reason,kind,status,ring_at").eq("id", id).maybeSingle();
+      const { data: row } = await db.from("agent_calls").select("id,bot_id,conversation_id,reason,kind,status,ring_at").eq("id", id).maybeSingle();
       if (!alive || !row || !isPendingCall(row.status) || calls.isSettled(id) || calls.get().active) return;
       const bot = await botFor(row.bot_id).catch(() => null);
       if (!bot || !alive) return;
       unlockCallAudio();
       try { if (!(await settleCall(id, "answered"))) return; } catch { return; }
-      calls.start({ kind: row.kind === "video" ? "video" : "voice", agent: bot.agent, agentIds: bot.ids, reason: row.reason, callId: id });
+      calls.start({ kind: row.kind === "video" ? "video" : "voice", agent: bot.agent, agentIds: bot.ids, reason: row.reason, callId: id, conversationId: row.conversation_id });
     };
     const stopNative = onNativeCallAction((id, action) => {
       if (action === "answer") { void answerById(id); return; }
