@@ -270,8 +270,8 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
     const pcm = downsample(input, ctx.sampleRate);
     const ws = stt;
     if (ws?.readyState === WebSocket.OPEN) {
-      for (const p of pending) ws.send(p.buffer); pending = [];
-      ws.send(pcm.buffer);
+      for (const p of pending) ws.send(p); pending = [];
+      ws.send(pcm);
     } else { pending.push(pcm); if (pending.length > 40) pending.shift(); if (!ws) void openStt().catch(() => {}); }
     const step = detector.push(db, performance.now() - turnStart);
     if (step.stop && step.heard) void finishTurn();
