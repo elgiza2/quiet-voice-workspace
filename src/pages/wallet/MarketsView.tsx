@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import TradePanel from "./TradePanel";
+import { tradeTarget } from "./walletTokens";
 import { ArrowDownToLine, Check, ChevronLeft, ChevronRight, Copy, ExternalLink, Globe, Send, TrendingUp } from "lucide-react";
 
 const CG = "https://api.coingecko.com/api/v3";
