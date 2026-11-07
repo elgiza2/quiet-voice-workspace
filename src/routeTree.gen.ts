@@ -18,8 +18,6 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as SubscriptionTermsRouteImport } from './routes/subscription-terms'
 import { Route as TermsRouteImport } from './routes/terms'
-import { Route as ZzVideoTestRouteImport } from './routes/zz-video-test'
-import { Route as ZzVoiceTestRouteImport } from './routes/zz-voice-test'
 import { Route as ApiAnythingRouteImport } from './routes/api/anything'
 import { Route as ApiCallVisionRouteImport } from './routes/api/call-vision'
 import { Route as ApiCeyoChatRouteImport } from './routes/api/ceyo-chat'
@@ -96,16 +94,6 @@ const SubscriptionTermsRoute = SubscriptionTermsRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ZzVideoTestRoute = ZzVideoTestRouteImport.update({
-  id: '/zz-video-test',
-  path: '/zz-video-test',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ZzVoiceTestRoute = ZzVoiceTestRouteImport.update({
-  id: '/zz-voice-test',
-  path: '/zz-voice-test',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAnythingRoute = ApiAnythingRouteImport.update({
@@ -282,8 +270,6 @@ export interface FileRoutesByFullPath {
   '/security': typeof SecurityRoute
   '/subscription-terms': typeof SubscriptionTermsRoute
   '/terms': typeof TermsRoute
-  '/zz-video-test': typeof ZzVideoTestRoute
-  '/zz-voice-test': typeof ZzVoiceTestRoute
   '/api/anything': typeof ApiAnythingRoute
   '/api/call-vision': typeof ApiCallVisionRoute
   '/api/ceyo-chat': typeof ApiCeyoChatRoute
@@ -327,8 +313,6 @@ export interface FileRoutesByTo {
   '/security': typeof SecurityRoute
   '/subscription-terms': typeof SubscriptionTermsRoute
   '/terms': typeof TermsRoute
-  '/zz-video-test': typeof ZzVideoTestRoute
-  '/zz-voice-test': typeof ZzVoiceTestRoute
   '/api/anything': typeof ApiAnythingRoute
   '/api/call-vision': typeof ApiCallVisionRoute
   '/api/ceyo-chat': typeof ApiCeyoChatRoute
@@ -373,8 +357,6 @@ export interface FileRoutesById {
   '/security': typeof SecurityRoute
   '/subscription-terms': typeof SubscriptionTermsRoute
   '/terms': typeof TermsRoute
-  '/zz-video-test': typeof ZzVideoTestRoute
-  '/zz-voice-test': typeof ZzVoiceTestRoute
   '/api/anything': typeof ApiAnythingRoute
   '/api/call-vision': typeof ApiCallVisionRoute
   '/api/ceyo-chat': typeof ApiCeyoChatRoute
@@ -420,8 +402,6 @@ export interface FileRouteTypes {
     | '/security'
     | '/subscription-terms'
     | '/terms'
-    | '/zz-video-test'
-    | '/zz-voice-test'
     | '/api/anything'
     | '/api/call-vision'
     | '/api/ceyo-chat'
@@ -465,8 +445,6 @@ export interface FileRouteTypes {
     | '/security'
     | '/subscription-terms'
     | '/terms'
-    | '/zz-video-test'
-    | '/zz-voice-test'
     | '/api/anything'
     | '/api/call-vision'
     | '/api/ceyo-chat'
@@ -510,8 +488,6 @@ export interface FileRouteTypes {
     | '/security'
     | '/subscription-terms'
     | '/terms'
-    | '/zz-video-test'
-    | '/zz-voice-test'
     | '/api/anything'
     | '/api/call-vision'
     | '/api/ceyo-chat'
@@ -556,8 +532,6 @@ export interface RootRouteChildren {
   SecurityRoute: typeof SecurityRoute
   SubscriptionTermsRoute: typeof SubscriptionTermsRoute
   TermsRoute: typeof TermsRoute
-  ZzVideoTestRoute: typeof ZzVideoTestRoute
-  ZzVoiceTestRoute: typeof ZzVoiceTestRoute
   ApiAnythingRoute: typeof ApiAnythingRoute
   ApiCallVisionRoute: typeof ApiCallVisionRoute
   ApiCeyoChatRoute: typeof ApiCeyoChatRoute
@@ -655,20 +629,6 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/zz-video-test': {
-      id: '/zz-video-test'
-      path: '/zz-video-test'
-      fullPath: '/zz-video-test'
-      preLoaderRoute: typeof ZzVideoTestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/zz-voice-test': {
-      id: '/zz-voice-test'
-      path: '/zz-voice-test'
-      fullPath: '/zz-voice-test'
-      preLoaderRoute: typeof ZzVoiceTestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/anything': {
@@ -908,8 +868,6 @@ const rootRouteChildren: RootRouteChildren = {
   SecurityRoute: SecurityRoute,
   SubscriptionTermsRoute: SubscriptionTermsRoute,
   TermsRoute: TermsRoute,
-  ZzVideoTestRoute: ZzVideoTestRoute,
-  ZzVoiceTestRoute: ZzVoiceTestRoute,
   ApiAnythingRoute: ApiAnythingRoute,
   ApiCallVisionRoute: ApiCallVisionRoute,
   ApiCeyoChatRoute: ApiCeyoChatRoute,

@@ -1,7 +1,8 @@
 ## Video, people messaging, bot-initiated calls — 2026-11-07 09:53 UTC
 - [x] Anam video call (key in Supabase provider_api_keys); server session token verified 200. Live camera call on a device not verified.
 - [x] Usernames + person-to-person chats + people groups with bots (@mention a bot to make it answer). Not verified signed-in: this preview has no injectable session.
-- [ ] Fix no-audio in voice calls: audio start no longer blocks the call and a "tap to turn on sound" fallback exists; needs a device retest by the user.
+- [x] Voice call listens but never replies: turn end now from Cartesia final transcripts + language from user's messages; verified with a fake Arabic microphone.
+- [x] Video call answered once then stopped: Anam STT was English-only; now multilingual `anam` STT + Arabic; verified with a fake Arabic microphone over several turns.
 - [x] Bot rings the user: call_user tool (now/scheduled) and background-task completion write ringing calls; incoming-call screen picks them up while the app is open. Not verified end-to-end.
 - [x] Clean full-screen call UI for voice and video; incoming-call screen.
 - [x] Move voice + video call buttons to the chat header.
