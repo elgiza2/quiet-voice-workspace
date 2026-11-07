@@ -18,6 +18,7 @@ export function HoldToRecord({ ar, disabled, onRecording, onRecorded }: { ar: bo
   const mounted = useRef(true);
   const origin = useRef({ x: 0, y: 0, rtl: false });
   const btn = useRef<HTMLButtonElement>(null);
+  const sendTap = useRef(false);
 
   useEffect(() => { if (!state) return; const t = setInterval(() => setElapsed(session.current?.started ? Date.now() - session.current.started : 0), 200); return () => clearInterval(t); }, [!!state]);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; const s = session.current; session.current = null; if (s) { s.finished = true; void s.promise.then(r => { r.stop(); return r.result.catch(() => {}); }).catch(() => {}); } }; }, []);
@@ -98,7 +99,7 @@ export function HoldToRecord({ ar, disabled, onRecording, onRecorded }: { ar: bo
     </div>}
     {state && <span className="cx-wa-lock" data-locked={state.locked} aria-label={state.locked ? (ar ? "التسجيل مقفول" : "Recording locked") : undefined}><Lock size={16} />{!state.locked && <ArrowUp size={14} className="cx-wa-up" />}</span>}
     <Button variant="ghost" size="icon" ref={btn} type="button" className={`cx-circle cx-mic ${state?.locked ? "cx-wa-send" : ""}`} data-active={!!state} disabled={disabled || finishing} aria-label={state?.locked ? (ar ? "إرسال" : "Send") : (ar ? "اضغط مطوّلاً للتسجيل" : "Hold to record")}
-      onPointerDown={e => { if (!session.current?.locked) begin(e); }} onPointerMove={move} onPointerUp={release} onPointerCancel={() => { if (!session.current?.locked) void finish(false); }} onClick={() => { if (session.current?.locked && !btn.current?.hasPointerCapture?.(0)) void finish(true); }} onContextMenu={e => e.preventDefault()}>
+      onPointerDown={e => { sendTap.current = Boolean(session.current?.locked); if (!session.current?.locked) begin(e); }} onPointerMove={move} onPointerUp={release} onPointerCancel={() => { if (!session.current?.locked) void finish(false); }} onClick={e => { if (session.current?.locked && (sendTap.current || e.detail === 0)) void finish(true); sendTap.current = false; }} onContextMenu={e => e.preventDefault()}>
       {finishing ? <Loader2 size={17} className="animate-spin" /> : state?.locked ? <Send size={17} /> : <Mic size={17} />}
     </Button>
   </>;

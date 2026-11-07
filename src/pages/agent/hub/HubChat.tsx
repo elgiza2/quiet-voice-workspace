@@ -157,7 +157,8 @@ function Composer({
       const words = await transcribeRecording(blob, ar ? "ar" : "en");
       if (!recordingAlive.current) return;
       const recordingId = crypto.randomUUID();
-      await cacheRecording(recordingId, blob).catch(() => {});
+      await cacheRecording(recordingId, blob);
+      if (!recordingAlive.current) return;
       onSend(words, { voiceOrigin: "recording", recordingId });
     } catch (error) { if (recordingAlive.current) toast.error(error instanceof Error ? error.message : "Recording unavailable"); }
     finally { if (recordingAlive.current) setUploading(false); }
