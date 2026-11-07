@@ -1,0 +1,1 @@
+- Wallets are self-custodial and built in-house from open-source @scure/@noble libraries: one phrase per account, AES-GCM sealed with an auto-created provider_api_keys `wallet_encryption` key, stored in auth app_metadata; balances come from free keyless public endpoints. Why: no paid wallet vendor or trial, and no setup steps for the owner.
