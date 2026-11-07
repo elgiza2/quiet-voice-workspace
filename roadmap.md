@@ -4,6 +4,8 @@
 - [ ] Fix no-audio in voice calls (user report on device).
 - [ ] Bot rings the user: on request ("call me"), at reminder time, and when a background task finishes.
 - [ ] Clean full-screen call UI for voice and video; incoming-call screen.
+- [ ] Move voice + video call buttons to the chat header.
+- [ ] Mic button: white background, slightly smaller; WhatsApp-style hold-to-record with animation (slide to cancel, lock), sends a voice message to the bot like WhatsApp.
 - [ ] Android later: calls show in background like a normal phone call (needs native wrapper; web can only use notifications while open).
 
 ## Realtime calls — 2026-11-07 09:40 UTC
