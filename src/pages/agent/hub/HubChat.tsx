@@ -442,8 +442,6 @@ export function HubChat({
           </div>
         )}
       </header>
-        />
-      )}
 
       {toast && (
         <div className="cx-toast" data-tone={toast.tone} role="status">
