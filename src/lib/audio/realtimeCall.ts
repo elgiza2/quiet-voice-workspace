@@ -99,7 +99,7 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
 
   let token = "", tokenAt = 0;
   // The server picks the language from what the user actually writes (UI may be English while they speak Arabic).
-  let lang = opts.language.slice(0, 2).toLowerCase();
+  let lang = /^(auto|not set)/i.test(opts.language) ? "" : opts.language.slice(0, 2).toLowerCase();
   if (!/^[a-z]{2}$/.test(lang)) lang = "";
   const freshToken = async () => {
     if (!token || Date.now() - tokenAt > 600_000) {
@@ -204,19 +204,23 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
   let pending: Int16Array<ArrayBuffer>[] = [];
   // Cartesia sends a final transcript when it hears a pause; answer shortly after unless more speech arrives.
   let turnTimer: ReturnType<typeof setTimeout> | null = null;
-  let lastHeardAt = 0;
+  // A short pause mid-sentence also yields a final; wait while the mic still hears the voice (up to 2.5s).
+  let lastHeardAt = 0, lastVoiceAt = 0, firstFinalAt = 0, noise = -60;
   const scheduleTurnEnd = () => {
     if (turnTimer) clearTimeout(turnTimer);
+    if (!firstFinalAt) firstFinalAt = performance.now();
     turnTimer = setTimeout(() => {
       turnTimer = null;
       if (ended || phase !== "listening" || !finals.length) return;
+      const now = performance.now();
+      if (now - lastVoiceAt < 600 && now - firstFinalAt < 2500) { scheduleTurnEnd(); return; }
       void finishTurn(false);
-    }, 700);
+    }, 650);
   };
   const startListening = () => {
     if (ended) return;
     if (turnTimer) { clearTimeout(turnTimer); turnTimer = null; }
-    finals = []; pending = [];
+    finals = []; pending = []; firstFinalAt = 0;
     detector = createSpeechDetector({ noSpeechMs: 1e12, silenceMs: 750, minSpeechMs: 180 });
     turnStart = performance.now();
     setPhase("listening");
@@ -298,6 +302,8 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
       ws.send(pcm);
     } else { pending.push(pcm); if (pending.length > 40) pending.shift(); if (!ws) void openStt().catch(() => {}); }
     const step = detector.push(db, performance.now() - turnStart);
+    if (db > noise + 10) lastVoiceAt = performance.now();
+    noise = db > noise + 10 ? noise * 0.995 + db * 0.005 : noise * 0.9 + db * 0.1;
     // Backups: our own silence detector, or a final transcript left unanswered for 2.5s.
     if (step.stop && step.heard) void finishTurn();
     else if (finals.length && performance.now() - lastHeardAt > 2500) void finishTurn(false);
