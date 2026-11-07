@@ -5,6 +5,7 @@ import { QRCodeSVG } from "qrcode.react";
 import SEOHead from "@/components/common/SEOHead";
 import { addressFor, fetchMarkets, fetchWallet, WALLET_TOKENS, type Addresses, type Market } from "./walletTokens";
 import MarketsView, { CoinDetail } from "./MarketsView";
+import SendForm from "./SendForm";
 import "@/styles/wallet.css";
 
 type View = "home" | "receive" | "send";
@@ -22,6 +23,7 @@ export default function WalletPage() {
   const [view, setView] = useState<View>("home");
   const [tab, setTab] = useState<"home" | "trade">("home");
   const [coin, setCoin] = useState<string | null>(null);
+  const [sendTok, setSendTok] = useState<Token | null>(null);
   useEffect(() => { window.scrollTo(0, 0); }, [coin, view, tab]);
   const [q, setQ] = useState("");
   const [markets, setMarkets] = useState<Record<string, Market>>({});
@@ -54,7 +56,7 @@ export default function WalletPage() {
         const m = markets[t.id]; const ch = m?.price_change_percentage_24h ?? null;
         return (
           <div key={t.id} className={`wl-card wl-net ${action ? "" : "wl-tap"}`} role={action ? undefined : "button"} tabIndex={action ? undefined : 0}
-            onClick={action ? undefined : () => { if (view === "send") return; setCoin(t.id); }}>
+            onClick={action ? undefined : () => { if (view === "send") setSendTok(t); else setCoin(t.id); }}>
             <TokenIcon m={m} symbol={t.symbol} />
             <span className="wl-net-copy">
               <strong>{t.name}</strong>
@@ -113,10 +115,12 @@ export default function WalletPage() {
       {!coin && view === "send" && (
         <>
           <header className="wl-top"><button type="button" className="wl-round" aria-label="Close" onClick={() => setView("home")}><X size={20} /></button><h2 className="wl-title">Send</h2></header>
+          {sendTok ? <SendForm token={sendTok} balance={balances[sendTok.id] || 0} price={markets[sendTok.id]?.current_price || 0} image={markets[sendTok.id]?.image} onBack={() => setSendTok(null)} onDone={() => { setSendTok(null); setView("home"); void fetchWallet().then((w) => setBalances(w.balances)).catch(() => {}); }} /> : <>
           <label className="wl-search"><Search size={18} /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" /></label>
           <div style={{ height: 14 }} />
           {rows(filtered)}
           {filtered.length === 0 && <p className="wl-note">{q ? "No coins match your search." : "You have no balance to send yet."}</p>}
+          </>}
         </>
       )}
       {qr && addresses && (
