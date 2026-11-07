@@ -183,6 +183,10 @@ function Main({ nav }: { nav: Nav }) {
         <Row label="Haptics" value={haptics ? "On" : "Off"} onClick={() => flip("ceyo_haptics", !haptics, setHaptics)} />
       </Group>
       <Group>
+        <Row label="Telegram Community" sub="t.me/Ceyois" onClick={() => window.open("https://t.me/Ceyois", "_blank", "noopener")} right={<Ext />} />
+        <Row label="X Community" sub="@ceyosi" onClick={() => window.open("https://x.com/ceyosi", "_blank", "noopener")} right={<Ext />} />
+      </Group>
+      <Group>
         <Row label="Help Center" sub="Guides for bots, groups and routines" onClick={() => nav("/docs")} right={<Ext />} />
         <Row label="About Ceyo" onClick={() => nav("/about")} right={<Ext />} />
         <Row label="Contact" onClick={() => nav("/contact")} right={<Ext />} />
