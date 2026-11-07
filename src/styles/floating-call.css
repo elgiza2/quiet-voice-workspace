@@ -1,0 +1,18 @@
+.cx-call.cx-call-cartesia{position:absolute;left:12px;top:84px;width:min(340px,calc(100% - 24px));z-index:46;box-sizing:border-box;display:flex;align-items:center;gap:12px;padding:10px 10px 10px 12px;background:var(--cv-panel);color:var(--cv-ink);border:0;border-radius:24px;box-shadow:0 10px 30px -18px hsl(0 0% 0% / .45);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;transition:width .22s ease,height .22s ease,border-radius .22s ease,padding .22s ease}
+.cx-call.cx-call-cartesia[data-dragging=true]{cursor:grabbing;transition:none}
+.cx-call-avatar{display:grid;place-items:center;flex:none;width:48px;height:48px;border-radius:16px;background:var(--cv-active)}
+.cx-call-cartesia[data-phase=listening] .cx-call-avatar{animation:call-breathe 1.6s ease-in-out infinite}
+.cx-call-cartesia .cx-call-content{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;line-height:1.25}
+.cx-call-cartesia .cx-call-content strong{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cx-call-cartesia .cx-call-content [role=status]{font-size:12px;color:var(--cv-muted)}
+.cx-call-cartesia .cx-call-alert{all:unset;cursor:pointer;font-size:11px;color:var(--cv-ink);opacity:.8;max-height:32px;overflow:hidden;overflow-wrap:anywhere}
+.cx-call-actions{display:flex;align-items:center;gap:6px;flex:none}
+.cx-call-cartesia .cx-call-btn{width:38px;height:38px;padding:0;border-radius:50%}
+.cx-call-cartesia[data-minimized=true]{width:64px;height:64px;padding:0;gap:0;border-radius:22px;justify-content:center}
+.cx-call-restore{all:unset;display:grid;place-items:center;width:64px;height:64px;border-radius:22px;cursor:pointer}
+.cx-chat .cx-call.cx-call-cartesia[role=dialog]{border:0!important;outline:0!important;background:var(--cv-panel)!important;color:var(--cv-ink)!important;max-width:calc(100% - 16px)}
+.cx-call.cx-call-cartesia[role=dialog] .cx-call-btn{border:0!important;box-shadow:none!important;outline:0!important;background:var(--cv-active)!important;color:var(--cv-ink)!important}
+.cx-call.cx-call-cartesia[role=dialog] .cx-call-end{background:var(--cv-ink)!important;color:var(--cv-panel)!important}
+.cx-call.cx-call-cartesia[role=dialog] .cx-call-restore{background:transparent!important}
+@keyframes call-breathe{50%{transform:scale(.93)}}
+@media(prefers-reduced-motion:reduce){.cx-call-avatar{animation:none!important}.cx-call.cx-call-cartesia{transition:none}}

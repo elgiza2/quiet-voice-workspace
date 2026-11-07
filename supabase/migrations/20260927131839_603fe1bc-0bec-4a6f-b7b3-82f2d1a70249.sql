@@ -1,0 +1,1 @@
+-- Removed an embedded provider credential. Configure provider access securely; never seed API keys.

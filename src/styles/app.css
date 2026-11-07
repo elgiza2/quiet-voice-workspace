@@ -1,0 +1,49 @@
+/* Single render-critical CSS entry.
+ *
+ * These sheets used to be imported from `src/lib/spaBoot.ts`, which the "/$"
+ * route loads dynamically on the client. That meant the server-rendered HTML
+ * arrived with no stylesheet at all, so every page painted unstyled for a
+ * moment and looked broken while loading. Importing this file from
+ * `src/routes/__root.tsx` puts the whole bundle in the document's own graph, so
+ * the stylesheet ships as a <link> with the HTML.
+ *
+ * Order is load-bearing — keep it exactly as listed. */
+@import "../index.css";
+@import "./claude-chat.css";
+@import "./pwa-safe-area.css";
+@import "./pwa-responsive.css";
+@import "./font-fallback.css";
+@import "./view-transitions.css";
+@import "./megsy-tokens.css";
+@import "./deferred.css";
+@import "./chat-legibility.css";
+/* Must stay after the legacy sheets: keeps old mobile button colours from
+   coming back over the global sunset theme. */
+@import "./mobile-sunset-buttons.css";
+/* Light (white + pink) theme layer — after every legacy dark sheet. */
+@import "./light-theme.css";
+/* Chat accent layer must follow every legacy/theme sheet so their
+   !important bubble and composer rules cannot flatten it back to grey. */
+@import "./chat-vivid.css";
+@import "./desktop-fastshot-chat.css";
+@import "./desktop-workspace.css";
+/* Device-tier layer last, so nothing re-adds the expensive decorative effects
+   it strips on weak devices. */
+@import "./agent.css";
+@import "./perf-tier.css";
+
+@import "./auth-cue.css";
+@import "./public-pages.css";
+/* Shared liquid-glass surfaces for checkout and pricing — last, so theme
+   sheets cannot flatten the frosted layers back to flat cards. */
+@import "./glass.css";
+@import "./botanical-pricing.css";
+/* Checkout mirrors the botanical pricing design — last, so it wins over the
+   shared glass language and every legacy sheet. */
+@import "./checkout.css";
+@import "./settings-home.css";
+@import "./settings-glass.css";
+@import "./agent-hub.css";
+@import "./ceyo-billing-vault.css";
+@import "./voice.css";
+

@@ -1,0 +1,2 @@
+- Company and legal documents share one public reading layout and browser-safe catalogue; each public path has a TanStack leaf head. Why: consistent navigation and accurate share metadata without authentication.
+- State only established company details and verified processing behavior; do not invent registration, certifications, refund windows or deletion deadlines. Why: published text must not promise unimplemented rights or operations.

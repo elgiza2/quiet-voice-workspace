@@ -1,0 +1,6 @@
+CREATE OR REPLACE FUNCTION public.read_agentsky_api_key() RETURNS text LANGUAGE sql SECURITY DEFINER SET search_path TO '' AS $$ SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name='AGENTSKY_API_KEY' LIMIT 1 $$;
+REVOKE ALL ON FUNCTION public.read_agentsky_api_key() FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.read_agentsky_api_key() TO service_role;
+CREATE OR REPLACE FUNCTION public.store_agentsky_api_key(p_key text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path TO '' AS $$ DECLARE existing uuid; BEGIN IF p_key IS NULL OR trim(p_key)='' THEN RAISE EXCEPTION 'Invalid credential'; END IF; SELECT id INTO existing FROM vault.secrets WHERE name='AGENTSKY_API_KEY' LIMIT 1; IF existing IS NULL THEN PERFORM vault.create_secret(p_key,'AGENTSKY_API_KEY','Independent media provider credential'); ELSE PERFORM vault.update_secret(existing,p_key,'AGENTSKY_API_KEY','Independent media provider credential'); END IF; END $$;
+REVOKE ALL ON FUNCTION public.store_agentsky_api_key(text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.store_agentsky_api_key(text) TO service_role;

@@ -1,0 +1,106 @@
+/* Reference-inspired pricing and Vault. Scoped to avoid changing other settings. */
+:root {
+  --cv-page: oklch(.235 0 0);
+  --cv-panel: oklch(.285 0 0);
+  --cv-line: oklch(.335 0 0);
+  --cv-ink: oklch(.98 0 0);
+  --cv-muted: oklch(.65 0 0);
+  --cv-active: oklch(.40 0 0);
+  --cv-pricing: oklch(.12 0 0);
+  --cv-pricing-panel: oklch(.185 0 0);
+  --cv-blue: oklch(.68 .18 245);
+  --cv-selected: oklch(.235 .035 245);
+}
+.agent-hub.ceyo-vault {
+  --ceyo-page-bg: var(--cv-page);
+  --ceyo-card: var(--cv-panel);
+  --ceyo-secondary: var(--cv-muted);
+  color: var(--cv-ink);
+}
+.ceyo-vault .ceyo-top { width:100%;max-width:676px;margin:0 auto;gap:16px;padding:calc(max(env(safe-area-inset-top),var(--safe-top,0px)) + 18px) 18px 32px; }
+.ceyo-vault .ceyo-top h1 { font-size:18px;font-weight:500;letter-spacing:0; }
+.ceyo-vault .gx-round,.ceyo-plans .gx-round { width:44px;height:44px;padding:0;border:1px solid var(--cv-line);background:var(--cv-panel);color:var(--cv-ink);border-radius:999px; }
+.ceyo-vault .ceyo-scroll { padding:6px 16px 100px; }
+.agent-hub .ceyo-vault-tabs { display:flex;align-items:center;gap:4px;margin:0 0 18px;padding:0;border:0;box-shadow:none;background:transparent;border-radius:0;overflow-x:auto;scrollbar-width:none; }
+.ceyo-vault-tabs button { flex:none;gap:5px;height:38px;padding:0 12px;border:0;border-radius:999px;background:transparent;color:var(--cv-muted);font-size:14px;white-space:nowrap; }
+.ceyo-vault-tabs button[data-active=true] { background:var(--cv-active);color:var(--cv-ink); }
+.ceyo-vault-tabs button span { color:var(--cv-muted); }
+.ceyo-vault .ceyo-vault-list { border:1px solid var(--cv-line);border-radius:18px;background:var(--cv-panel);margin-bottom:10px; }
+.ceyo-vault .ceyo-vault-row { min-height:74px;padding:16px 18px;border-color:var(--cv-line); }
+.ceyo-vault .ceyo-vault-row strong { font-size:17px; }
+.ceyo-vault .ceyo-vault-row small { font-size:14px; }
+.ceyo-vault .ceyo-vault-note { margin:10px 16px 40px;color:var(--cv-muted);font-size:13px;line-height:1.55; }
+.ceyo-vault .ceyo-bottom-search { height:46px;max-width:608px;inset-inline:18px;bottom:calc(18px + max(env(safe-area-inset-bottom),var(--safe-bottom,0px)));border:1px solid var(--cv-line);background:var(--cv-panel);color:var(--cv-ink); }
+.ceyo-vault .ceyo-bottom-search input { min-width:0;font-size:17px;color:var(--cv-ink); }
+.ceyo-vault input::placeholder { color:var(--cv-muted); }
+.ceyo-vault .hub-empty-state { min-height:140px;padding:24px 12px;background:transparent;border:0; }
+.ceyo-vault .hub-empty-state strong { font-size:16px;font-weight:500; }
+.ceyo-vault .hub-empty-state p { color:var(--cv-muted); }
+.ceyo-vault .ceyo-vault-menu { background:var(--cv-panel);border:1px solid var(--cv-line);border-radius:18px; }
+.ceyo-vault .ceyo-vault-menu button { width:100%;justify-content:flex-start;height:48px;color:var(--cv-ink); }
+.ceyo-vault-editor { display:flex;flex-direction:column;min-height:100%;gap:26px; }
+.ceyo-vault-fields { padding:0 18px;border-radius:18px;border:1px solid var(--cv-line);background:var(--cv-panel); }
+.ceyo-vault-field { display:flex;flex-direction:column;gap:8px;min-height:94px;padding:18px 0; }
+.ceyo-vault-field + .ceyo-vault-field { border-top:1px solid var(--cv-line); }
+.ceyo-vault-field span { color:var(--cv-muted);font-size:14px; }
+.ceyo-vault-field input { width:100%;min-width:0;padding:0;border:0;outline:none;background:transparent;color:var(--cv-ink);font-size:17px; }
+.ceyo-vault-editor .ceyo-vault-note { margin:0 16px; }
+.ceyo-vault .ceyo-vault-save { margin-top:auto;width:100%;min-height:48px;border-radius:999px;border:1px solid var(--cv-line);background:var(--cv-ink)!important;color:var(--cv-pricing)!important;box-shadow:none!important;font-size:16px; }
+.ceyo-vault .ceyo-vault-save:disabled { background:var(--cv-active)!important;color:var(--cv-muted)!important;opacity:1; }
+.agent-hub.ceyo-vault button.ceyo-vault-save { background-image:none!important;box-shadow:none!important; }
+.agent-hub.ceyo-vault .ceyo-vault-tabs,.agent-hub.ceyo-plans .ceyo-plans-tabs { border:0!important;box-shadow:none!important; }
+.agent-hub.ceyo-page.ceyo-plans,.ceyo-plans .ceyo-scroll { background:var(--cv-pricing)!important;color:var(--cv-ink); }
+.ceyo-plans .ceyo-scroll { display:flex;flex-direction:column;max-width:680px;padding:calc(22px + max(env(safe-area-inset-top),var(--safe-top,0px))) 16px 0; }
+.ceyo-plans .ceyo-plans-close { top:calc(16px + max(env(safe-area-inset-top),var(--safe-top,0px)));right:18px; }
+.ceyo-plans .ceyo-plans-brand { margin:0;transform:none;min-height:44px;align-items:center;gap:10px; }
+.ceyo-plans .ceyo-brand-orb { width:32px;height:32px;margin:0;background:var(--cv-ink); }
+.ceyo-plans .ceyo-brand-orb i { height:11px;width:4px;background:var(--cv-pricing); }
+.ceyo-plans-brand-name { font-size:22px;font-weight:600;letter-spacing:0; }
+.ceyo-plans .ceyo-plans-title { font-size:24px!important;font-weight:400!important;line-height:1.4;letter-spacing:0;margin:20px 0 24px;color:var(--cv-ink); }
+.ceyo-plans .ceyo-plans-card { flex:1 0 auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto;height:calc(100dvh - 170px - max(env(safe-area-inset-top),var(--safe-top,0px)));min-height:390px;border:0!important;border-radius:26px 26px 0 0!important;background:var(--cv-pricing-panel)!important;padding:12px 12px 18px!important; }
+.ceyo-plans .ceyo-plans-tabs { flex:none;margin:0 0 18px!important;padding:4px;background:var(--cv-page)!important;border:0;box-shadow:none;border-radius:999px; }
+.ceyo-plans-benefits { flex:1;min-height:0;overflow-y:auto;scrollbar-width:none;padding-bottom:18px; }
+.ceyo-plans .ceyo-plans-tabs button { height:40px;padding:0 8px;background:transparent;border:0;color:var(--cv-muted);font-size:15px; }
+.ceyo-plans .ceyo-plans-tabs button[data-on=true] { background:var(--cv-active)!important;color:var(--cv-ink); }
+.ceyo-plans .ceyo-plans-mult { margin:12px 8px 0;font-size:34px!important;font-weight:400!important;line-height:1.1;color:var(--cv-ink); }
+.ceyo-plans .ceyo-plans-sub { margin:6px 8px 12px;font-size:14px;color:var(--cv-ink); }
+.ceyo-plans .ceyo-plans-muted { color:var(--cv-muted);font-size:14px; }
+.ceyo-plans .ceyo-plans-base { margin:0 8px; }
+.ceyo-plans .ceyo-plans-gt { margin:20px 8px 0;padding-bottom:12px;border-bottom:1px solid var(--cv-line)!important;font-size:13px!important;text-transform:none;letter-spacing:0; }
+.ceyo-plans .ceyo-plans-card ul { padding:14px 8px 0;gap:14px; }
+.ceyo-plans .ceyo-plans-card li { align-items:flex-start;font-size:14px;line-height:1.45;color:var(--cv-ink); }
+.ceyo-plans .ceyo-plans-card li svg { width:18px;height:18px;margin-top:2px;color:var(--cv-ink); }
+.ceyo-plans .ceyo-plans-foot { position:static;margin:auto -12px -18px;padding:30px 12px calc(18px + max(env(safe-area-inset-bottom),var(--safe-bottom,0px)));background:var(--cv-pricing-panel)!important; }
+.ceyo-plans .ceyo-plans-prices { gap:8px; }
+.ceyo-plans .ceyo-plans-prices button { min-width:0;min-height:70px;padding:12px;border:2px solid var(--cv-line);border-radius:18px;background:transparent;color:var(--cv-ink);text-align:start; }
+.ceyo-plans .ceyo-plans-prices button[data-on=true] { border:2px solid var(--cv-blue)!important;background:var(--cv-selected)!important; }
+.ceyo-plans .ceyo-plans-prices b { font-size:20px;font-weight:600; }
+.ceyo-plans .ceyo-plans-prices span,.ceyo-plans .ceyo-plans-prices small { color:var(--cv-muted);font-size:12px; }
+.ceyo-plans .ceyo-plans-prices em { color:var(--cv-blue)!important; }
+.ceyo-plans .ceyo-plans-cta { height:48px;margin-top:16px;padding:0 16px;background:var(--cv-ink);color:var(--cv-pricing);border:0;border-radius:999px;font-size:16px; }
+.ceyo-plans .ceyo-plans-cta[data-current=true] { background:transparent;border:1px solid var(--cv-line);color:var(--cv-muted); }
+.ceyo-plans .ceyo-plans-legal { margin:12px 0 0;color:var(--cv-muted);font-size:11px;line-height:1.5; }
+@media(min-width:768px) {
+  .ceyo-plans .ceyo-scroll { padding-top:36px; }
+  .ceyo-plans .ceyo-plans-card { height:calc(100dvh - 200px);padding:18px 24px 24px!important; }
+  .ceyo-plans .ceyo-plans-foot { margin:auto -24px -24px;padding-inline:24px; }
+  .ceyo-plans .ceyo-plans-title { font-size:28px!important;margin-bottom:32px; }
+  .ceyo-vault .ceyo-top { padding-top:28px;padding-bottom:36px; }
+}
+
+/* One viewport, one selected plan: no nested scrolling. */
+.agent-hub.ceyo-page.ceyo-plans .ceyo-scroll{overflow:hidden!important;height:100dvh;max-height:100dvh;padding:calc(14px + max(env(safe-area-inset-top),var(--safe-top,0px))) 16px calc(12px + max(env(safe-area-inset-bottom),var(--safe-bottom,0px)))}
+.ceyo-plans .ceyo-plans-title{margin:10px 0 16px!important;font-size:22px!important;line-height:1.2}
+.ceyo-plans .ceyo-plans-card{height:auto!important;min-height:0!important;flex:1 1 0;border-radius:8px!important;padding:12px!important;grid-template-rows:auto minmax(0,1fr) auto}
+.ceyo-plans .ceyo-plans-tabs{margin-bottom:10px!important}
+.ceyo-plans .ceyo-plans-benefits{overflow:visible;padding:0}
+.ceyo-plans .ceyo-plans-mult{font-size:28px!important;margin:2px 8px 0}
+.ceyo-plans .ceyo-plans-sub{margin:4px 8px 8px}
+.ceyo-plans .ceyo-plans-gt{margin:8px 8px 0;padding-bottom:6px}
+.ceyo-plans .ceyo-plans-card ul{padding:8px 8px 0;gap:8px}
+.ceyo-plans .ceyo-plans-card li{font-size:13px;line-height:1.35}
+.ceyo-plans .ceyo-plans-foot{margin:0!important;padding:12px 0 0!important}
+.ceyo-plans .ceyo-plans-prices button{min-height:60px;border-radius:8px;padding:8px}
+.ceyo-plans .ceyo-plans-cta{margin-top:10px}
+.ceyo-plans .ceyo-plans-legal{margin-top:8px;font-size:10px}
+@media(max-height:680px){.ceyo-plans .ceyo-plans-brand{min-height:32px}.ceyo-plans .ceyo-plans-title{margin:6px 0 10px!important}.ceyo-plans .ceyo-plans-card ul{gap:4px}.ceyo-plans .ceyo-plans-tabs button{height:34px}.ceyo-plans .ceyo-plans-sub{margin-bottom:4px}.ceyo-plans .ceyo-plans-cta{height:40px}.ceyo-plans .ceyo-plans-prices button{min-height:52px}}

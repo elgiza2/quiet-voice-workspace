@@ -1,0 +1,124 @@
+/* Scoped iOS-style settings home; existing account and navigation logic is unchanged. */
+:root {
+  --settings-canvas: oklch(.95 .008 240);
+  --settings-surface: oklch(1 0 0 / .48);
+  --settings-glass-edge: oklch(1 0 0 / .8);
+  --settings-reflection: oklch(1 0 0 / .46);
+  --settings-backdrop: linear-gradient(145deg, oklch(.96 .012 220), oklch(.92 .016 300) 48%, oklch(.96 .01 155));
+  --settings-frost: blur(24px) saturate(1.3);
+  --settings-ink: oklch(.19 .003 255);
+  --settings-muted: oklch(.61 .005 255);
+  --settings-line: oklch(.4 .01 255 / .09);
+  --settings-icon-ink: oklch(1 0 0);
+  --settings-gray: oklch(.62 .007 255);
+  --settings-violet: oklch(.56 .23 295);
+  --settings-pink: oklch(.65 .22 350);
+  --settings-green: oklch(.71 .16 148);
+  --settings-blue: oklch(.63 .2 255);
+  --settings-yellow: oklch(.82 .16 87);
+  --settings-red: oklch(.65 .21 28);
+  --settings-shadow: inset 0 1px 0 var(--settings-glass-edge), inset 0 -1px 0 var(--settings-reflection), 0 8px 28px oklch(.25 .005 255 / .055);
+}
+html.dark, html[data-theme="dark"] {
+  --settings-canvas: oklch(.16 .003 255);
+  --settings-surface: oklch(.3 .008 255 / .42);
+  --settings-glass-edge: oklch(1 0 0 / .16);
+  --settings-reflection: oklch(1 0 0 / .025);
+  --settings-backdrop: linear-gradient(145deg, oklch(.2 .014 225), oklch(.16 .012 295) 48%, oklch(.21 .012 165));
+  --settings-ink: oklch(.97 .003 255);
+  --settings-muted: oklch(.65 .005 255);
+  --settings-line: oklch(1 0 0 / .075);
+}
+.ms-root { min-height: 100dvh; background: var(--settings-backdrop); background-attachment: fixed; color: var(--settings-ink); display: flex; justify-content: center; font-family: -apple-system, "SF Pro Display", Inter, sans-serif; }
+.ms-screen { width: 100%; max-width: 500px; }
+.ms-header { display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; padding: max(20px, env(safe-area-inset-top)) 20px 20px; }
+.ms-brand { grid-column: 2; margin: 0; text-align: center; font-size: 22px; font-weight: 600; letter-spacing: 0; font-family: inherit; }
+.ms-root .ms-hbtn { width: 46px; height: 46px; padding: 0; border-radius: 50%; background: var(--settings-surface); color: var(--settings-ink); box-shadow: var(--settings-shadow); }
+.ms-hicon { width: 25px; height: 25px; }
+.ms-body { padding: 0 20px; display: flex; flex-direction: column; gap: 20px; }
+.ms-card { width: 100%; background: var(--settings-surface); border: 0; border-radius: 20px; overflow: hidden; }
+.ms-root .ms-profile { width: 100%; height: auto; min-height: 82px; display: flex; justify-content: flex-start; gap: 14px; padding: 15px 16px; text-align: start; border-radius: 0; color: var(--settings-ink); background: transparent; }
+.ms-avatar { width: 46px; height: 46px; object-fit: cover; border-radius: 50%; flex-shrink: 0; }
+.ms-avatar-fallback { display: grid; place-items: center; background: var(--settings-gray); color: var(--settings-icon-ink); font-size: 20px; font-weight: 600; }
+.ms-profile-text { display: flex; flex: 1; flex-direction: column; gap: 4px; min-width: 0; }
+.ms-profile-name { font-size: 18px; font-weight: 600; overflow-wrap: anywhere; }
+.ms-profile-sub { font-size: 14px; color: var(--settings-muted); }
+.ms-root .ms-row { position: relative; width: 100%; height: auto; min-height: 52px; display: flex; justify-content: flex-start; gap: 13px; padding: 10px 16px; border: 0; border-radius: 0; background: transparent; color: var(--settings-ink); text-align: start; white-space: normal; font-family: inherit; }
+.ms-row-div::before { content: ""; position: absolute; top: 0; inset-inline-start: 56px; inset-inline-end: 0; height: 1px; background: var(--settings-line); }
+.ms-row-container { position: relative; }
+.ms-profile-group .ms-row-div::before { inset-inline-start: 17px; inset-inline-end: 17px; }
+.ms-icon-tile { display: grid; place-items: center; width: 24px; height: 24px; flex-shrink: 0; background: transparent; color: var(--settings-ink); box-shadow: none; }
+.ms-row-icon { width: 17px; height: 17px; stroke-width: 1.8; }
+.ms-tone-wallet { background: color-mix(in oklch, var(--settings-violet) 12%, var(--settings-surface)); color: var(--settings-violet); }
+.ms-tone-appearance { background: color-mix(in oklch, var(--settings-pink) 12%, var(--settings-surface)); color: var(--settings-pink); }
+.ms-tone-memory, .ms-tone-privacy { background: color-mix(in oklch, var(--settings-green) 12%, var(--settings-surface)); color: var(--settings-green); }
+.ms-tone-help, .ms-tone-language, .ms-tone-browser { background: color-mix(in oklch, var(--settings-blue) 12%, var(--settings-surface)); color: var(--settings-blue); }
+.ms-tone-rate, .ms-tone-referrals { background: color-mix(in oklch, var(--settings-yellow) 12%, var(--settings-surface)); color: var(--settings-yellow); }
+.ms-tone-skills, .ms-tone-logout { background: color-mix(in oklch, var(--settings-red) 12%, var(--settings-surface)); color: var(--settings-red); }
+.ms-row-label { flex: 1; min-width: 0; font-size: 15px; font-weight: 450; line-height: 1.35; }
+.ms-row-trailing { color: var(--settings-muted); font-size: 13px; flex-shrink: 0; }
+.ms-row-chev { width: 19px; height: 19px; flex-shrink: 0; color: var(--settings-muted); opacity: .5; }
+.ms-row-ext { font-size: 22px; }
+.ms-section-title { margin: 0 0 10px; padding-inline: 17px; font-size: 14px; font-weight: 550; color: var(--settings-muted); }
+.ms-spacer { height: max(24px, env(safe-area-inset-bottom)); }
+.ms-root .ms-theme-select { min-width: 80px; width: auto; border: 0; color: var(--settings-muted); background: transparent; box-shadow: none; padding: 0; gap: 6px; }
+.ms-root .ms-row-danger { color: hsl(var(--destructive)); }
+.ms-root .ms-row, .ms-root .ms-hbtn, .ms-root .ms-profile { transition: background .2s, transform .25s cubic-bezier(.22,1,.36,1); }
+.ms-root .ms-row:active:not(:disabled), .ms-root .ms-profile:active { background: var(--settings-line); }
+.ms-root .ms-hbtn:active { transform: scale(.93); }
+.ms-card { animation: settings-group-in .4s cubic-bezier(.22,1,.36,1) both; }
+@keyframes settings-group-in { from { opacity: 0; translate: 0 8px; } to { opacity: 1; translate: 0 0; } }
+@media(prefers-reduced-motion:reduce) { .ms-card { animation: none; } .ms-root .ms-row, .ms-root .ms-hbtn { transition: none; } }
+/* The desktop sidebar stays in place; only the home content uses the reference palette. */
+[data-settings-home="true"] { background: var(--settings-backdrop); background-attachment: fixed; }
+.settings-reference-desktop { color: var(--settings-ink); }
+.settings-reference-desktop .settings-reference-title { margin: 0 0 26px; text-align: center; font-size: 26px; font-weight: 600; }
+.settings-reference-desktop .settings-profile-group { background: var(--settings-surface); border-radius: 20px; overflow: hidden; }
+.settings-reference-desktop .settings-profile-row { width: 100%; height: auto; display: flex; justify-content: flex-start; padding: 22px; gap: 16px; text-align: start; color: var(--settings-ink); }
+.settings-profile-avatar { width: 60px; height: 60px; overflow: hidden; border-radius: 50%; flex-shrink: 0; }
+.settings-profile-avatar > * { width: 100%; height: 100%; object-fit: cover; }
+.settings-profile-copy { display: flex; flex: 1; min-width: 0; flex-direction: column; gap: 4px; }
+.settings-profile-copy strong { font-size: 18px; font-weight: 600; overflow-wrap: anywhere; }
+.settings-profile-copy span { font-size: 14px; color: var(--settings-muted); }
+.settings-reference-desktop .ds-row { min-height: 56px; border-radius: 0; font-weight: 450; }
+.settings-reference-desktop .ds-row + .ds-row::before { background: var(--settings-line); }
+.settings-reference-desktop .settings-desktop-group { background: var(--settings-surface); border-radius: 20px; overflow: hidden; border: 0; box-shadow: none; }
+.settings-reference-desktop .settings-group-heading { color: var(--settings-muted); font-size: 14px; font-weight: 550; text-transform: none; letter-spacing: 0; padding-inline: 18px; }
+@layer properties {
+ html body .ms-root .ms-row, html body .ms-root .ms-profile { background: transparent !important; color: var(--settings-ink) !important; -webkit-text-fill-color: currentColor !important; border: 0 !important; box-shadow: none !important; }
+  html body .ms-root .ms-hbtn, html body .ms-root .ms-card,
+  html body .settings-reference-desktop .settings-profile-group,
+  html body .settings-reference-desktop .settings-desktop-group { background: var(--settings-surface) !important; backdrop-filter: var(--settings-frost) !important; -webkit-backdrop-filter: var(--settings-frost) !important; border: 1px solid var(--settings-glass-edge) !important; box-shadow: var(--settings-shadow) !important; color: var(--settings-ink) !important; }
+  html body .ms-root .ms-icon-tile, html body .settings-reference-desktop .ms-icon-tile { background: transparent !important; color: var(--settings-ink) !important; border: 0 !important; box-shadow: none !important; }
+  html body .ms-root .ms-icon-tile svg, html body .settings-reference-desktop .ms-icon-tile svg { width: 19px !important; height: 19px !important; stroke-width: 1.6; color: var(--settings-ink) !important; }
+ html body .ms-root .ms-brand { font-family: inherit !important; color: var(--settings-ink) !important; }
+ html body .settings-reference-desktop .ds-row, html body .settings-reference-desktop .settings-profile-row { color: var(--settings-ink) !important; background: transparent !important; border: 0 !important; box-shadow: none !important; }
+ html body .settings-reference-desktop .ds-row .text-foreground { color: var(--settings-ink) !important; }
+ html body .settings-reference-desktop .ds-row .ms-icon-tile svg { color: inherit !important; }
+}
+
+/* Appearance: one clean segment instead of a dropdown or a fake switch. */
+.th-seg {
+  display: inline-flex; align-items: center; gap: 2px; padding: 3px; flex-shrink: 0;
+  border-radius: 999px; background: var(--settings-line);
+}
+.th-seg-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  height: 30px; min-width: 34px; padding: 0 11px; border: 0; border-radius: 999px;
+  background: transparent; color: var(--settings-muted);
+  font: inherit; font-size: 11.5px; font-weight: 600; line-height: 1; cursor: pointer;
+  transition: background .22s cubic-bezier(.22,1,.36,1), color .22s, box-shadow .22s;
+}
+.th-seg-btn > svg { width: 14px; height: 14px; flex: none; }
+.th-seg-btn[data-on="true"] {
+  background: var(--settings-surface); color: var(--settings-ink);
+  box-shadow: var(--settings-shadow), 0 1px 4px rgba(0,0,0,.10);
+}
+.th-seg-btn:active { transform: scale(.96); }
+@media (max-width: 400px) { .th-seg-btn { padding: 0 8px; } .th-seg-btn span { display: none; } }
+@media (prefers-reduced-motion: reduce) { .th-seg-btn { transition: none; } }
+
+/* Appearance picker sits on its own full-width row so the previews have room. */
+.ms-root .ms-row-stack { display: block; padding: 14px 16px 16px; }
+.ms-row-stack .ms-row-head { display: flex; align-items: center; gap: 13px; }
+.ms-row-stack .ms-row-picker { margin-top: 12px; }

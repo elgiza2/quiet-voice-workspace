@@ -1,0 +1,225 @@
+/* Shared glass chrome for every settings surface: one vocabulary (.gx-*) built
+   on the --settings-* tokens so sub-pages, the settings home and the billing
+   page all open and read the same way. */
+
+.gx-root {
+  min-height: 100dvh;
+  background: var(--settings-backdrop);
+  background-attachment: fixed;
+  color: var(--settings-ink);
+  font-family: -apple-system, "SF Pro Display", Inter, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  justify-content: center;
+  isolation: isolate;
+  overflow-x: hidden;
+}
+
+.gx-screen {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px;
+  animation: gx-sheet-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Top bar: back on one side, actions on the other ── */
+.gx-top {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: max(14px, env(safe-area-inset-top)) 0 8px;
+}
+.gx-top-trail { display: flex; align-items: center; justify-content: flex-end; gap: 8px; min-width: 44px; }
+
+.gx-hbtn {
+  width: 44px; height: 44px; padding: 0; flex-shrink: 0;
+  display: inline-grid; place-items: center;
+  border: 0; border-radius: 50%; cursor: pointer;
+  background: var(--settings-surface); color: var(--settings-ink);
+  backdrop-filter: var(--settings-frost); box-shadow: var(--settings-shadow);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s;
+}
+.gx-hbtn:active { transform: scale(0.92); background: var(--settings-line); }
+.gx-hbtn:disabled { opacity: 0.45; cursor: not-allowed; }
+.gx-hbtn-sm { width: 36px; height: 36px; }
+.gx-hicon { width: 22px; height: 22px; }
+
+/* ── Page heading ── */
+.gx-title {
+  margin: 6px 0 4px;
+  font-size: 30px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1;
+  color: var(--settings-ink);
+}
+.gx-sub { margin: 0 0 18px; font-size: 14px; line-height: 1.5; color: var(--settings-muted); max-width: 56ch; }
+
+.gx-content { display: flex; flex-direction: column; gap: 22px; }
+.gx-content > *:nth-child(1) { animation: gx-rise 0.34s cubic-bezier(0.22, 1, 0.36, 1) 0.06s both; }
+.gx-content > *:nth-child(2) { animation: gx-rise 0.34s cubic-bezier(0.22, 1, 0.36, 1) 0.10s both; }
+.gx-content > *:nth-child(3) { animation: gx-rise 0.34s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both; }
+.gx-content > *:nth-child(4) { animation: gx-rise 0.34s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both; }
+.gx-content > *:nth-child(5) { animation: gx-rise 0.34s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both; }
+.gx-content > *:nth-child(6) { animation: gx-rise 0.34s cubic-bezier(0.22, 1, 0.36, 1) 0.26s both; }
+.gx-content > *:nth-child(n + 7) { animation: gx-rise 0.34s cubic-bezier(0.22, 1, 0.36, 1) 0.30s both; }
+
+/* ── Sections ── */
+.gx-section { display: flex; flex-direction: column; gap: 10px; }
+.gx-section-title {
+  margin: 8px 4px 0;
+  font-size: 19px; font-weight: 700; letter-spacing: -0.01em;
+  color: var(--settings-ink);
+}
+.gx-section-note { margin: 0 4px; font-size: 13px; color: var(--settings-muted); }
+
+/* ── Card ── */
+.gx-card {
+  background: var(--settings-surface);
+  border-radius: 22px;
+  overflow: hidden;
+  backdrop-filter: var(--settings-frost);
+  box-shadow: var(--settings-shadow);
+}
+.gx-card-pad { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.gx-card-selected { box-shadow: var(--settings-shadow), inset 0 0 0 2px color-mix(in oklch, var(--settings-blue) 55%, transparent); }
+
+/* Desktop pane: same chrome, wider measure, no full-screen sheet width. */
+.gx-pane {
+  position: relative; z-index: 1;
+  width: 100%; max-width: 720px; margin: 0 auto;
+  display: flex; flex-direction: column;
+  animation: gx-sheet-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Rows ── */
+.gx-row {
+  position: relative; width: 100%;
+  display: flex; align-items: center; gap: 13px;
+  min-height: 62px; padding: 10px 16px;
+  border: 0; background: transparent; color: var(--settings-ink);
+  text-align: start; font-family: inherit; cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+.gx-row + .gx-row::before {
+  content: ""; position: absolute; top: 0; inset-inline-start: 60px; inset-inline-end: 0;
+  height: 1px; background: var(--settings-line);
+}
+.gx-row-tap { cursor: pointer; transition: background 0.2s; }
+.gx-row-tap:active { background: var(--settings-line); }
+.gx-row-danger .gx-row-label, .gx-row-danger .gx-tile { color: var(--settings-red); }
+
+.gx-tile {
+  width: 34px; height: 34px; flex-shrink: 0;
+  display: grid; place-items: center;
+  border-radius: 11px;
+  background: var(--settings-line); color: var(--settings-muted);
+}
+.gx-tile > svg { width: 17px; height: 17px; }
+.gx-tile img { width: 20px; height: 20px; object-fit: contain; display: block; }
+.gx-tone-blue .gx-tile { background: color-mix(in oklch, var(--settings-blue) 14%, transparent); color: var(--settings-blue); }
+.gx-tone-violet .gx-tile { background: color-mix(in oklch, var(--settings-violet) 14%, transparent); color: var(--settings-violet); }
+.gx-tone-green .gx-tile { background: color-mix(in oklch, var(--settings-green) 16%, transparent); color: var(--settings-green); }
+.gx-tone-yellow .gx-tile { background: color-mix(in oklch, var(--settings-yellow) 18%, transparent); color: var(--settings-yellow); }
+.gx-tone-pink .gx-tile { background: color-mix(in oklch, var(--settings-pink) 14%, transparent); color: var(--settings-pink); }
+.gx-tone-red .gx-tile { background: color-mix(in oklch, var(--settings-red) 14%, transparent); color: var(--settings-red); }
+
+.gx-row-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.gx-row-label { font-size: 15px; font-weight: 500; line-height: 1.35; overflow-wrap: anywhere; }
+.gx-row-hint { font-size: 13px; line-height: 1.4; color: var(--settings-muted); }
+.gx-row-trailing {
+  flex-shrink: 0; max-width: 55%; display: flex; align-items: center; gap: 6px;
+  font-size: 14px; color: var(--settings-muted); font-variant-numeric: tabular-nums;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.gx-chev { width: 19px; height: 19px; flex-shrink: 0; color: var(--settings-muted); opacity: 0.55; }
+
+/* ── Fields ── */
+.gx-field { display: flex; flex-direction: column; gap: 7px; }
+.gx-field-label { padding-inline-start: 2px; font-size: 13px; font-weight: 500; color: var(--settings-muted); }
+.gx-input {
+  width: 100%;
+  background: var(--settings-surface);
+  border: 1px solid var(--settings-line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  color: var(--settings-ink);
+  font: inherit; font-size: 15px;
+  outline: none;
+  backdrop-filter: var(--settings-frost);
+  transition: border-color 0.18s ease;
+}
+.gx-input:focus { border-color: color-mix(in oklch, var(--settings-blue) 45%, var(--settings-line)); }
+.gx-input::placeholder { color: var(--settings-muted); opacity: 0.7; }
+.gx-field-hint { padding-inline-start: 2px; font-size: 12.5px; color: var(--settings-muted); line-height: 1.5; }
+
+/* ── Buttons ── */
+.gx-pill {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 52px; padding: 0 22px;
+  border: 0; border-radius: 999px; cursor: pointer;
+  background: var(--settings-surface); color: var(--settings-ink);
+  font-family: inherit; font-size: 16px; font-weight: 600;
+  backdrop-filter: var(--settings-frost); box-shadow: var(--settings-shadow);
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), background 0.2s;
+}
+.gx-pill:active { transform: scale(0.985); background: var(--settings-line); }
+.gx-pill:disabled { opacity: 0.45; cursor: not-allowed; }
+.gx-pill-wide { width: 100%; }
+.gx-pill-danger { color: var(--settings-red); }
+.gx-actions { display: flex; gap: 10px; }
+.gx-actions > * { flex: 1; }
+
+/* ── Utility surfaces ── */
+.gx-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  padding: 30px 20px; font-size: 15px; color: var(--settings-muted); text-align: center;
+}
+.gx-loading {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 92px; font-size: 14px; color: var(--settings-muted);
+}
+.gx-fact { display: flex; align-items: center; justify-content: space-between; gap: 14px; min-height: 46px; font-size: 15px; }
+.gx-fact + .gx-fact { border-top: 1px solid var(--settings-line); }
+.gx-fact-label { color: var(--settings-muted); }
+.gx-fact-value { font-weight: 600; font-variant-numeric: tabular-nums; }
+.gx-spacer { height: max(28px, env(safe-area-inset-bottom)); }
+
+/* ── Bottom sheet ── */
+.gx-scrim {
+  position: fixed; inset: 0; z-index: 60;
+  display: flex; align-items: flex-end; justify-content: center;
+  background: color-mix(in oklch, oklch(0.2 0.005 255) 45%, transparent);
+  backdrop-filter: blur(6px);
+  animation: gx-fade 0.25s ease both;
+}
+.gx-sheet {
+  width: 100%; max-width: 520px;
+  padding: 10px 20px max(24px, env(safe-area-inset-bottom));
+  background: var(--settings-backdrop); background-attachment: fixed;
+  border-radius: 26px 26px 0 0; box-shadow: var(--settings-shadow);
+  animation: gx-sheet-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.gx-sheet-bar { width: 38px; height: 4px; margin: 0 auto 12px; border-radius: 999px; background: var(--settings-line); }
+.gx-sheet-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.gx-sheet-title { margin: 0; font-size: 21px; font-weight: 700; letter-spacing: -0.01em; }
+.gx-sheet-body { display: flex; flex-direction: column; gap: 2px; margin-bottom: 20px; padding: 4px 0; }
+
+@keyframes gx-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes gx-sheet-in {
+  from { opacity: 0.45; translate: 0 10%; scale: 0.985; }
+  to { opacity: 1; translate: 0 0; scale: 1; }
+}
+@keyframes gx-rise { from { opacity: 0; translate: 0 6px; } to { opacity: 1; translate: 0 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .gx-screen, .gx-scrim, .gx-sheet, .gx-content > * { animation: none !important; }
+  .gx-hbtn, .gx-pill, .gx-row-tap { transition: none; }
+}

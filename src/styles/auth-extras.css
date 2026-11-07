@@ -1,0 +1,26 @@
+/* Mobile code / password screens — dark, matches the sign-in screen. */
+.ceyo-auth{min-height:100dvh;display:flex;flex-direction:column;background:hsl(var(--background));color:hsl(var(--foreground));padding:calc(env(safe-area-inset-top) + 12px) 20px calc(env(safe-area-inset-bottom) + 24px);font-family:inherit}
+.ceyo-auth-top{display:flex;align-items:center;justify-content:space-between;height:48px}
+.ceyo-auth-back{width:40px;height:40px;display:grid;place-items:center;border-radius:999px;border:1px solid hsl(var(--foreground)/.12);background:hsl(var(--foreground)/.04);color:hsl(var(--foreground))}
+.ceyo-auth-brand{font-weight:700;font-size:18px;letter-spacing:-.02em}
+.ceyo-auth-body{flex:1;display:flex;flex-direction:column;align-items:center;text-align:center;padding-top:12vh;gap:10px;max-width:420px;width:100%;margin:0 auto}
+.ceyo-auth-icon{width:56px;height:56px;border-radius:18px;display:grid;place-items:center;background:hsl(var(--foreground)/.06);border:1px solid hsl(var(--foreground)/.1);margin-bottom:8px}
+.ceyo-auth-body h1{font-size:26px;font-weight:700;letter-spacing:-.02em;margin:0}
+.ceyo-auth-body>p{color:hsl(var(--foreground)/.6);font-size:14px;line-height:1.6;margin:0 0 18px}
+.ceyo-auth-form{width:100%;display:flex;flex-direction:column;gap:16px}
+.ceyo-otp{display:flex;gap:8px;justify-content:center;direction:ltr}
+.ceyo-otp input{width:48px;height:58px;text-align:center;font-size:24px;font-weight:600;border-radius:14px;border:1px solid hsl(var(--foreground)/.14);background:hsl(var(--foreground)/.04);color:hsl(var(--foreground));outline:none;transition:border-color .2s,background .2s}
+.ceyo-otp input:focus{border-color:hsl(var(--foreground)/.7);background:hsl(var(--foreground)/.08)}
+.ceyo-otp input.filled{border-color:hsl(var(--foreground)/.4)}
+.ceyo-auth-field{position:relative;display:flex;align-items:center}
+.ceyo-auth-field input{width:100%;height:52px;border-radius:14px;border:1px solid hsl(var(--foreground)/.14);background:hsl(var(--foreground)/.04);color:hsl(var(--foreground));padding:0 44px 0 16px;font-size:15px;outline:none}
+.ceyo-auth-field input:focus{border-color:hsl(var(--foreground)/.6)}
+.ceyo-auth-field button{position:absolute;right:12px;background:none;border:0;color:hsl(var(--foreground)/.6)}
+.ceyo-auth-cta{height:52px;border-radius:999px;border:0;font-weight:600;font-size:15px;background:hsl(var(--foreground));color:hsl(var(--background));display:grid;place-items:center}
+.ceyo-auth-cta:disabled{opacity:.4}
+.ceyo-auth-resend{display:flex;justify-content:center;font-size:13px}
+.ceyo-auth-resend button{background:none;border:0;color:hsl(var(--foreground));text-decoration:underline;text-underline-offset:3px}
+.ceyo-auth-muted{color:hsl(var(--foreground)/.55);display:inline-flex;align-items:center;gap:8px}
+.ceyo-auth-spin{width:18px;height:18px;border-radius:999px;border:2px solid currentColor;border-top-color:transparent;animation:ceyo-spin .7s linear infinite;display:inline-block}
+.ceyo-auth-spin.light{width:14px;height:14px}
+@keyframes ceyo-spin{to{transform:rotate(360deg)}}

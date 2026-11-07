@@ -1,0 +1,6 @@
+CREATE OR REPLACE FUNCTION public.read_telegram_bot_token() RETURNS text LANGUAGE sql SECURITY DEFINER SET search_path = '' AS $$ SELECT decrypted_secret FROM vault.decrypted_secrets WHERE name = 'TELEGRAM_BOT_TOKEN' LIMIT 1 $$;
+REVOKE ALL ON FUNCTION public.read_telegram_bot_token() FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.read_telegram_bot_token() TO service_role;
+CREATE OR REPLACE FUNCTION public.store_telegram_bot_token(p_token text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$ DECLARE existing uuid; BEGIN IF p_token IS NULL OR p_token !~ '^[0-9]+:[A-Za-z0-9_-]+$' THEN RAISE EXCEPTION 'Invalid Telegram token'; END IF; SELECT id INTO existing FROM vault.secrets WHERE name = 'TELEGRAM_BOT_TOKEN' LIMIT 1; IF existing IS NULL THEN PERFORM vault.create_secret(p_token, 'TELEGRAM_BOT_TOKEN', 'Independent Telegram bot credential'); ELSE PERFORM vault.update_secret(existing, p_token, 'TELEGRAM_BOT_TOKEN', 'Independent Telegram bot credential'); END IF; END $$;
+REVOKE ALL ON FUNCTION public.store_telegram_bot_token(text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.store_telegram_bot_token(text) TO service_role;

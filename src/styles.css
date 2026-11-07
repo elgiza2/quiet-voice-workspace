@@ -132,6 +132,7 @@
   --sidebar-ring: oklch(0.551 0.027 264.364);
 }
 
+
 @layer base {
   * {
     border-color: var(--color-border);
@@ -142,3 +143,15 @@
     color: var(--color-foreground);
   }
 }
+
+/* Live "thinking" headline: a soft light sweeps across the text. */
+.thinking-shimmer {
+  background: linear-gradient(90deg, color-mix(in oklab, currentColor 45%, transparent) 0%, color-mix(in oklab, currentColor 45%, transparent) 35%, currentColor 50%, color-mix(in oklab, currentColor 45%, transparent) 65%, color-mix(in oklab, currentColor 45%, transparent) 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: thinking-sweep 2.2s linear infinite;
+}
+[dir="rtl"] .thinking-shimmer { animation-direction: reverse; }
+@keyframes thinking-sweep { from { background-position: 125% 0; } to { background-position: -125% 0; } }

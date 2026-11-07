@@ -1,0 +1,4 @@
+- Public discovery uses one shared immersive landing and an Arabic variant; unknown SPA paths redirect to it, while hidden Tasks paths redirect to Agents. Why: consistent public entry without exposing retired task views.
+- Promotions use the shared immutable start/end window in octoberOffer and never modify the media tier. Why: temporary free agent access must not bypass paid media enforcement.
+- Announcements use the bottom Sheet, shared authStore and versioned dismissal key. Why: show only after sign-in without adding auth listeners or changing enforcement.
+- Legal content uses established company records, current verified service behavior and no unsupported compliance, retention or rights guarantees. Why: factual policies require owner/legal review rather than invented promises.

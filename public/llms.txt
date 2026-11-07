@@ -1,0 +1,31 @@
+# Nova AI
+
+> Nova AI is an AI agent workspace made by an Egyptian company. You can chat, search the web, run research, make images and videos, create slides and documents, build simple websites, and run agents that use a browser. It works in English and Egyptian Arabic.
+
+## Key facts
+
+- Product: Nova AI (https://www.megsyai.com)
+- Company: Egyptian company; payments in EGP, including Vodafone Cash through Kashier
+- Chat: free
+- Credits: images cost 2 credits, videos cost 25 credits, agent tasks cost 1 to 50 credits
+- Paid plans unlock media generation and more credits; see Pricing
+- Languages: English and Egyptian Arabic (ar-eg)
+- Support: support@megsyai.com
+
+## Primary pages
+
+- [Home](https://www.megsyai.com/)
+- [Pricing](https://www.megsyai.com/pricing)
+- [Features](https://www.megsyai.com/features)
+- [Models](https://www.megsyai.com/models)
+- [About](https://www.megsyai.com/about)
+- [Contact](https://www.megsyai.com/contact)
+- [Arabic page](https://www.megsyai.com/ar-eg)
+
+## Policies
+
+- [Terms](https://www.megsyai.com/terms)
+- [Privacy](https://www.megsyai.com/privacy)
+- [Refund policy](https://www.megsyai.com/refund)
+- [AI disclaimer](https://www.megsyai.com/legal/ai-disclaimer)
+- [Content policy](https://www.megsyai.com/policies/content)

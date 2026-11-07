@@ -1,0 +1,6 @@
+- Bots, chats and messages live in the new database tables; the browser `agentApi` keeps its old shape so screens did not change. Why: removes the old bot server without rewriting the UI.
+- Bot replies run through `/api/ceyo-chat` (Cerebras loop with Browserbase web tools); it saves the answer with the caller's sign-in. Why: fast replies, real web access, no service-role key.
+- Guided agent creation stays in the existing chat, renders a validated propose_agent card and creates only on an explicit user click. Why: clarify requirements without autonomous agent creation.
+- Long jobs run via `src/lib/ceyo/backgroundJobs.server.ts` (triggered at `/api/public/ceyo-jobs`); the chat polls `/api/ceyo-task` by persisted job ID, and the worker delivers once. If starting fails, the reply runs the job inline. Why: one contract for polling and idempotent delivery.
+- Agent Sky media credentials prefer service-only Supabase Vault retrieval; retain plan/credit checks and signed media links. Why: portable private credentials without bypassing purchase enforcement.
+- save_file results carry a ceyo.file document ID, rendered through owner-scoped reads and sandboxed drawing previews. Why: users can inspect/download actual persisted deliverables without exposing arbitrary URLs or executable HTML.
