@@ -63,6 +63,5 @@ export function VoiceMessagePlayer({ text, recordingId, agentId, voiceId = "", l
       <audio ref={audio} src={url || undefined} preload="metadata" onLoadedMetadata={metadata} onDurationChange={metadata} onTimeUpdate={() => { metadata(); setPosition(audio.current?.currentTime || 0); }} onPlay={() => { document.querySelectorAll("audio").forEach(el => { if (el !== audio.current) el.pause(); }); setPlaying(true); }} onPause={() => setPlaying(false)} onEnded={() => { setPlaying(false); setPosition(0); }} onError={() => { setPlaying(false); setError(ar ? "تعذّر قراءة التسجيل" : "Could not read this recording"); }} />
     </div>
     {(error || catalogueError) && <div className="cx-voice-failure"><span role="alert">{error || catalogueError}</span><Button variant="ghost" size="icon" aria-label={ar ? "إعادة المحاولة" : "Retry recording"} onClick={() => { reload?.(); setRetry(n => n + 1); }}><RotateCcw size={16} /></Button></div>}
-    <details><summary>{ar ? "النص" : "Transcript"}</summary><span dir="auto">{text}</span></details>
   </div>;
 }

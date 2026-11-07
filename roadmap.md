@@ -1,3 +1,9 @@
+## Chat reply failure and recording controls — 2026-11-07 13:07 UTC
+- [x] Repair the gateway HTTP 400 request contract without changing the selected chat model: Terra requires reasoning_effort none with function tools on Chat Completions.
+- [x] Remove Transcript controls from voice messages.
+- [x] 11 focused tests pass; real workspace-tool request → calculator → follow-up returned 50, custom player playback verified at mobile/desktop with no Transcript; handoff updated.
+- [ ] Signed-in message persistence and the user's historical recording: external_unmanaged session unavailable; missing device-local audio cannot be recovered from a transcript.
+
 ## Clean calls and voice recordings — 2026-11-07 13:01 UTC
 - [x] Remove switch-to-video from voice call only; header video action remains.
 - [x] Restyle video controls/waiting identity to match voice; separate red end button, no preview/error overlap.
