@@ -22,7 +22,8 @@ export async function chatModelResponse(messages: unknown[], tools: unknown[], s
       return { role: "system" as const, content: m.content ?? "" };
     }),
     tools: z.array(tool).parse(tools).map(t => ({ type: "function" as const, function: { name: t.function?.name ?? "", description: t.function?.description, parameters: t.function?.parameters } })),
-    reasoning_effort: "medium",
+    // Terra's Chat Completions contract rejects reasoning alongside function tools.
+    reasoning_effort: tools.length > 0 ? "none" : "medium",
   }, { signal });
   return stream.toResponse();
 }
