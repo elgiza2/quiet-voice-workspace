@@ -98,10 +98,14 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
   const fail = (m: string) => { if (!ended) opts.onError(m); };
 
   let token = "", tokenAt = 0;
+  // The server picks the language from what the user actually writes (UI may be English while they speak Arabic).
+  let lang = opts.language.slice(0, 2).toLowerCase();
+  if (!/^[a-z]{2}$/.test(lang)) lang = "";
   const freshToken = async () => {
     if (!token || Date.now() - tokenAt > 600_000) {
-      const j = await (await callApi({ action: "token" })).json() as { token: string };
+      const j = await (await callApi({ action: "token", language: lang })).json() as { token: string; language?: string };
       token = j.token; tokenAt = Date.now();
+      if (j.language && /^[a-z]{2}$/.test(j.language)) lang = j.language;
     }
     return token;
   };
@@ -117,7 +121,7 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
     if (stt && (stt.readyState === WebSocket.OPEN || stt.readyState === WebSocket.CONNECTING)) return stt;
     const url = new URL("wss://api.cartesia.ai/stt/websocket");
     url.searchParams.set("model", "ink-whisper");
-    url.searchParams.set("language", opts.language.slice(0, 2) || "en");
+    url.searchParams.set("language", lang || "en");
     url.searchParams.set("encoding", "pcm_s16le");
     url.searchParams.set("sample_rate", String(STT_RATE));
     url.searchParams.set("cartesia_version", VERSION);
@@ -127,7 +131,10 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
       if (typeof ev.data !== "string") return;
       try {
         const msg = JSON.parse(ev.data) as { type?: string; is_final?: boolean; text?: string; message?: string };
-        if (msg.type === "transcript" && msg.is_final && msg.text?.trim()) finals.push(msg.text.trim());
+        if (msg.type === "transcript" && msg.text?.trim()) {
+          lastHeardAt = performance.now();
+          if (msg.is_final) { finals.push(msg.text.trim()); scheduleTurnEnd(); }
+        }
         else if (msg.type === "flush_done") { flushWaiter?.(); flushWaiter = null; }
         else if (msg.type === "error") fail(msg.message || "Speech recognition error");
       } catch { /* ignore */ }
@@ -195,8 +202,21 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
   let detector = createSpeechDetector({ noSpeechMs: 1e12, silenceMs: 750, minSpeechMs: 180 });
   let turnStart = 0;
   let pending: Int16Array<ArrayBuffer>[] = [];
+  // Cartesia sends a final transcript when it hears a pause; answer shortly after unless more speech arrives.
+  let turnTimer: ReturnType<typeof setTimeout> | null = null;
+  let lastHeardAt = 0, lastLoudAt = 0;
+  const scheduleTurnEnd = () => {
+    if (turnTimer) clearTimeout(turnTimer);
+    turnTimer = setTimeout(() => {
+      turnTimer = null;
+      if (ended || phase !== "listening" || !finals.length) return;
+      if (performance.now() - lastLoudAt < 450) { scheduleTurnEnd(); return; }
+      void finishTurn(false);
+    }, 700);
+  };
   const startListening = () => {
     if (ended) return;
+    if (turnTimer) { clearTimeout(turnTimer); turnTimer = null; }
     finals = []; pending = [];
     detector = createSpeechDetector({ noSpeechMs: 1e12, silenceMs: 750, minSpeechMs: 180 });
     turnStart = performance.now();
@@ -216,13 +236,13 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
       const ws = await openTts();
       if (contextId !== id) return;
       ws.send(JSON.stringify({
-        model_id: "sonic-3.6", transcript: clean ? `${clean} ` : "", voice: { mode: "id", id: opts.voiceId }, language: opts.language.slice(0, 2),
+        model_id: "sonic-3.6", transcript: clean ? `${clean} ` : "", voice: { mode: "id", id: opts.voiceId }, language: lang || "en",
         context_id: id, output_format: { container: "raw", encoding: "pcm_f32le", sample_rate: TTS_RATE }, continue: !last,
       }));
       if (clean) sentAny = true;
     };
     try {
-      const response = await callApi({ action: "reply", agentName: opts.agentName, agentPrompt: opts.agentPrompt.slice(0, 6000), language: opts.language, reason: opts.reason || "", history: history.slice(-20) }, controller.signal);
+      const response = await callApi({ action: "reply", agentName: opts.agentName, agentPrompt: opts.agentPrompt.slice(0, 6000), language: lang || opts.language, reason: opts.reason || "", history: history.slice(-20) }, controller.signal);
       const reader = response.body!.getReader(); const decoder = new TextDecoder();
       for (;;) {
         const { done, value } = await reader.read();
@@ -248,10 +268,12 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
     } finally { if (replyAbort === controller) replyAbort = null; }
   };
 
-  const finishTurn = async () => {
+  const finishTurn = async (flush = true) => {
+    if (phase !== "listening") return;
+    if (turnTimer) { clearTimeout(turnTimer); turnTimer = null; }
     setPhase("thinking");
     const ws = stt;
-    if (ws?.readyState === WebSocket.OPEN) {
+    if (flush && ws?.readyState === WebSocket.OPEN) {
       await new Promise<void>((res) => { flushWaiter = res; ws.send("finalize"); setTimeout(res, 3500); });
     }
     const text = finals.join(" ").trim(); finals = [];
@@ -277,7 +299,10 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
       ws.send(pcm);
     } else { pending.push(pcm); if (pending.length > 40) pending.shift(); if (!ws) void openStt().catch(() => {}); }
     const step = detector.push(db, performance.now() - turnStart);
+    if (db > -50) lastLoudAt = performance.now();
+    // Backup when the recognizer stays quiet: our own silence detector, or 12s of talking with transcripts pending.
     if (step.stop && step.heard) void finishTurn();
+    else if (finals.length && performance.now() - lastHeardAt > 2500) void finishTurn(false);
   };
 
   if (opts.reason) void respond(""); else startListening();
@@ -295,6 +320,7 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
     end() {
       if (ended) return; ended = true;
       replyAbort?.abort(); stopPlayback();
+      if (turnTimer) clearTimeout(turnTimer);
       processor.onaudioprocess = null;
       try { source.disconnect(); processor.disconnect(); sink.disconnect(); } catch { /* already gone */ }
       stream.getTracks().forEach((t) => t.stop());
