@@ -41,4 +41,3 @@
 - Telegram key administration reads its bot token through service-role-only Supabase Vault RPCs and calls Telegram directly; never restore connector-gateway transport. Why: the owner requires portable credentials independent of Lovable.
 - First-run setup uses the invoker-rights complete_onboarding RPC with a profile row lock and one transaction. Why: retries cannot create duplicate primary bots or partially finish profiles.
 - Update README.md's current-work and verification sections after every implementation pass, keeping roadmap.md as the active task list. Why: successor agents need an accurate handoff rather than historical completion claims.
-- The shared Terra Chat Completions adapter disables reasoning only when function tools are present and preserves tool-free reasoning. Why: the provider rejects combined reasoning and function tools with HTTP 400.

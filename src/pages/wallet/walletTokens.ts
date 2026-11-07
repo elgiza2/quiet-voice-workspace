@@ -6,11 +6,23 @@ export const WALLET_TOKENS = [
   { id: "binancecoin", symbol: "BNB", name: "BNB", network: "BNB Chain" },
   { id: "tether", symbol: "USDT", name: "Tether", network: "Ethereum" },
   { id: "usd-coin", symbol: "USDC", name: "USD Coin", network: "Base" },
-  { id: "the-open-network", symbol: "TON", name: "Toncoin", network: "TON" },
   { id: "polygon-ecosystem-token", symbol: "POL", name: "Polygon", network: "Polygon" },
   { id: "arbitrum", symbol: "ARB", name: "Arbitrum", network: "Arbitrum" },
-  { id: "ripple", symbol: "XRP", name: "XRP", network: "XRP Ledger" },
 ] as const;
+
+export type Addresses = { evm: string; solana: string; bitcoin: string };
+/** Which account address receives each token. */
+export const addressFor = (network: string, a: Addresses) => network === "Bitcoin" ? a.bitcoin : network === "Solana" ? a.solana : a.evm;
+
+export async function fetchWallet(): Promise<{ addresses: Addresses; balances: Record<string, number> }> {
+  const { supabase } = await import("@/integrations/supabase/client");
+  const { data } = await supabase.auth.getSession();
+  if (!data.session) throw new Error("Please sign in");
+  const res = await fetch("/api/wallet", { headers: { Authorization: `Bearer ${data.session.access_token}` } });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(body.error || "Wallet unavailable");
+  return body;
+}
 
 /** Platform fee on outgoing transfers, in basis points (50 = 0.5%). */
 export const PLATFORM_FEE_BPS = 50;
