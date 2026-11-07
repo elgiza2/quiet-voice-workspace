@@ -6,7 +6,7 @@ import { agentApi, type AgentInfo } from "@/lib/agentsky/client";
 import { calls, useCalls, type IncomingCall } from "@/lib/calls/callStore";
 import { sharedAudioContext, unlockCallAudio } from "@/lib/audio/voiceClient";
 import { BotAvatar } from "@/pages/agent/hub/HubParts";
-import { ActiveCallScreen } from "./CallScreen";
+import { ActiveCallScreen, CallBackdrop, CallButton } from "./CallScreen";
 import "@/styles/agent.css";
 import "@/styles/agent-hub.css";
 import "@/styles/calls.css";
@@ -60,17 +60,18 @@ function IncomingScreen({ call }: { call: IncomingCall }) {
     calls.start({ kind, agent: call.agent, agentIds: agentIdsCache[call.callId] || [call.agent.id], reason: call.reason, callId: call.callId });
   };
   const decline = () => { void db.from("agent_calls").update({ status: "declined" }).eq("id", call.callId); calls.clearIncoming(call.callId); };
-  return <div className="agent-hub cx-callscreen cx-incoming" role="alertdialog" aria-label={ar ? "مكالمة واردة" : "Incoming call"} dir="auto">
-    <div className="cx-callscreen-who">
-      <p className="cx-incoming-label">{call.kind === "video" ? (ar ? "مكالمة فيديو واردة" : "Incoming video call") : (ar ? "مكالمة صوتية واردة" : "Incoming voice call")}</p>
-      <span className="cx-callscreen-avatar cx-incoming-pulse"><BotAvatar agent={call.agent} size={132} state="hello" /></span>
+  return <div className="agent-hub ig-call ig-call--incoming" role="alertdialog" aria-label={ar ? "مكالمة واردة" : "Incoming call"} dir="auto">
+    <CallBackdrop agent={call.agent} />
+    <div className="ig-call-scrim" aria-hidden />
+    <div className="ig-call-center">
+      <span className="ig-call-avatar ig-call-ringing"><BotAvatar agent={call.agent} size={112} state="hello" /></span>
       <h2>{call.agent.name}</h2>
-      {call.reason && <p className="cx-incoming-reason">{call.reason.startsWith("You finished the task") ? (ar ? "خلص المهمة اللي طلبتها" : "Finished your task") : call.reason.length > 140 ? `${call.reason.slice(0, 140)}…` : call.reason}</p>}
+      <p>{call.kind === "video" ? (ar ? "مكالمة فيديو…" : "Video call…") : (ar ? "مكالمة صوتية…" : "Audio call…")}</p>
+      {call.reason && <p className="ig-call-reason">{call.reason.startsWith("You finished the task") ? (ar ? "خلص المهمة اللي طلبتها" : "Finished your task") : call.reason.length > 140 ? `${call.reason.slice(0, 140)}…` : call.reason}</p>}
     </div>
-    <footer className="cx-callscreen-controls cx-incoming-controls">
-      <span><button type="button" className="cx-callscreen-btn cx-callscreen-end" aria-label={ar ? "رفض" : "Decline"} onClick={decline}><PhoneOff size={26} /></button><small>{ar ? "رفض" : "Decline"}</small></span>
-      {call.kind === "voice" && <span><button type="button" className="cx-callscreen-btn" aria-label={ar ? "رد بالفيديو" : "Answer with video"} onClick={() => answer("video")}><Video size={24} /></button><small>{ar ? "فيديو" : "Video"}</small></span>}
-      <span><button type="button" className="cx-callscreen-btn cx-callscreen-accept" aria-label={ar ? "رد" : "Answer"} onClick={() => answer(call.kind)}><Phone size={26} /></button><small>{ar ? "رد" : "Answer"}</small></span>
+    <footer className="ig-call-answer">
+      <span><CallButton label={ar ? "رفض" : "Decline"} danger onClick={decline}><PhoneOff size={28} /></CallButton><small>{ar ? "رفض" : "Decline"}</small></span>
+      <span><CallButton label={ar ? "رد" : "Accept"} accept onClick={() => answer(call.kind)}>{call.kind === "video" ? <Video size={28} /> : <Phone size={28} />}</CallButton><small>{ar ? "رد" : "Accept"}</small></span>
     </footer>
   </div>;
 }
