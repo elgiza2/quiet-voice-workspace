@@ -1,3 +1,6 @@
+## Header call controls — 2026-11-07 11:59 UTC
+- [x] Keep menu → voice → video visible in a connected, waisted header control. Isolated header CSS verified at 320/434/1280 widths; mobile screenshot reviewed, build OK, 6 existing call tests passed. Signed-in chat remains unverified.
+
 ## Current call repair — 2026-11-07 11:48 UTC
 - [x] Repair voice delta assembly, flush trailing speech, reject stale undrained results and preserve PCM sample continuity. Regression-tested; physical microphone accuracy remains unverified.
 - [x] Repair video startup/retry, independent remote audio and autoplay recovery. Mocked Anam lifecycle verified, not a real provider call in this pass.

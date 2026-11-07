@@ -428,14 +428,16 @@ export function HubChat({
           {group ? <span className="cx-stack">{group.memberIds.slice(0, 4).flatMap((id) => { const member = agents.find((a) => a.id === id); return member ? [<BotAvatar key={member.id} agent={member} size={22} />] : []; })}</span> : <BotAvatar agent={agent} size={24} state="idle" />}
           <strong dir="auto">{title}</strong>
         </button>
-        <Button variant="ghost" size="icon" type="button" className="cx-circle cx-glass cx-more" aria-label="Menu" aria-haspopup="menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((o) => !o)}><MoreHorizontal size={20} /></Button>
+        <div className="cx-head-actions" data-calls={!group}>
+          <Button variant="ghost" size="icon" type="button" className="cx-circle cx-head-menu" aria-label="Menu" title={ar ? "المزيد" : "More"} aria-haspopup="menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((o) => !o)}><MoreHorizontal size={20} /></Button>
+          {!group && <div className="cx-head-calls">
+            <Button variant="ghost" size="icon" type="button" className="cx-circle" aria-label={ar ? "مكالمة صوتية" : "Voice call"} title={ar ? "مكالمة صوتية" : "Voice call"} onClick={() => { setMenuOpen(false); unlockCallAudio(); calls.start({ kind: "voice", agent, agentIds: agents.map((a) => a.id) }); }}><Phone size={19} /></Button>
+            <Button variant="ghost" size="icon" type="button" className="cx-circle" aria-label={ar ? "مكالمة فيديو" : "Video call"} title={ar ? "مكالمة فيديو" : "Video call"} onClick={() => { setMenuOpen(false); unlockCallAudio(); calls.start({ kind: "video", agent, agentIds: agents.map((a) => a.id) }); }}><Video size={20} /></Button>
+          </div>}
+        </div>
         {menuOpen && <div className="cx-scrim" onPointerDown={() => setMenuOpen(false)} />}
         {menuOpen && (
           <div className="cx-pop cx-pop-down" role="menu">
-            {!group && <>
-              <Button variant="ghost" role="menuitem" onClick={() => { setMenuOpen(false); unlockCallAudio(); calls.start({ kind: "voice", agent, agentIds: agents.map((a) => a.id) }); }}><Phone size={19} />{ar ? "مكالمة صوتية" : "Voice call"}</Button>
-              <Button variant="ghost" role="menuitem" onClick={() => { setMenuOpen(false); unlockCallAudio(); calls.start({ kind: "video", agent, agentIds: agents.map((a) => a.id) }); }}><Video size={19} />{ar ? "مكالمة فيديو" : "Video call"}</Button>
-            </>}
             <button type="button" onClick={() => { setMenuOpen(false); onProfile(); }}><UserRound size={19} />{ar ? "عرض البروفايل" : "View Profile"}</button>
             <button type="button" onClick={() => { setMenuOpen(false); setFindOpen(true); }}><Search size={19} />{ar ? "دوّر في الشات" : "Find in Chat"}</button>
             {onDelete && <button type="button" data-danger="true" onClick={() => { setMenuOpen(false); onDelete(); }}><Trash2 size={19} />{ar ? "حذف" : "Delete"}</button>}
