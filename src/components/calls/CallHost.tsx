@@ -65,7 +65,7 @@ function IncomingScreen({ call }: { call: IncomingCall }) {
       <p className="cx-incoming-label">{call.kind === "video" ? (ar ? "مكالمة فيديو واردة" : "Incoming video call") : (ar ? "مكالمة صوتية واردة" : "Incoming voice call")}</p>
       <span className="cx-callscreen-avatar cx-incoming-pulse"><BotAvatar agent={call.agent} size={132} state="hello" /></span>
       <h2>{call.agent.name}</h2>
-      {call.reason && <p className="cx-incoming-reason">{call.reason.length > 140 ? `${call.reason.slice(0, 140)}…` : call.reason}</p>}
+      {call.reason && <p className="cx-incoming-reason">{call.reason.startsWith("You finished the task") ? (ar ? "خلص المهمة اللي طلبتها" : "Finished your task") : call.reason.length > 140 ? `${call.reason.slice(0, 140)}…` : call.reason}</p>}
     </div>
     <footer className="cx-callscreen-controls cx-incoming-controls">
       <span><button type="button" className="cx-callscreen-btn cx-callscreen-end" aria-label={ar ? "رفض" : "Decline"} onClick={decline}><PhoneOff size={26} /></button><small>{ar ? "رفض" : "Decline"}</small></span>
