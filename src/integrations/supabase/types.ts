@@ -61,6 +61,60 @@ export type Database = {
           },
         ]
       }
+      agent_calls: {
+        Row: {
+          bot_id: string | null
+          conversation_id: string | null
+          created_at: string
+          id: string
+          kind: string
+          reason: string
+          ring_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bot_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          reason?: string
+          ring_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bot_id?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          reason?: string
+          ring_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agent_calls_bot_id_fkey"
+            columns: ["bot_id"]
+            isOneToOne: false
+            referencedRelation: "bots"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agent_calls_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agent_documents: {
         Row: {
           content: string

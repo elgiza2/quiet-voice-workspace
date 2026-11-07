@@ -10,7 +10,7 @@ export const Route = createFileRoute("/api/voice-transcribe")({ server: { handle
       const file = form.get("file");
       if (!(file instanceof Blob) || !file.size || file.size > 20 * 1024 * 1024 || !/^(audio|video)\//.test(file.type))
         return Response.json({ error: "Upload an audio recording smaller than 20 MB." }, { status: 400 });
-      const key = process.env['CARTESIA_API_KEY'];
+      const key = await (await import("@/lib/keys/providerKey")).getProviderKey("cartesia");
       if (!key) return Response.json({ error: "Cartesia is not connected" }, { status: 503 });
       const payload = new FormData();
       payload.append("file", file, file.type.includes("mp4") ? "recording.mp4" : file.type.includes("wav") ? "recording.wav" : "recording.webm");

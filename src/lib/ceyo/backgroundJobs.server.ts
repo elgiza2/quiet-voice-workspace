@@ -40,6 +40,8 @@ export async function runJob(jobId: string): Promise<string> {
     if (error) throw new Error(error.message);
     await db.from("agent_jobs").update({ status: "completed", result: text }).eq("id", job.id);
     await db.from("conversations").update({ updated_at: new Date().toISOString() }).eq("id", job.conversation_id);
+    // Ring the user the moment the task is done; the bot opens the call with the result.
+    await db.from("agent_calls").insert({ user_id: job.user_id, bot_id: job.bot_id, conversation_id: job.conversation_id, kind: "voice", status: "ringing", reason: `You finished the task the user gave you: "${job.goal.slice(0, 200)}". Tell them it's done and summarize the result briefly: ${text.slice(0, 900)}` });
     return "completed";
   } catch (e) {
     await db.from("agent_jobs").update({ status: "failed", error: "Background work failed" }).eq("id", job.id);

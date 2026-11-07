@@ -30,9 +30,11 @@ import { Route as ApiDevAgentRouteImport } from './routes/api/dev-agent'
 import { Route as ApiLongRunRouteImport } from './routes/api/long-run'
 import { Route as ApiManusAdminRouteImport } from './routes/api/manus-admin'
 import { Route as ApiMcpRouteImport } from './routes/api/mcp'
+import { Route as ApiPeopleBotRouteImport } from './routes/api/people-bot'
 import { Route as ApiReadUrlRouteImport } from './routes/api/read-url'
 import { Route as ApiRenderPdfRouteImport } from './routes/api/render-pdf'
 import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
+import { Route as ApiVideoCallRouteImport } from './routes/api/video-call'
 import { Route as ApiVoiceRouteImport } from './routes/api/voice'
 import { Route as ApiVoiceCallRouteImport } from './routes/api/voice-call'
 import { Route as ApiVoiceTranscribeRouteImport } from './routes/api/voice-transcribe'
@@ -153,6 +155,11 @@ const ApiMcpRoute = ApiMcpRouteImport.update({
   path: '/api/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPeopleBotRoute = ApiPeopleBotRouteImport.update({
+  id: '/api/people-bot',
+  path: '/api/people-bot',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiReadUrlRoute = ApiReadUrlRouteImport.update({
   id: '/api/read-url',
   path: '/api/read-url',
@@ -166,6 +173,11 @@ const ApiRenderPdfRoute = ApiRenderPdfRouteImport.update({
 const ApiTranscribeRoute = ApiTranscribeRouteImport.update({
   id: '/api/transcribe',
   path: '/api/transcribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiVideoCallRoute = ApiVideoCallRouteImport.update({
+  id: '/api/video-call',
+  path: '/api/video-call',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiVoiceRoute = ApiVoiceRouteImport.update({
@@ -264,9 +276,11 @@ export interface FileRoutesByFullPath {
   '/api/long-run': typeof ApiLongRunRoute
   '/api/manus-admin': typeof ApiManusAdminRoute
   '/api/mcp': typeof ApiMcpRoute
+  '/api/people-bot': typeof ApiPeopleBotRoute
   '/api/read-url': typeof ApiReadUrlRoute
   '/api/render-pdf': typeof ApiRenderPdfRoute
   '/api/transcribe': typeof ApiTranscribeRoute
+  '/api/video-call': typeof ApiVideoCallRoute
   '/api/voice': typeof ApiVoiceRoute
   '/api/voice-call': typeof ApiVoiceCallRoute
   '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
@@ -304,9 +318,11 @@ export interface FileRoutesByTo {
   '/api/long-run': typeof ApiLongRunRoute
   '/api/manus-admin': typeof ApiManusAdminRoute
   '/api/mcp': typeof ApiMcpRoute
+  '/api/people-bot': typeof ApiPeopleBotRoute
   '/api/read-url': typeof ApiReadUrlRoute
   '/api/render-pdf': typeof ApiRenderPdfRoute
   '/api/transcribe': typeof ApiTranscribeRoute
+  '/api/video-call': typeof ApiVideoCallRoute
   '/api/voice': typeof ApiVoiceRoute
   '/api/voice-call': typeof ApiVoiceCallRoute
   '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
@@ -345,9 +361,11 @@ export interface FileRoutesById {
   '/api/long-run': typeof ApiLongRunRoute
   '/api/manus-admin': typeof ApiManusAdminRoute
   '/api/mcp': typeof ApiMcpRoute
+  '/api/people-bot': typeof ApiPeopleBotRoute
   '/api/read-url': typeof ApiReadUrlRoute
   '/api/render-pdf': typeof ApiRenderPdfRoute
   '/api/transcribe': typeof ApiTranscribeRoute
+  '/api/video-call': typeof ApiVideoCallRoute
   '/api/voice': typeof ApiVoiceRoute
   '/api/voice-call': typeof ApiVoiceCallRoute
   '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
@@ -387,9 +405,11 @@ export interface FileRouteTypes {
     | '/api/long-run'
     | '/api/manus-admin'
     | '/api/mcp'
+    | '/api/people-bot'
     | '/api/read-url'
     | '/api/render-pdf'
     | '/api/transcribe'
+    | '/api/video-call'
     | '/api/voice'
     | '/api/voice-call'
     | '/api/voice-transcribe'
@@ -427,9 +447,11 @@ export interface FileRouteTypes {
     | '/api/long-run'
     | '/api/manus-admin'
     | '/api/mcp'
+    | '/api/people-bot'
     | '/api/read-url'
     | '/api/render-pdf'
     | '/api/transcribe'
+    | '/api/video-call'
     | '/api/voice'
     | '/api/voice-call'
     | '/api/voice-transcribe'
@@ -467,9 +489,11 @@ export interface FileRouteTypes {
     | '/api/long-run'
     | '/api/manus-admin'
     | '/api/mcp'
+    | '/api/people-bot'
     | '/api/read-url'
     | '/api/render-pdf'
     | '/api/transcribe'
+    | '/api/video-call'
     | '/api/voice'
     | '/api/voice-call'
     | '/api/voice-transcribe'
@@ -508,9 +532,11 @@ export interface RootRouteChildren {
   ApiLongRunRoute: typeof ApiLongRunRoute
   ApiManusAdminRoute: typeof ApiManusAdminRoute
   ApiMcpRoute: typeof ApiMcpRoute
+  ApiPeopleBotRoute: typeof ApiPeopleBotRoute
   ApiReadUrlRoute: typeof ApiReadUrlRoute
   ApiRenderPdfRoute: typeof ApiRenderPdfRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
+  ApiVideoCallRoute: typeof ApiVideoCallRoute
   ApiVoiceRoute: typeof ApiVoiceRoute
   ApiVoiceCallRoute: typeof ApiVoiceCallRoute
   ApiVoiceTranscribeRoute: typeof ApiVoiceTranscribeRoute
@@ -676,6 +702,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMcpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/people-bot': {
+      id: '/api/people-bot'
+      path: '/api/people-bot'
+      fullPath: '/api/people-bot'
+      preLoaderRoute: typeof ApiPeopleBotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/read-url': {
       id: '/api/read-url'
       path: '/api/read-url'
@@ -695,6 +728,13 @@ declare module '@tanstack/react-router' {
       path: '/api/transcribe'
       fullPath: '/api/transcribe'
       preLoaderRoute: typeof ApiTranscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/video-call': {
+      id: '/api/video-call'
+      path: '/api/video-call'
+      fullPath: '/api/video-call'
+      preLoaderRoute: typeof ApiVideoCallRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/voice': {
@@ -820,9 +860,11 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLongRunRoute: ApiLongRunRoute,
   ApiManusAdminRoute: ApiManusAdminRoute,
   ApiMcpRoute: ApiMcpRoute,
+  ApiPeopleBotRoute: ApiPeopleBotRoute,
   ApiReadUrlRoute: ApiReadUrlRoute,
   ApiRenderPdfRoute: ApiRenderPdfRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,
+  ApiVideoCallRoute: ApiVideoCallRoute,
   ApiVoiceRoute: ApiVoiceRoute,
   ApiVoiceCallRoute: ApiVoiceCallRoute,
   ApiVoiceTranscribeRoute: ApiVoiceTranscribeRoute,

@@ -4,7 +4,7 @@ async function handle(request: Request) {
   const { authenticate } = await import("@/lib/ceyo/auth.server");
   const auth = await authenticate(request).catch(() => null);
   if (!auth) return Response.json({ error: "Please sign in" }, { status: 401, headers: { "Cache-Control": "no-store" } });
-  const key = process.env['CARTESIA_API_KEY'];
+  const key = await (await import("@/lib/keys/providerKey")).getProviderKey("cartesia");
   if (!key) return Response.json({ error: "Cartesia is not connected" }, { status: 503 });
   try {
     const { voiceCatalogue, generateSpeech } = await import("@/lib/audio/cartesia.server");

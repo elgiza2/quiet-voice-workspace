@@ -2,12 +2,14 @@
  *  (least-recently-used), falling back to the environment variable. */
 import { createClient } from "@supabase/supabase-js";
 
-export type KeyProvider = "cerebras" | "browserbase" | "composio";
+export type KeyProvider = "cerebras" | "browserbase" | "composio" | "anam" | "cartesia";
 
 const ENV: Record<KeyProvider, string> = {
   cerebras: "CEREBRAS_API_KEY",
   browserbase: "BROWSERBASE_API_KEY",
   composio: "COMPOSIO_API_KEY",
+  anam: "ANAM_API_KEY",
+  cartesia: "CARTESIA_API_KEY",
 };
 
 export async function getProviderKey(provider: KeyProvider): Promise<string | null> {
