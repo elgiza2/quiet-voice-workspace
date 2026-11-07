@@ -1,7 +1,7 @@
 ## Live calls + header order — 2026-11-07 12:06 UTC
 - [x] Header order: voice/video on the left, three-dot button at the far right, joined cleanly.
 - [x] Call waiting/voice background: slow multi-color moving gradient instead of the bright avatar.
-- [ ] ChatGPT-style live voice call (speak/interrupt naturally, agent audio always plays): waiting on owner choice of live provider vs. hosting.
+- [ ] ChatGPT-style live voice call (speak/interrupt naturally, agent audio always plays): owner chose a free provider → Gemini Live (free tier, browser connects directly with a short-lived token, works on Vercel). Blocked on the owner's free Google AI Studio key.
 - [ ] Video call input still unreliable on device: revisit after live voice choice.
 
 ## Header call controls — 2026-11-07 11:59 UTC
