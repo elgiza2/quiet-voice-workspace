@@ -1,12 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { getSpeech, getVoices } from "@/lib/audio/voiceClient";
-import { speechText, type Voice } from "@/lib/audio/voiceSchema";
+import { getVoices } from "@/lib/audio/voiceClient";
+import { type Voice } from "@/lib/audio/voiceSchema";
 import { resolveLanguage, resolveVoice, voicesForLanguage, type AgentVoiceSettings } from "@/lib/audio/agentVoice";
 import { ChoiceList } from "@/components/ui/choice-list";
 import { agentApi } from "@/lib/agentsky/client";
-import { cachedRecording, cacheRecording } from "@/lib/audio/recordingCache";
 import { VoiceMessagePlayer } from "./VoiceMessagePlayer";
 
 let assignmentPromise: Promise<Record<string, string>> | undefined;

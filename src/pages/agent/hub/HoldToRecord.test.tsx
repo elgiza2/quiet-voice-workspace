@@ -21,7 +21,7 @@ it("keeps recording after upward lock/release until the explicit send tap", asyn
   fireEvent.pointerUp(button, { clientX: 300, clientY: 500 });
   fireEvent.click(button, { detail: 1 }); // synthesized click from the original held gesture
   expect(rec.stop).not.toHaveBeenCalled(); expect(sent).not.toHaveBeenCalled();
-  await new Promise(r => setTimeout(r, 510));
+  await act(async () => { await new Promise(r => setTimeout(r, 510)); });
   const send = view.getByRole("button", { name: "Send" });
   fireEvent.pointerDown(send); fireEvent.pointerUp(send); fireEvent.click(send, { detail: 1 });
   await waitFor(() => expect(sent).toHaveBeenCalledTimes(1)); expect(rec.stop).toHaveBeenCalledTimes(1);
