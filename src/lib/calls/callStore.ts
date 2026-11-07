@@ -3,8 +3,8 @@ import { useSyncExternalStore } from "react";
 import type { AgentInfo } from "@/lib/agentsky/client";
 
 export type CallKind = "voice" | "video";
-export type ActiveCall = { key: string; kind: CallKind; agent: AgentInfo; agentIds: string[]; reason?: string; callId?: string };
-export type IncomingCall = { callId: string; kind: CallKind; agent: AgentInfo; reason: string };
+export type ActiveCall = { key: string; kind: CallKind; agent: AgentInfo; agentIds: string[]; reason?: string; callId?: string; conversationId?: string | null };
+export type IncomingCall = { callId: string; kind: CallKind; agent: AgentInfo; reason: string; conversationId?: string | null };
 
 type State = { active: ActiveCall | null; incoming: IncomingCall | null; minimized: boolean };
 let state: State = { active: null, incoming: null, minimized: false };

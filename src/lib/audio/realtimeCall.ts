@@ -21,6 +21,7 @@ export interface RealtimeCallOptions {
   reason?: string;
   onPhase: (phase: CallPhase) => void;
   onError: (message: string) => void;
+  onTurn?: (turn: CallTurn) => void;
 }
 
 export interface RealtimeCall { setMuted: (muted: boolean) => void; interrupt: () => void; end: () => void; resumeAudio: () => Promise<boolean> }

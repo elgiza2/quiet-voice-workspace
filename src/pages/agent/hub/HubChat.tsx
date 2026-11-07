@@ -430,8 +430,8 @@ export function HubChat({
         </button>
         <div className="cx-head-actions" data-calls={!group}>
           {!group && <div className="cx-head-calls">
-            <Button variant="ghost" size="icon" type="button" className="cx-circle" aria-label={ar ? "مكالمة صوتية" : "Voice call"} title={ar ? "مكالمة صوتية" : "Voice call"} onClick={() => { setMenuOpen(false); unlockCallAudio(); calls.start({ kind: "voice", agent, agentIds: agents.map((a) => a.id) }); }}><Phone size={19} /></Button>
-            <Button variant="ghost" size="icon" type="button" className="cx-circle" aria-label={ar ? "مكالمة فيديو" : "Video call"} title={ar ? "مكالمة فيديو" : "Video call"} onClick={() => { setMenuOpen(false); unlockCallAudio(); calls.start({ kind: "video", agent, agentIds: agents.map((a) => a.id) }); }}><Video size={20} /></Button>
+            <Button variant="ghost" size="icon" type="button" className="cx-circle" aria-label={ar ? "مكالمة صوتية" : "Voice call"} title={ar ? "مكالمة صوتية" : "Voice call"} onClick={() => { setMenuOpen(false); unlockCallAudio(); calls.start({ kind: "voice", agent, agentIds: agents.map((a) => a.id), conversationId: sessionId }); }}><Phone size={19} /></Button>
+            <Button variant="ghost" size="icon" type="button" className="cx-circle" aria-label={ar ? "مكالمة فيديو" : "Video call"} title={ar ? "مكالمة فيديو" : "Video call"} onClick={() => { setMenuOpen(false); unlockCallAudio(); calls.start({ kind: "video", agent, agentIds: agents.map((a) => a.id), conversationId: sessionId }); }}><Video size={20} /></Button>
           </div>}
           <Button variant="ghost" size="icon" type="button" className="cx-circle cx-head-menu" aria-label="Menu" title={ar ? "المزيد" : "More"} aria-haspopup="menu" aria-expanded={menuOpen} onClick={() => setMenuOpen((o) => !o)}><MoreHorizontal size={20} /></Button>
         </div>
