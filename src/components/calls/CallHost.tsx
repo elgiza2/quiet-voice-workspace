@@ -1,5 +1,5 @@
 /** Mounted once for the whole app: watches the user's bot calls, rings on time and hosts the call screens. */
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Phone, PhoneOff, Video } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { agentApi, type AgentInfo } from "@/lib/agentsky/client";
@@ -8,6 +8,8 @@ import { sharedAudioContext, unlockCallAudio } from "@/lib/audio/voiceClient";
 import { BotAvatar } from "@/pages/agent/hub/HubParts";
 import { cancelNativeCall, hasNativeCalls, nativeCallEnded, nativeCallStarted, onNativeCallAction, scheduleNativeCall, showNativeIncomingCall, takeAnswerCallParam } from "@/lib/native/callBridge";
 import { ActiveCallScreen, CallBackdrop, CallButton } from "./CallScreen";
+import { Button } from "@/components/ui/button";
+import { isPendingCall, pendingCallStatuses } from "@/lib/calls/callLifecycle";
 import "@/styles/agent.css";
 import "@/styles/agent-hub.css";
 import "@/styles/calls.css";
@@ -23,19 +25,20 @@ function startRingtone() {
   const ctx = sharedAudioContext();
   const beep = () => {
     if (stopped) return;
-    try { navigator.vibrate?.([700, 300, 700]); } catch { /* unsupported */ }
+    try { navigator.vibrate?.([180, 120, 180]); } catch { /* unsupported */ }
     if (ctx && ctx.state === "running") {
-      for (const [at, f] of [[0, 880], [0.25, 660], [0.5, 880], [0.75, 660]] as const) {
+      for (const [at, f] of [[0, 523.25], [0.22, 659.25], [0.44, 783.99]] as const) {
         const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = "sine";
         o.frequency.value = f; g.gain.setValueAtTime(0.0001, ctx.currentTime + at);
-        g.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + at + 0.02);
-        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + at + 0.22);
-        o.connect(g).connect(ctx.destination); o.start(ctx.currentTime + at); o.stop(ctx.currentTime + at + 0.24);
+        g.gain.exponentialRampToValueAtTime(0.045, ctx.currentTime + at + 0.04);
+        g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + at + 0.7);
+        o.connect(g).connect(ctx.destination); o.start(ctx.currentTime + at); o.stop(ctx.currentTime + at + 0.72);
       }
     }
   };
   beep();
-  const t = setInterval(beep, 2400);
+  const t = setInterval(beep, 5500);
   return () => { stopped = true; clearInterval(t); try { navigator.vibrate?.(0); } catch { /* unsupported */ } };
 }
 
@@ -47,21 +50,33 @@ async function botFor(id: string | null): Promise<{ agent: AgentInfo; ids: strin
 
 const agentIdsCache: Record<string, string[]> = {};
 
+async function settleCall(id: string, status: "answered" | "declined" | "missed") {
+  const { data, error } = await db.from("agent_calls").update({ status }).eq("id", id).in("status", pendingCallStatuses).select("id").maybeSingle();
+  if (error) throw new Error("Could not save the call status. Please try again.");
+  calls.settle(id); cancelNativeCall(id);
+  return Boolean(data);
+}
+
 function IncomingScreen({ call }: { call: IncomingCall }) {
   const ar = isAr();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const stopRing = useRef<() => void>(() => {});
   useEffect(() => {
     const stop = startRingtone();
-    const timeout = setTimeout(() => { cancelNativeCall(call.callId); void db.from("agent_calls").update({ status: "missed" }).eq("id", call.callId); calls.clearIncoming(call.callId); }, RING_MS);
+    stopRing.current = stop;
+    const timeout = setTimeout(() => { stop(); void settleCall(call.callId, "missed").catch(() => { calls.settle(call.callId); cancelNativeCall(call.callId); }); }, RING_MS);
     return () => { stop(); clearTimeout(timeout); };
   }, [call.callId]);
-  const answer = (kind: "voice" | "video") => {
+  const answer = async (kind: "voice" | "video") => {
+    if (busy) return;
+    setBusy(true); setError(""); stopRing.current();
     unlockCallAudio();
-    cancelNativeCall(call.callId);
-    void db.from("agent_calls").update({ status: "answered" }).eq("id", call.callId);
-    calls.clearIncoming(call.callId);
-    calls.start({ kind, agent: call.agent, agentIds: agentIdsCache[call.callId] || [call.agent.id], reason: call.reason, callId: call.callId });
+    try {
+      if (await settleCall(call.callId, "answered")) calls.start({ kind, agent: call.agent, agentIds: agentIdsCache[call.callId] || [call.agent.id], reason: call.reason, callId: call.callId });
+    } catch { setError(ar ? "تعذّر حفظ الرد. حاول تاني." : "Could not save your answer. Retry."); setBusy(false); }
   };
-  const decline = () => { cancelNativeCall(call.callId); void db.from("agent_calls").update({ status: "declined" }).eq("id", call.callId); calls.clearIncoming(call.callId); };
+  const decline = async () => { if (busy) return; setBusy(true); stopRing.current(); try { await settleCall(call.callId, "declined"); } catch { setError(ar ? "تعذّر حفظ الرفض. حاول تاني." : "Could not save your response. Retry."); setBusy(false); } };
   return <div className="agent-hub ig-call ig-call--incoming" role="alertdialog" aria-label={ar ? "مكالمة واردة" : "Incoming call"} dir="auto">
     <CallBackdrop agent={call.agent} />
     <div className="ig-call-scrim" aria-hidden />
@@ -70,10 +85,11 @@ function IncomingScreen({ call }: { call: IncomingCall }) {
       <h2>{call.agent.name}</h2>
       <p>{call.kind === "video" ? (ar ? "مكالمة فيديو…" : "Video call…") : (ar ? "مكالمة صوتية…" : "Audio call…")}</p>
       {call.reason && <p className="ig-call-reason">{call.reason.startsWith("You finished the task") ? (ar ? "خلص المهمة اللي طلبتها" : "Finished your task") : call.reason.length > 140 ? `${call.reason.slice(0, 140)}…` : call.reason}</p>}
+      {error && <p className="ig-call-pill" role="alert">{error}</p>}
     </div>
     <footer className="ig-call-answer">
-      <span><CallButton label={ar ? "رفض" : "Decline"} danger onClick={decline}><PhoneOff size={28} /></CallButton><small>{ar ? "رفض" : "Decline"}</small></span>
-      <span><CallButton label={ar ? "رد" : "Accept"} accept onClick={() => answer(call.kind)}>{call.kind === "video" ? <Video size={28} /> : <Phone size={28} />}</CallButton><small>{ar ? "رد" : "Accept"}</small></span>
+      <span><CallButton label={ar ? "رفض" : "Decline"} disabled={busy} danger onClick={() => void decline()}><PhoneOff size={28} /></CallButton><small>{ar ? "رفض" : "Decline"}</small></span>
+      <span><CallButton label={ar ? "رد" : "Accept"} disabled={busy} accept onClick={() => void answer(call.kind)}>{call.kind === "video" ? <Video size={28} /> : <Phone size={28} />}</CallButton><small>{ar ? "رد" : "Accept"}</small></span>
     </footer>
   </div>;
 }
@@ -94,9 +110,9 @@ export default function CallHost() {
   useEffect(() => {
     let alive = true; let userId = ""; let channel: ReturnType<typeof supabase.channel> | null = null;
     const ring = async (row: CallRow) => {
-      if (!alive || !["ringing", "scheduled"].includes(row.status)) return;
+      if (!alive || calls.isSettled(row.id) || !isPendingCall(row.status)) return;
       const due = new Date(row.ring_at).getTime();
-      if (due < Date.now() - 10 * 60_000) { void db.from("agent_calls").update({ status: "missed" }).eq("id", row.id); return; }
+      if (due < Date.now() - 10 * 60_000) { void settleCall(row.id, "missed").catch(() => {}); return; }
       if (due > Date.now() + 1000) {
         if (!handedToPhone.current.has(row.id)) {
           const bot = await botFor(row.bot_id).catch(() => null);
@@ -107,7 +123,9 @@ export default function CallHost() {
         return;
       }
       const bot = await botFor(row.bot_id).catch(() => null);
-      if (!bot || !alive) return;
+      if (!bot || !alive || calls.isSettled(row.id) || calls.get().active || calls.get().incoming) return;
+      const { data: fresh, error } = await db.from("agent_calls").select("status").eq("id", row.id).eq("user_id", userId).maybeSingle();
+      if (error || !fresh || !isPendingCall(fresh.status) || !alive || calls.isSettled(row.id) || calls.get().active || calls.get().incoming) return;
       agentIdsCache[row.id] = bot.ids;
       const ar = isAr();
       const kind = row.kind === "video" ? "video" : "voice";
@@ -129,18 +147,16 @@ export default function CallHost() {
     // Answer/decline tapped on the phone's own call screen.
     const answerById = async (id: string) => {
       const { data: row } = await db.from("agent_calls").select("id,bot_id,reason,kind,status,ring_at").eq("id", id).maybeSingle();
-      if (!alive || !row || !["ringing", "scheduled"].includes(row.status) || calls.get().active) return;
+      if (!alive || !row || !isPendingCall(row.status) || calls.isSettled(id) || calls.get().active) return;
       const bot = await botFor(row.bot_id).catch(() => null);
       if (!bot || !alive) return;
       unlockCallAudio();
-      await db.from("agent_calls").update({ status: "answered" }).eq("id", id);
-      calls.clearIncoming(id);
+      try { if (!(await settleCall(id, "answered"))) return; } catch { return; }
       calls.start({ kind: row.kind === "video" ? "video" : "voice", agent: bot.agent, agentIds: bot.ids, reason: row.reason, callId: id });
     };
     const stopNative = onNativeCallAction((id, action) => {
       if (action === "answer") { void answerById(id); return; }
-      void db.from("agent_calls").update({ status: action === "decline" ? "declined" : "missed" }).eq("id", id).in("status", ["ringing", "scheduled"]);
-      calls.clearIncoming(id);
+      void settleCall(id, action === "decline" ? "declined" : "missed").catch(() => {});
     });
     const answerParam = takeAnswerCallParam();
     void supabase.auth.getUser().then(({ data }) => {
@@ -149,7 +165,11 @@ export default function CallHost() {
       if (answerParam) void answerById(answerParam);
       void scan();
       channel = supabase.channel(`agent-calls-${userId}-${Math.random().toString(36).slice(2)}`)
-        .on("postgres_changes", { event: "INSERT", schema: "public", table: "agent_calls", filter: `user_id=eq.${userId}` }, (p: any) => void ring(p.new as CallRow))
+        .on("postgres_changes", { event: "*", schema: "public", table: "agent_calls", filter: `user_id=eq.${userId}` }, (p: any) => {
+          const row = p.new as CallRow;
+          if (row.id && !isPendingCall(row.status)) { calls.settle(row.id); cancelNativeCall(row.id); const timer = timers.current.get(row.id); if (timer) clearTimeout(timer); timers.current.delete(row.id); }
+          else void ring(row);
+        })
         .subscribe();
     });
     const poll = setInterval(() => { if (document.visibilityState === "visible") void scan(); }, 30_000);
