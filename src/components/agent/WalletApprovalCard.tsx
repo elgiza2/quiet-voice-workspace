@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Wallet, Check, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { TRADE_NETS, walletAction } from "@/pages/wallet/walletTokens";
+import { walletAction } from "@/pages/wallet/walletTokens";
 
 /** Agent-proposed wallet send/trade. Nothing moves until the user taps Confirm here. */
 export function WalletApprovalCard({ data }: { data: Record<string, any> }) {
@@ -11,7 +11,7 @@ export function WalletApprovalCard({ data }: { data: Record<string, any> }) {
   const [error, setError] = useState("");
   useEffect(() => { const v = localStorage.getItem(key); if (v) { const [s, t] = v.split("|"); setStatus(s as any); setTx(t || ""); } }, [key]);
   const save = (s: typeof status, t = "") => { setStatus(s); setTx(t); localStorage.setItem(key, `${s}|${t}`); };
-  const net = data.network ? TRADE_NETS[data.network] : undefined;
+  const net = data.pay ? { pay: String(data.pay), paySym: String(data.paySym), label: String(data.label) } : undefined;
   const confirm = async () => {
     setStatus("running"); setError("");
     try {

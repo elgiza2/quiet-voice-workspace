@@ -88,7 +88,7 @@ export function CoinDetail({ id, balance = 0, onBack, onReceive, onSend }: { id:
   const links = info?.links;
   const about = (info?.description?.en || "").replace(/<[^>]+>/g, "").trim();
   const sym = (info?.symbol || "").toUpperCase();
-  const target = tradeTarget(info?.platforms);
+  const target = tradeTarget(info?.platforms, id);
   const solMint = target?.token;
 
   return (
@@ -160,7 +160,7 @@ export function CoinDetail({ id, balance = 0, onBack, onReceive, onSend }: { id:
           <button type="button" className="wl-btn wl-btn-main" disabled={!onSend || balance <= 0} onClick={onSend}><Send size={18} />Send</button>
         </div>
       )}
-      {trade && target && <TradePanel network={target.network} mint={target.token} symbol={sym} side={trade} onClose={() => setTrade(null)} />}
+      {trade && target && <TradePanel target={target} symbol={sym} side={trade} onClose={() => setTrade(null)} />}
     </div>
   );
 }
@@ -173,7 +173,11 @@ export default function MarketsView({ onOpen }: { onOpen: (id: string) => void }
   const [cat, setCat] = useState("trending");
   const [more, setMore] = useState(false);
   const { data: trending, err: tErr } = useJson<{ coins: Hot[] }>(`${CG}/search/trending`);
-  const { data: stocks } = useJson<Coin[]>(`${CG}/coins/markets?vs_currency=usd&category=tokenized-stock&order=market_cap_desc&per_page=10&sparkline=true`);
+  const { data: stocksRaw } = useJson<Coin[]>(`${CG}/coins/markets?vs_currency=usd&category=tokenized-stock&order=market_cap_desc&per_page=40&sparkline=true`);
+  const { data: tradeable } = useJson<{ ids: string[] | null }>("/api/tradeable-assets");
+  const canTrade = useMemo(() => tradeable?.ids ? new Set(tradeable.ids) : null, [tradeable]);
+  // Stocks are only listed when they exist as a token the wallet can actually buy and sell.
+  const stocks = Array.isArray(stocksRaw) && canTrade ? stocksRaw.filter((s) => canTrade.has(s.id)).slice(0, 10) : [];
   const { data: list, err: lErr } = useJson<Coin[]>(cat === "trending" ? null : `${CG}/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=30&sparkline=true${cat === "majors" ? "" : `&category=${cat}`}`);
   const { data: newsData } = useJson<{ items: News[] }>("/api/market-news");
   const hot = trending?.coins ?? [];
@@ -181,7 +185,7 @@ export default function MarketsView({ onOpen }: { onOpen: (id: string) => void }
 
   const rows = useMemo(() => cat === "trending"
     ? hot.map((h) => ({ id: h.item.id, symbol: h.item.symbol, name: h.item.name, image: h.item.small, price: h.item.data?.price ?? 0, mc: h.item.data?.market_cap ?? "—", ch: h.item.data?.price_change_percentage_24h?.usd ?? null }))
-    : (Array.isArray(list) ? list : []).map((c) => ({ id: c.id, symbol: c.symbol.toUpperCase(), name: c.name, image: c.image, price: c.current_price, mc: big(c.market_cap), ch: c.price_change_percentage_24h })), [cat, hot, list]);
+    : (Array.isArray(list) ? list : []).filter((c) => cat !== "tokenized-stock" || !canTrade || canTrade.has(c.id)).map((c) => ({ id: c.id, symbol: c.symbol.toUpperCase(), name: c.name, image: c.image, price: c.current_price, mc: big(c.market_cap), ch: c.price_change_percentage_24h })), [cat, hot, list]);
   const loading = rows.length === 0 && !(cat === "trending" ? tErr : lErr);
 
   return (
@@ -218,7 +222,7 @@ export default function MarketsView({ onOpen }: { onOpen: (id: string) => void }
       </div>
       {rows.length > 6 && <button type="button" className="wl-morebtn" onClick={() => setMore(!more)}>{more ? "Show less" : "Show more"}</button>}
 
-      {Array.isArray(stocks) && stocks.length > 0 && <>
+      {stocks.length > 0 && <>
         <SectionHead title="Stocks" onMore={() => { setCat("tokenized-stock"); setMore(true); window.scrollTo({ top: 300, behavior: "smooth" }); }} />
         <div className="wl-scroll">
           {stocks.map((s) => { const up = (s.price_change_percentage_24h ?? 0) >= 0; return (

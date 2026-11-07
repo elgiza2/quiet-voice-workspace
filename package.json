@@ -30,6 +30,7 @@
     "@scure/bip39": "^2.4.0",
     "@scure/btc-signer": "^2.4.1",
     "@sentry/react": "^10.74.0",
+    "@ston-fi/sdk": "^2.7.0",
     "@supabase/supabase-js": "^2.117.3",
     "@tailwindcss/vite": "^4.2.1",
     "@tanstack/react-query": "^5.101.1",

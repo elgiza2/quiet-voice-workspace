@@ -57,6 +57,7 @@ export async function walletAction<T = any>(body: Record<string, unknown>): Prom
 export const SOL_MINT = "So11111111111111111111111111111111111111112";
 
 /** Networks where any token can be bought/sold, with the coin you pay in. */
+export const TON_NATIVE = "EQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM9c";
 export const NATIVE = "0xEeeeeEeeeEeEeEeEeEeEEEeeeeEeeeeeeeEEeEeE";
 export const TRADE_NETS: Record<string, { pay: string; paySym: string; label: string; explorer: string }> = {
   solana: { pay: SOL_MINT, paySym: "SOL", label: "Solana", explorer: "https://solscan.io/tx/" },
@@ -66,10 +67,18 @@ export const TRADE_NETS: Record<string, { pay: string; paySym: string; label: st
   "arbitrum-one": { pay: NATIVE, paySym: "ETH", label: "Arbitrum", explorer: "https://arbiscan.io/tx/" },
   "polygon-pos": { pay: NATIVE, paySym: "POL", label: "Polygon", explorer: "https://polygonscan.com/tx/" },
   avalanche: { pay: NATIVE, paySym: "AVAX", label: "Avalanche", explorer: "https://snowtrace.io/tx/" },
+  "the-open-network": { pay: TON_NATIVE, paySym: "TON", label: "TON", explorer: "https://tonviewer.com/" },
 };
-/** Pick where a CoinGecko asset trades: Solana first, then the first supported EVM network. */
-export function tradeTarget(platforms: Record<string, string> | undefined) {
+export const TON_USDT = "EQCxE6mUtQJKFnGfaROTKOt1lZbDiiX1kCixRv7Nw2Id_sDs";
+export type TradeTarget = { network: string; token: string; pay: string; paySym: string; label: string; explorer: string };
+/** Pick where a CoinGecko asset trades: Solana, EVM, then TON; Bitcoin and Toncoin themselves have dedicated pairs. */
+export function tradeTarget(platforms: Record<string, string> | undefined, id?: string): TradeTarget | null {
+  if (id === "bitcoin") return { network: "bitcoin", token: "BTC.BTC", pay: "ETH.ETH", paySym: "ETH", label: "Bitcoin (THORChain)", explorer: "https://mempool.space/tx/" };
+  if (id === "the-open-network") return { network: "ton", token: TON_NATIVE, pay: TON_USDT, paySym: "USDT", label: "TON", explorer: "https://tonviewer.com/" };
   if (!platforms) return null;
-  for (const net of Object.keys(TRADE_NETS)) if (platforms[net]) return { network: net, token: platforms[net] };
+  for (const net of Object.keys(TRADE_NETS)) if (platforms[net]) {
+    const n = TRADE_NETS[net];
+    return { network: net === "the-open-network" ? "ton" : net, token: platforms[net], pay: n.pay, paySym: n.paySym, label: n.label, explorer: n.explorer };
+  }
   return null;
 }

@@ -36,6 +36,7 @@ import { Route as ApiMcpRouteImport } from './routes/api/mcp'
 import { Route as ApiPeopleBotRouteImport } from './routes/api/people-bot'
 import { Route as ApiReadUrlRouteImport } from './routes/api/read-url'
 import { Route as ApiRenderPdfRouteImport } from './routes/api/render-pdf'
+import { Route as ApiTradeableAssetsRouteImport } from './routes/api/tradeable-assets'
 import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
 import { Route as ApiVideoCallRouteImport } from './routes/api/video-call'
 import { Route as ApiVoiceRouteImport } from './routes/api/voice'
@@ -190,6 +191,11 @@ const ApiRenderPdfRoute = ApiRenderPdfRouteImport.update({
   path: '/api/render-pdf',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiTradeableAssetsRoute = ApiTradeableAssetsRouteImport.update({
+  id: '/api/tradeable-assets',
+  path: '/api/tradeable-assets',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTranscribeRoute = ApiTranscribeRouteImport.update({
   id: '/api/transcribe',
   path: '/api/transcribe',
@@ -312,6 +318,7 @@ export interface FileRoutesByFullPath {
   '/api/people-bot': typeof ApiPeopleBotRoute
   '/api/read-url': typeof ApiReadUrlRoute
   '/api/render-pdf': typeof ApiRenderPdfRoute
+  '/api/tradeable-assets': typeof ApiTradeableAssetsRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/api/video-call': typeof ApiVideoCallRoute
   '/api/voice': typeof ApiVoiceRoute
@@ -359,6 +366,7 @@ export interface FileRoutesByTo {
   '/api/people-bot': typeof ApiPeopleBotRoute
   '/api/read-url': typeof ApiReadUrlRoute
   '/api/render-pdf': typeof ApiRenderPdfRoute
+  '/api/tradeable-assets': typeof ApiTradeableAssetsRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/api/video-call': typeof ApiVideoCallRoute
   '/api/voice': typeof ApiVoiceRoute
@@ -407,6 +415,7 @@ export interface FileRoutesById {
   '/api/people-bot': typeof ApiPeopleBotRoute
   '/api/read-url': typeof ApiReadUrlRoute
   '/api/render-pdf': typeof ApiRenderPdfRoute
+  '/api/tradeable-assets': typeof ApiTradeableAssetsRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/api/video-call': typeof ApiVideoCallRoute
   '/api/voice': typeof ApiVoiceRoute
@@ -456,6 +465,7 @@ export interface FileRouteTypes {
     | '/api/people-bot'
     | '/api/read-url'
     | '/api/render-pdf'
+    | '/api/tradeable-assets'
     | '/api/transcribe'
     | '/api/video-call'
     | '/api/voice'
@@ -503,6 +513,7 @@ export interface FileRouteTypes {
     | '/api/people-bot'
     | '/api/read-url'
     | '/api/render-pdf'
+    | '/api/tradeable-assets'
     | '/api/transcribe'
     | '/api/video-call'
     | '/api/voice'
@@ -550,6 +561,7 @@ export interface FileRouteTypes {
     | '/api/people-bot'
     | '/api/read-url'
     | '/api/render-pdf'
+    | '/api/tradeable-assets'
     | '/api/transcribe'
     | '/api/video-call'
     | '/api/voice'
@@ -598,6 +610,7 @@ export interface RootRouteChildren {
   ApiPeopleBotRoute: typeof ApiPeopleBotRoute
   ApiReadUrlRoute: typeof ApiReadUrlRoute
   ApiRenderPdfRoute: typeof ApiRenderPdfRoute
+  ApiTradeableAssetsRoute: typeof ApiTradeableAssetsRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
   ApiVideoCallRoute: typeof ApiVideoCallRoute
   ApiVoiceRoute: typeof ApiVoiceRoute
@@ -809,6 +822,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiRenderPdfRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/tradeable-assets': {
+      id: '/api/tradeable-assets'
+      path: '/api/tradeable-assets'
+      fullPath: '/api/tradeable-assets'
+      preLoaderRoute: typeof ApiTradeableAssetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/transcribe': {
       id: '/api/transcribe'
       path: '/api/transcribe'
@@ -966,6 +986,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPeopleBotRoute: ApiPeopleBotRoute,
   ApiReadUrlRoute: ApiReadUrlRoute,
   ApiRenderPdfRoute: ApiRenderPdfRoute,
+  ApiTradeableAssetsRoute: ApiTradeableAssetsRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,
   ApiVideoCallRoute: ApiVideoCallRoute,
   ApiVoiceRoute: ApiVoiceRoute,
