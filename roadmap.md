@@ -1,8 +1,9 @@
 ## Current call repair — 2026-11-07 11:48 UTC
-- [ ] Repair inaccurate voice input, preserving full utterances and preventing stale transcripts.
-- [ ] Repair video startup/retry and verify Anam lifecycle.
-- [ ] Merge voice/video actions into the chat three-dot menu.
-- [ ] Run targeted call regression tests and report real-device/authenticated limits.
+- [x] Repair voice delta assembly, flush trailing speech, reject stale undrained results and preserve PCM sample continuity. Regression-tested; physical microphone accuracy remains unverified.
+- [x] Repair video startup/retry, independent remote audio and autoplay recovery. Mocked Anam lifecycle verified, not a real provider call in this pass.
+- [x] Merge voice/video actions into the chat three-dot menu. Demo UI screenshots reviewed at 434×763 and 1280×1800.
+- [x] Run targeted call regression tests: 32 passed; build OK.
+- [ ] Verify both calls signed-in with the user's real microphone/camera: blocked by external_unmanaged preview auth and unavailable physical device.
 
 ## Video, people messaging, bot-initiated calls — 2026-11-07 09:53 UTC
 - [x] Anam video call (key in Supabase provider_api_keys); server session token verified 200. Live camera call on a device not verified.
