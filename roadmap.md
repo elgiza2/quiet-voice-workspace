@@ -1,3 +1,9 @@
+## Current call repair — 2026-11-07 11:48 UTC
+- [ ] Repair inaccurate voice input, preserving full utterances and preventing stale transcripts.
+- [ ] Repair video startup/retry and verify Anam lifecycle.
+- [ ] Merge voice/video actions into the chat three-dot menu.
+- [ ] Run targeted call regression tests and report real-device/authenticated limits.
+
 ## Video, people messaging, bot-initiated calls — 2026-11-07 09:53 UTC
 - [x] Anam video call (key in Supabase provider_api_keys); server session token verified 200. Live camera call on a device not verified.
 - [x] Usernames + person-to-person chats + people groups with bots (@mention a bot to make it answer). Not verified signed-in: this preview has no injectable session.
