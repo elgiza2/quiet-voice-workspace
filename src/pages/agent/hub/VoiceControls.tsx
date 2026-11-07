@@ -3,7 +3,8 @@ import { Download, Loader2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getSpeech, getVoices } from "@/lib/audio/voiceClient";
 import { speechText, type Voice } from "@/lib/audio/voiceSchema";
-import { resolveVoice, type AgentVoiceSettings } from "@/lib/audio/agentVoice";
+import { resolveLanguage, resolveVoice, voicesForLanguage, type AgentVoiceSettings } from "@/lib/audio/agentVoice";
+import { ChoiceList } from "@/components/ui/choice-list";
 import { agentApi } from "@/lib/agentsky/client";
 import { cachedRecording, cacheRecording } from "@/lib/audio/recordingCache";
 
@@ -37,13 +38,13 @@ export function VoiceSettingsFields({ value, onChange }: { value: AgentVoiceSett
   const [retry, setRetry] = useState(0);
   useEffect(() => { let active = true; setError(""); getVoices().then((v) => { if (active) { setVoices(v); setError(""); } }).catch((e) => { if (active) setError(e.message); }); return () => { active = false; }; }, [retry]);
   const languages = [...new Set(["ar", "en", ...voices.map((v) => v.language)])].sort();
+  const ar = typeof navigator !== "undefined" && (localStorage.getItem("ceyo_language") || navigator.language).startsWith("ar");
+  const language = resolveLanguage(value.language, typeof navigator !== "undefined" ? localStorage.getItem("ceyo_language") || navigator.language : "en");
+  const visibleVoices = voicesForLanguage(voices, language);
   return <div className="cx-voice-settings">
-    <label>Language<select aria-label="Voice language" value={value.language} onChange={(e) => onChange({ ...value, language: e.target.value })}>
-      <option value="Auto">Auto</option>{languages.map((l) => <option key={l} value={l}>{l === "ar" ? "العربية" : new Intl.DisplayNames(["en"], { type: "language" }).of(l) || l}</option>)}
-    </select></label>
-    <label>Voice<select aria-label="Cartesia voice" value={voices.some((v) => v.id === value.voice) ? value.voice : "Not set"} onChange={(e) => onChange({ ...value, voice: e.target.value })}>
-      <option value="Not set">Auto</option>{voices.map((v) => <option key={v.id} value={v.id}>{v.name} · {v.language}</option>)}
-    </select></label>
+    <label>{ar ? "اللغة" : "Language"}<ChoiceList label="Voice language" value={value.language} onChange={language => onChange({ ...value, language, voice: "Not set" })} options={[{ value: "Auto", label: ar ? "تلقائي" : "Automatic" }, ...languages.map(l => ({ value: l, label: l === "ar" ? "العربية" : new Intl.DisplayNames([ar ? "ar" : "en"], { type: "language" }).of(l) || l }))]} /></label>
+    <label>{ar ? "الصوت" : "Voice"}<ChoiceList label="Cartesia voice" value={visibleVoices.some(v => v.id === value.voice) ? value.voice : "Not set"} onChange={voice => onChange({ ...value, voice })} options={[{ value: "Not set", label: ar ? "تلقائي" : "Automatic" }, ...visibleVoices.map(v => ({ value: v.id, label: v.name }))]} /></label>
+    {!error && voices.length > 0 && visibleVoices.length === 0 && <span role="status">{ar ? "لا توجد أصوات متاحة لهذه اللغة" : "No voices available for this language"}</span>}
     {error && <><span role="alert">{error}</span><Button variant="ghost" size="icon" aria-label="Retry voice catalogue" onClick={() => setRetry((n) => n + 1)}><RotateCcw size={16} /></Button></>}
   </div>;
 }

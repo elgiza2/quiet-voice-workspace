@@ -15,8 +15,13 @@ const tool = z.object({ type: z.literal("function"), function: z.object({ name: 
 export async function chatModelResponse(messages: unknown[], tools: unknown[], signal: AbortSignal): Promise<Response> {
   const stream = await streamChatCompletion({
     model: CHAT_MODEL,
-    messages: z.array(message).parse(messages),
-    tools: z.array(tool).parse(tools),
+    messages: z.array(message).parse(messages).map(m => {
+      if (m.role === "tool") return { role: "tool" as const, content: m.content ?? "", tool_call_id: m.tool_call_id ?? "" };
+      if (m.role === "assistant") return { role: "assistant" as const, content: m.content ?? null, tool_calls: m.tool_calls?.map(c => ({ id: c.id ?? "", type: "function" as const, function: { name: c.function?.name ?? "", arguments: c.function?.arguments ?? "{}" } })) };
+      if (m.role === "user") return { role: "user" as const, content: m.content ?? "" };
+      return { role: "system" as const, content: m.content ?? "" };
+    }),
+    tools: z.array(tool).parse(tools).map(t => ({ type: "function" as const, function: { name: t.function?.name ?? "", description: t.function?.description, parameters: t.function?.parameters } })),
     reasoning_effort: "medium",
   }, { signal });
   return stream.toResponse();
