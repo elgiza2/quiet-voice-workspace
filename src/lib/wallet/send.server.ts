@@ -196,7 +196,7 @@ export async function executeSwap(userId: string, owner: string, inputMint: stri
 }
 
 /* ---------- EVM trading (KyberSwap aggregator, free & keyless, fee charged in the input token) ---------- */
-export const NATIVE = "0xEeeeeEeeeEeEeEeEeEeEEEeeeeEeeeeeeeEEeE";
+export const NATIVE = "0xEeeeeEeeeEeEeEeEeEeEEEeeeeEeeeeeeeEEeEeE";
 export const EVM_NETS = {
   ethereum: { slug: "ethereum", chain: mainnet, rpc: "https://ethereum-rpc.publicnode.com" },
   "binance-smart-chain": { slug: "bsc", chain: bsc, rpc: "https://bsc-rpc.publicnode.com" },

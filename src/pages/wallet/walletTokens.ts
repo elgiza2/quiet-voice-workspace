@@ -57,7 +57,7 @@ export async function walletAction<T = any>(body: Record<string, unknown>): Prom
 export const SOL_MINT = "So11111111111111111111111111111111111111112";
 
 /** Networks where any token can be bought/sold, with the coin you pay in. */
-export const NATIVE = "0xEeeeeEeeeEeEeEeEeEeEEEeeeeEeeeeeeeEEeE";
+export const NATIVE = "0xEeeeeEeeeEeEeEeEeEeEEEeeeeEeeeeeeeEEeEeE";
 export const TRADE_NETS: Record<string, { pay: string; paySym: string; label: string; explorer: string }> = {
   solana: { pay: SOL_MINT, paySym: "SOL", label: "Solana", explorer: "https://solscan.io/tx/" },
   ethereum: { pay: NATIVE, paySym: "ETH", label: "Ethereum", explorer: "https://etherscan.io/tx/" },
