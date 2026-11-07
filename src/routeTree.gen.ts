@@ -30,6 +30,7 @@ import { Route as ApiDevAgentRouteImport } from './routes/api/dev-agent'
 import { Route as ApiLongRunRouteImport } from './routes/api/long-run'
 import { Route as ApiManusAdminRouteImport } from './routes/api/manus-admin'
 import { Route as ApiMcpRouteImport } from './routes/api/mcp'
+import { Route as ApiPeopleBotRouteImport } from './routes/api/people-bot'
 import { Route as ApiReadUrlRouteImport } from './routes/api/read-url'
 import { Route as ApiRenderPdfRouteImport } from './routes/api/render-pdf'
 import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
@@ -154,6 +155,11 @@ const ApiMcpRoute = ApiMcpRouteImport.update({
   path: '/api/mcp',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPeopleBotRoute = ApiPeopleBotRouteImport.update({
+  id: '/api/people-bot',
+  path: '/api/people-bot',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiReadUrlRoute = ApiReadUrlRouteImport.update({
   id: '/api/read-url',
   path: '/api/read-url',
@@ -270,6 +276,7 @@ export interface FileRoutesByFullPath {
   '/api/long-run': typeof ApiLongRunRoute
   '/api/manus-admin': typeof ApiManusAdminRoute
   '/api/mcp': typeof ApiMcpRoute
+  '/api/people-bot': typeof ApiPeopleBotRoute
   '/api/read-url': typeof ApiReadUrlRoute
   '/api/render-pdf': typeof ApiRenderPdfRoute
   '/api/transcribe': typeof ApiTranscribeRoute
@@ -311,6 +318,7 @@ export interface FileRoutesByTo {
   '/api/long-run': typeof ApiLongRunRoute
   '/api/manus-admin': typeof ApiManusAdminRoute
   '/api/mcp': typeof ApiMcpRoute
+  '/api/people-bot': typeof ApiPeopleBotRoute
   '/api/read-url': typeof ApiReadUrlRoute
   '/api/render-pdf': typeof ApiRenderPdfRoute
   '/api/transcribe': typeof ApiTranscribeRoute
@@ -353,6 +361,7 @@ export interface FileRoutesById {
   '/api/long-run': typeof ApiLongRunRoute
   '/api/manus-admin': typeof ApiManusAdminRoute
   '/api/mcp': typeof ApiMcpRoute
+  '/api/people-bot': typeof ApiPeopleBotRoute
   '/api/read-url': typeof ApiReadUrlRoute
   '/api/render-pdf': typeof ApiRenderPdfRoute
   '/api/transcribe': typeof ApiTranscribeRoute
@@ -396,6 +405,7 @@ export interface FileRouteTypes {
     | '/api/long-run'
     | '/api/manus-admin'
     | '/api/mcp'
+    | '/api/people-bot'
     | '/api/read-url'
     | '/api/render-pdf'
     | '/api/transcribe'
@@ -437,6 +447,7 @@ export interface FileRouteTypes {
     | '/api/long-run'
     | '/api/manus-admin'
     | '/api/mcp'
+    | '/api/people-bot'
     | '/api/read-url'
     | '/api/render-pdf'
     | '/api/transcribe'
@@ -478,6 +489,7 @@ export interface FileRouteTypes {
     | '/api/long-run'
     | '/api/manus-admin'
     | '/api/mcp'
+    | '/api/people-bot'
     | '/api/read-url'
     | '/api/render-pdf'
     | '/api/transcribe'
@@ -520,6 +532,7 @@ export interface RootRouteChildren {
   ApiLongRunRoute: typeof ApiLongRunRoute
   ApiManusAdminRoute: typeof ApiManusAdminRoute
   ApiMcpRoute: typeof ApiMcpRoute
+  ApiPeopleBotRoute: typeof ApiPeopleBotRoute
   ApiReadUrlRoute: typeof ApiReadUrlRoute
   ApiRenderPdfRoute: typeof ApiRenderPdfRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
@@ -689,6 +702,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiMcpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/people-bot': {
+      id: '/api/people-bot'
+      path: '/api/people-bot'
+      fullPath: '/api/people-bot'
+      preLoaderRoute: typeof ApiPeopleBotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/read-url': {
       id: '/api/read-url'
       path: '/api/read-url'
@@ -840,6 +860,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiLongRunRoute: ApiLongRunRoute,
   ApiManusAdminRoute: ApiManusAdminRoute,
   ApiMcpRoute: ApiMcpRoute,
+  ApiPeopleBotRoute: ApiPeopleBotRoute,
   ApiReadUrlRoute: ApiReadUrlRoute,
   ApiRenderPdfRoute: ApiRenderPdfRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,

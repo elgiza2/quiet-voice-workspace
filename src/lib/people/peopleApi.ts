@@ -74,11 +74,7 @@ export const peopleApi = {
   },
 };
 
-/** Bots that a message addresses with @Name (case-insensitive, Arabic names supported). */
-export function mentionedBots<T extends { name: string }>(text: string, bots: T[]): T[] {
-  const lower = text.toLowerCase();
-  return bots.filter((b) => lower.includes(`@${b.name.toLowerCase()}`));
-}
+export { mentionedBots } from "./mentions";
 
 export function personLabel(p: PersonInfo | undefined | null) {
   return p?.displayName || (p?.username ? `@${p.username}` : "User");

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { mentionedBots } from "@/lib/people/peopleApi";
+import { mentionedBots } from "@/lib/people/mentions";
 
 const input = z.object({ threadId: z.string().uuid(), messageId: z.string().uuid() });
 const noStore = { "Cache-Control": "no-store" };
