@@ -9,7 +9,9 @@
 - [x] Instagram-style call screens; draggable minimized call bubble (drag + tap verified in test browser).
 - [x] Video call: user's own camera, flip/off, screen share where supported; bot sees frames via vision (vision model verified on a sample image). Live Anam call with camera not verified.
 - [x] Mic button: white background, slightly smaller; WhatsApp-style hold-to-record with animation (slide to cancel, lock), sends a voice message to the bot like WhatsApp.
-- [ ] Android later: calls show in background like a normal phone call (needs native wrapper; web can only use notifications while open).
+- [x] Android phone calls, web side: bot calls handed to the Android app (schedule ring, phone call screen, answer/decline back, ongoing-call service); native steps in docs/android-bridge.md. Not testable without the Android app.
+- [ ] Ring when the app is fully closed: needs a Firebase project key for server push (blocked on owner).
+- [x] Stop the 30-second failing request for the old reminders table.
 
 ## Realtime calls — 2026-11-07 09:40 UTC
 - [x] Import full project from GitHub.

@@ -19,12 +19,14 @@ export default function ReminderWatcher() {
     const tick = async () => {
       const { data: auth } = await supabase.auth.getSession();
       if (!auth.session || stopped) return;
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("scheduled_nudges")
         .select("id,title,body,kind")
         .is("sent_at", null)
         .lte("run_at", new Date().toISOString())
         .limit(5);
+      // Old reminders table isn't in this backend (reminders now ring as bot calls): stop asking.
+      if (error) { stopped = true; window.clearInterval(id); return; }
       for (const n of data ?? []) {
         await supabase.from("scheduled_nudges").update({ sent_at: new Date().toISOString() }).eq("id", n.id);
         const title = (n.kind === "alarm" ? "⏰ " : "🔔 ") + n.title;
@@ -42,8 +44,8 @@ export default function ReminderWatcher() {
         }
       }
     };
-    void tick();
     const id = window.setInterval(() => void tick(), 30_000);
+    void tick();
     return () => {
       stopped = true;
       window.clearInterval(id);
