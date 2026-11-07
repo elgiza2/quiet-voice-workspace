@@ -31,6 +31,7 @@ import { Route as ApiDevAdminRouteImport } from './routes/api/dev-admin'
 import { Route as ApiDevAgentRouteImport } from './routes/api/dev-agent'
 import { Route as ApiLongRunRouteImport } from './routes/api/long-run'
 import { Route as ApiManusAdminRouteImport } from './routes/api/manus-admin'
+import { Route as ApiMarketNewsRouteImport } from './routes/api/market-news'
 import { Route as ApiMcpRouteImport } from './routes/api/mcp'
 import { Route as ApiPeopleBotRouteImport } from './routes/api/people-bot'
 import { Route as ApiReadUrlRouteImport } from './routes/api/read-url'
@@ -161,6 +162,11 @@ const ApiLongRunRoute = ApiLongRunRouteImport.update({
 const ApiManusAdminRoute = ApiManusAdminRouteImport.update({
   id: '/api/manus-admin',
   path: '/api/manus-admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMarketNewsRoute = ApiMarketNewsRouteImport.update({
+  id: '/api/market-news',
+  path: '/api/market-news',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiMcpRoute = ApiMcpRouteImport.update({
@@ -295,6 +301,7 @@ export interface FileRoutesByFullPath {
   '/api/dev-agent': typeof ApiDevAgentRoute
   '/api/long-run': typeof ApiLongRunRoute
   '/api/manus-admin': typeof ApiManusAdminRoute
+  '/api/market-news': typeof ApiMarketNewsRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/people-bot': typeof ApiPeopleBotRoute
   '/api/read-url': typeof ApiReadUrlRoute
@@ -340,6 +347,7 @@ export interface FileRoutesByTo {
   '/api/dev-agent': typeof ApiDevAgentRoute
   '/api/long-run': typeof ApiLongRunRoute
   '/api/manus-admin': typeof ApiManusAdminRoute
+  '/api/market-news': typeof ApiMarketNewsRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/people-bot': typeof ApiPeopleBotRoute
   '/api/read-url': typeof ApiReadUrlRoute
@@ -386,6 +394,7 @@ export interface FileRoutesById {
   '/api/dev-agent': typeof ApiDevAgentRoute
   '/api/long-run': typeof ApiLongRunRoute
   '/api/manus-admin': typeof ApiManusAdminRoute
+  '/api/market-news': typeof ApiMarketNewsRoute
   '/api/mcp': typeof ApiMcpRoute
   '/api/people-bot': typeof ApiPeopleBotRoute
   '/api/read-url': typeof ApiReadUrlRoute
@@ -433,6 +442,7 @@ export interface FileRouteTypes {
     | '/api/dev-agent'
     | '/api/long-run'
     | '/api/manus-admin'
+    | '/api/market-news'
     | '/api/mcp'
     | '/api/people-bot'
     | '/api/read-url'
@@ -478,6 +488,7 @@ export interface FileRouteTypes {
     | '/api/dev-agent'
     | '/api/long-run'
     | '/api/manus-admin'
+    | '/api/market-news'
     | '/api/mcp'
     | '/api/people-bot'
     | '/api/read-url'
@@ -523,6 +534,7 @@ export interface FileRouteTypes {
     | '/api/dev-agent'
     | '/api/long-run'
     | '/api/manus-admin'
+    | '/api/market-news'
     | '/api/mcp'
     | '/api/people-bot'
     | '/api/read-url'
@@ -569,6 +581,7 @@ export interface RootRouteChildren {
   ApiDevAgentRoute: typeof ApiDevAgentRoute
   ApiLongRunRoute: typeof ApiLongRunRoute
   ApiManusAdminRoute: typeof ApiManusAdminRoute
+  ApiMarketNewsRoute: typeof ApiMarketNewsRoute
   ApiMcpRoute: typeof ApiMcpRoute
   ApiPeopleBotRoute: typeof ApiPeopleBotRoute
   ApiReadUrlRoute: typeof ApiReadUrlRoute
@@ -748,6 +761,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiManusAdminRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/market-news': {
+      id: '/api/market-news'
+      path: '/api/market-news'
+      fullPath: '/api/market-news'
+      preLoaderRoute: typeof ApiMarketNewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/mcp': {
       id: '/api/mcp'
       path: '/api/mcp'
@@ -921,6 +941,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiDevAgentRoute: ApiDevAgentRoute,
   ApiLongRunRoute: ApiLongRunRoute,
   ApiManusAdminRoute: ApiManusAdminRoute,
+  ApiMarketNewsRoute: ApiMarketNewsRoute,
   ApiMcpRoute: ApiMcpRoute,
   ApiPeopleBotRoute: ApiPeopleBotRoute,
   ApiReadUrlRoute: ApiReadUrlRoute,

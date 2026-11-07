@@ -40,3 +40,26 @@
 .wl-qr-box { background: hsl(0 0% 100%); padding: 14px; border-radius: 18px; }
 .wl-qr code { font-size: 13px; word-break: break-all; color: var(--wl-mute); }
 .wl-qr .wl-btn { width: 100%; }
+/* Markets */
+.wl button.wl-card, .wl a.wl-pill { color: var(--wl-fg); border: 0; text-align: left; font: inherit; text-decoration: none; }
+em.wl-delta { display: inline-block; font-style: normal; margin: 0; color: hsl(0 70% 62%); }
+em.wl-delta[data-up="true"] { color: hsl(145 60% 50%); }
+.wl-scroll { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; margin-inline: -20px; padding-inline: 20px; }
+.wl-scroll > * { flex: none; }
+.wl-chips .wl-pill { display: inline-flex; align-items: center; gap: 6px; }
+.wl-chips button.wl-pill-on { background: var(--wl-fg); color: var(--wl-bg); }
+.wl-hot { display: flex; align-items: center; gap: 12px; min-width: 250px; }
+.wl-hot span { display: grid; flex: 1; } .wl-hot small { color: var(--wl-mute); }
+.wl-rankwrap { position: relative; } .wl-rankwrap i { position: absolute; right: -4px; bottom: -4px; font-style: normal; font-size: 11px; font-weight: 800; width: 18px; height: 18px; display: grid; place-items: center; border-radius: 50%; background: var(--wl-accent); color: hsl(0 0% 6%); }
+.wl-more { width: 100%; margin-top: 12px; background: transparent; border: 1px solid var(--wl-line); font-size: 15px; }
+.wl-stock { display: grid; gap: 6px; width: 170px; }
+.wl-stock-h { display: flex; align-items: center; gap: 8px; font-weight: 700; } .wl-stock-h img { width: 22px; height: 22px; }
+.wl-spark { width: 100%; display: block; } .wl-spark polyline { stroke: hsl(0 70% 62%); } .wl-spark polyline[data-up="true"] { stroke: hsl(145 60% 50%); }
+.wl-chart { margin: 20px -20px 6px; }
+.wl-about { color: var(--wl-mute); line-height: 1.5; margin: 0; }
+.wl-stats { display: grid; grid-template-columns: 1fr auto; gap: 14px; margin-top: 18px; } .wl-stats span { color: var(--wl-mute); } .wl-stats b { text-align: right; font-weight: 600; }
+.wl-link { display: inline-flex; gap: 6px; align-items: center; background: none; border: 0; color: var(--wl-fg); font: inherit; }
+.wl-news { display: grid; } .wl-news-item { display: flex; gap: 14px; padding: 16px 0; border-bottom: 1px solid var(--wl-line); color: var(--wl-fg); text-decoration: none; }
+.wl-news-item span { display: grid; gap: 6px; flex: 1; } .wl-news-item small { color: var(--wl-mute); display: inline-flex; gap: 4px; align-items: center; }
+.wl-news-item img { width: 72px; height: 72px; border-radius: 14px; object-fit: cover; flex: none; }
+.wl-tabs { display: flex; gap: 8px; } .wl-tabs .wl-pill { border: 0; color: var(--wl-fg); font: inherit; font-weight: 600; } .wl-tabs .wl-pill-on { color: hsl(0 0% 6%); }
