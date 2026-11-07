@@ -30,6 +30,15 @@ export function workspaceTools(ctx: Context): AgentTool[] {
     const { id } = z.object({ id: z.string().uuid() }).parse(args);
     return JSON.stringify(checked(await db.from("agent_memories").delete().eq("id", id).eq("user_id", userId).select("id")));
   });
+  add("call_user", `Phone the user with a real voice (or video) call that rings on their screen. Use it when the user asks you to call or ring them now ("رن عليا", "call me"), or to remind them of something important by calling at a set time. For reminders pass in_minutes (relative) or at (ISO 8601 with timezone). Current UTC time: ${new Date().toISOString()}. Background tasks already call the user automatically when they finish. After scheduling, confirm the time to the user in one short sentence.`, { reason: str, in_minutes: { type: "number" }, at: str, kind: { type: "string", enum: ["voice", "video"] } }, ["reason"], async (args) => {
+    const input = z.object({ reason: z.string().trim().min(1).max(1000), in_minutes: z.number().min(0).max(60 * 24 * 30).optional(), at: z.string().optional(), kind: z.enum(["voice", "video"]).optional() }).parse(args);
+    let ringAt = Date.now();
+    if (input.in_minutes) ringAt += input.in_minutes * 60_000;
+    else if (input.at) { const t = Date.parse(input.at); if (!Number.isFinite(t)) throw new Error("Invalid time"); ringAt = Math.max(Date.now(), t); }
+    const future = ringAt > Date.now() + 5_000;
+    const row = checked(await db.from("agent_calls").insert({ user_id: userId, bot_id: ctx.botId, conversation_id: ctx.conversationId, reason: input.reason, kind: input.kind || "voice", status: future ? "scheduled" : "ringing", ring_at: new Date(ringAt).toISOString() }).select("id,ring_at,status").single());
+    return JSON.stringify({ type: "ceyo.call", ...row });
+  });
   add("save_file", "Save a real text, code, CSV or JSON deliverable in the user's library.", { name: str, mime: str, content: str }, ["name", "mime", "content"], async (args) => {
     const file = checked(await db.from("agent_documents").insert({ ...documentInput.parse(args), user_id: userId }).select("id,name").single());
     return JSON.stringify({ type: "ceyo.file", ...file });
