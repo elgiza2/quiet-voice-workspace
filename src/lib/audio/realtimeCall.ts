@@ -62,7 +62,7 @@ export function takeSpeakable(buffer: string, final = false): { pieces: string[]
   return { pieces, rest };
 }
 
-function downsample(input: Float32Array, fromRate: number): Int16Array {
+function downsample(input: Float32Array, fromRate: number): Int16Array<ArrayBuffer> {
   const ratio = fromRate / STT_RATE;
   const length = Math.floor(input.length / ratio);
   const out = new Int16Array(length);
@@ -191,7 +191,7 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
   // ---- turn handling ----
   let detector = createSpeechDetector({ noSpeechMs: 1e12, silenceMs: 750, minSpeechMs: 180 });
   let turnStart = 0;
-  let pending: Int16Array[] = [];
+  let pending: Int16Array<ArrayBuffer>[] = [];
   const startListening = () => {
     if (ended) return;
     finals = []; pending = [];
