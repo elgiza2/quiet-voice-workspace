@@ -26,6 +26,7 @@ import { loadWorkspace, useWorkspaceStore, workspace } from "@/lib/agentsky/stor
 import { promptUpgrade } from "@/lib/upgradeMoment";
 import { isPaidUser } from "@/lib/subscriptionGating";
 import { HubChat } from "./hub/HubChat";
+import { NewPeopleChat, PeopleChat, PeopleSection } from "./hub/people/People";
 import { setBotLook } from "./hub/botLooks";
 import { AgentForm, GroupForm, ProfilePanel, SearchOverlay, type AgentFormValue } from "./hub/HubPanels";
 import { BotAvatar, GroupAvatar, HubIconButton, type HubLang } from "./hub/HubParts";
@@ -335,7 +336,7 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
         <button type="button" aria-label="Account" className="hub-user-avatar" onClick={() => nav("/settings")}>{userAvatar ? <img src={userAvatar} alt="" /> : <span>{userInitial}</span>}</button>
         <div className="hub-plus-wrap" ref={plusRef}>
           <HubIconButton label={ar ? "إنشاء" : "Create"} onClick={() => setPlusOpen((open) => !open)} active={plusOpen}><Plus size={22} /></HubIconButton>
-          {plusOpen && <div className="hub-menu hub-plus-menu" role="menu"><button type="button" role="menuitem" onClick={() => go({ new: "bot" })}>{ar ? "بوت جديد" : "New Bot"}</button><button type="button" role="menuitem" onClick={() => go({ new: "group" })}>{ar ? "جروب جديد" : "New Group Chat"}</button></div>}
+          {plusOpen && <div className="hub-menu hub-plus-menu" role="menu"><button type="button" role="menuitem" onClick={() => go({ new: "bot" })}>{ar ? "بوت جديد" : "New Bot"}</button><button type="button" role="menuitem" onClick={() => go({ new: "group" })}>{ar ? "جروب جديد" : "New Group Chat"}</button><button type="button" role="menuitem" onClick={() => go({ new: "dm" })}>{ar ? "رسالة لشخص" : "New Message"}</button><button type="button" role="menuitem" onClick={() => go({ new: "pgroup" })}>{ar ? "جروب مع ناس" : "New People Group"}</button></div>}
         </div>
       </header>
 
@@ -348,6 +349,8 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
         ) : !ws.ready ? <div className="hub-primary-skeleton"><Loader2 size={24} className="animate-spin" /></div> : null}
 
         
+        {!demo && <PeopleSection lang={lang} active={params.get("people")} onOpen={(id) => go({ people: id })} />}
+
         {ws.error && <div className="hub-workspace-error"><p>{ar ? "البوتات مش متاحة دلوقتي. المحادثة الأساسية لسه شغالة." : "Your bots are unavailable right now. Quick Chat still works."}</p><button type="button" onClick={() => void loadWorkspace(true)}>{ar ? "حاول تاني" : "Try again"}</button></div>}
 
         {ws.ready && (() => {
@@ -421,6 +424,8 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
   let content: ReactNode = null;
 
   if (newKind === "bot") content = <AgentForm lang={lang} busy={busy} error={formError} onSubmit={(value) => void saveAgent(value)} onCancel={goHome} />;
+  else if (newKind === "dm" || newKind === "pgroup") content = <NewPeopleChat lang={lang} mode={newKind === "dm" ? "dm" : "group"} agents={directoryAgents} onCancel={goHome} onOpened={(id) => go({ people: id })} />;
+  else if (params.get("people")) content = <PeopleChat key={params.get("people")!} lang={lang} threadId={params.get("people")!} agents={directoryAgents} onBack={goHome} />;
   else if (newKind === "group") content = <GroupForm lang={lang} agents={groupMembersAgents} busy={busy} error={formError} onSubmit={(value) => void saveGroup(value)} onCancel={goHome} />;
   else if (profileTarget && activeAgent) content = <ProfilePanel lang={lang} agent={activeAgent} group={activeGroup} agents={ws.agents} sessions={activeSessions} onBack={() => chatTarget ? openChat(chatTarget.kind, chatTarget.id, false, selectedSession) : goHome()} onEdit={() => go({ edit: itemKey(profileTarget.kind, profileTarget.id) })} onOpenChat={() => openChat(profileTarget.kind, profileTarget.id)} onRename={activeGroup ? (name) => void saveGroup({ name, memberIds: activeGroup.memberIds, category: activeGroup.category || "Unassigned" }, activeGroup) : undefined} onMakePrimary={!demo && !activeGroup && !activeAgent.isDefault ? () => { void askConfirm({ title: `Make ${activeAgent.name} your primary bot?`, body: "Your other bots and chat history stay saved.", confirm: "Replace" }).then(async (yes) => { if (!yes) return; try { await agentApi.makePrimary(activeAgent.id); await loadWorkspace(true); toast.success("Primary bot updated"); } catch (error) { toast.error(error instanceof Error ? error.message : "Could not replace primary bot"); } }); } : undefined} onComputer={() => nav("/settings/computer")} onDelete={!activeAgent.isDefault ? () => activeGroup ? void deleteGroup(activeGroup) : void deleteBot(activeAgent) : undefined} />;
   else if (editTarget?.kind === "bot" && activeAgent) content = <AgentForm lang={lang} initial={activeAgent} category={categoryFor("bot", activeAgent.id)} voice={activeAgent.voiceSettings || voiceFor(local, activeAgent.id)} busy={busy} error={formError} onSubmit={(value) => void saveAgent(value, activeAgent)} onCancel={() => go({ profile: itemKey("bot", activeAgent.id) })} />;
