@@ -114,8 +114,8 @@ export default function WalletPage() {
       )}
       {!coin && view === "send" && (
         <>
-          <header className="wl-top"><button type="button" className="wl-round" aria-label="Close" onClick={() => setView("home")}><X size={20} /></button><h2 className="wl-title">Send</h2></header>
           {sendTok ? <SendForm token={sendTok} balance={balances[sendTok.id] || 0} price={markets[sendTok.id]?.current_price || 0} image={markets[sendTok.id]?.image} onBack={() => setSendTok(null)} onDone={() => { setSendTok(null); setView("home"); void fetchWallet().then((w) => setBalances(w.balances)).catch(() => {}); }} /> : <>
+          <header className="wl-top"><button type="button" className="wl-round" aria-label="Close" onClick={() => setView("home")}><X size={20} /></button><h2 className="wl-title">Send</h2></header>
           <label className="wl-search"><Search size={18} /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" /></label>
           <div style={{ height: 14 }} />
           {rows(filtered)}
