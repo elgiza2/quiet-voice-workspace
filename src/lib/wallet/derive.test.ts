@@ -8,5 +8,6 @@ it("derives standard addresses for every supported network", () => {
   const a = deriveAddresses(PHRASE);
   expect(a.evm).toBe("0x9858EfFD232B4033E47d90003D41EC34EcaEda94");
   expect(a.bitcoin).toBe("bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu");
+  expect(a.ton).toMatch(/^UQ[A-Za-z0-9_-]{46}$/);
   expect(a.solana).toBe("HAgk14JpMQLgt6rVgv7cBQFJWFto5Dqxi472uT3DKpqk");
 });

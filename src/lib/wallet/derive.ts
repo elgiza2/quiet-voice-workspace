@@ -7,8 +7,9 @@ import { secp256k1 } from "@noble/curves/secp256k1.js";
 import { keccak_256 } from "@noble/hashes/sha3.js";
 import { base58 } from "@scure/base";
 import { p2wpkh } from "@scure/btc-signer";
+import { WalletContractV4 } from "@ton/ton";
 
-export type WalletAddresses = { evm: string; solana: string; bitcoin: string };
+export type WalletAddresses = { evm: string; solana: string; bitcoin: string; ton: string };
 
 export function newMnemonic() { return generateMnemonic(wordlist, 128); }
 
@@ -26,5 +27,8 @@ export function deriveAddresses(mnemonic: string): WalletAddresses {
   const evmHex = Array.from(keccak_256(uncompressed).slice(-20), (b) => b.toString(16).padStart(2, "0")).join("");
   const btc = root.derive("m/84'/0'/0'/0/0");
   const sol = EdHDKey.fromMasterSeed(seed).derive("m/44'/501'/0'/0'");
-  return { evm: checksum(evmHex), solana: base58.encode(sol.publicKeyRaw), bitcoin: p2wpkh(btc.publicKey!).address! };
+  // TON: BIP39 seed on Trust Wallet's path, standard v4R2 wallet, non-bounceable user-friendly form.
+  const tonKey = EdHDKey.fromMasterSeed(seed).derive("m/44'/607'/0'");
+  const ton = WalletContractV4.create({ workchain: 0, publicKey: Buffer.from(tonKey.publicKeyRaw) }).address.toString({ bounceable: false, urlSafe: true });
+  return { evm: checksum(evmHex), solana: base58.encode(sol.publicKeyRaw), bitcoin: p2wpkh(btc.publicKey!).address!, ton };
 }

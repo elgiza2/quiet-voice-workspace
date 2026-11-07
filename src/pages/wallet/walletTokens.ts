@@ -6,13 +6,14 @@ export const WALLET_TOKENS = [
   { id: "binancecoin", symbol: "BNB", name: "BNB", network: "BNB Chain" },
   { id: "tether", symbol: "USDT", name: "Tether", network: "Ethereum" },
   { id: "usd-coin", symbol: "USDC", name: "USD Coin", network: "Base" },
+  { id: "the-open-network", symbol: "TON", name: "Toncoin", network: "TON" },
   { id: "polygon-ecosystem-token", symbol: "POL", name: "Polygon", network: "Polygon" },
   { id: "arbitrum", symbol: "ARB", name: "Arbitrum", network: "Arbitrum" },
 ] as const;
 
-export type Addresses = { evm: string; solana: string; bitcoin: string };
+export type Addresses = { evm: string; solana: string; bitcoin: string; ton: string };
 /** Which account address receives each token. */
-export const addressFor = (network: string, a: Addresses) => network === "Bitcoin" ? a.bitcoin : network === "Solana" ? a.solana : a.evm;
+export const addressFor = (network: string, a: Addresses) => network === "Bitcoin" ? a.bitcoin : network === "Solana" ? a.solana : network === "TON" ? a.ton : a.evm;
 
 export async function fetchWallet(): Promise<{ addresses: Addresses; balances: Record<string, number> }> {
   const { supabase } = await import("@/integrations/supabase/client");
