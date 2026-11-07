@@ -27,6 +27,7 @@ import {
   CircleAlert,
   Mic,
   AudioLines,
+  Video,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { agentApi, type AgentInfo, type SessionInfo } from "@/lib/agentsky/client";
@@ -286,7 +287,6 @@ export function HubChat({
   const [findIdx, setFindIdx] = useState(0);
   const [pinned, setPinned] = useState(true);
   const [sheet, setSheet] = useState<Bubble | null>(null);
-  const [calling, setCalling] = useState(false);
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [selectable, setSelectable] = useState<string | null>(null);
   const [reactions, setReactions] = useState<Record<string, string>>({});
