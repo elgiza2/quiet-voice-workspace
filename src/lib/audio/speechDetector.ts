@@ -10,7 +10,8 @@ export function createSpeechDetector({ noSpeechMs = 15_000, silenceMs = 1_100, m
       const level = Math.max(-100, db);
       if (!calibrated) { floor = Math.min(floor === -70 ? level : floor, level); if (at >= 300) calibrated = true; return { heard, stop: false }; }
       const loud = level > Math.max(floor + 12, -62);
-      if (!loud) floor = floor * 0.97 + level * 0.03;
+      // Track the noise floor; drift slowly even while "loud" so rising background noise (mobile auto-gain) can't block the end of a turn.
+      floor = loud ? floor * 0.995 + level * 0.005 : floor * 0.97 + level * 0.03;
       if (loud) {
         lastLoud = at;
         if (speechStart < 0) speechStart = at;

@@ -33,7 +33,10 @@ async function handle(request: Request) {
     if (!res.ok) return Response.json({ error: "Voice service refused the call. Check the Cartesia account." }, { status: 502, headers: noStore });
     const { token } = await res.json() as { token?: string };
     if (!token) return Response.json({ error: "Voice service unavailable" }, { status: 502, headers: noStore });
-    return Response.json({ token, expiresIn: 900 }, { headers: noStore });
+    const { callLanguage } = await import("@/lib/calls/callLanguage.server");
+    const hint = typeof (body as { language?: unknown }).language === "string" ? String((body as { language?: string }).language) : "";
+    const language = await callLanguage(auth.db, auth.userId, hint);
+    return Response.json({ token, expiresIn: 900, language }, { headers: noStore });
   }
 
   const parsed = replyInput.safeParse(body);
