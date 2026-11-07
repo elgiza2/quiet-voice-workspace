@@ -7,6 +7,7 @@ import { startRealtimeCall, type CallPhase, type RealtimeCall } from "@/lib/audi
 import { supabase } from "@/integrations/supabase/client";
 import { calls, useCalls, type ActiveCall } from "@/lib/calls/callStore";
 import type { AgentInfo } from "@/lib/agentsky/client";
+import { Button } from "@/components/ui/button";
 import "@/styles/agent.css";
 import "@/styles/agent-hub.css";
 import "@/styles/calls.css";
@@ -189,33 +190,43 @@ function VideoCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
   const [muted, setMuted] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const [source, setSource] = useState<Source>("off");
+  const [needsTap, setNeedsTap] = useState(false);
   const [facing, setFacing] = useState<"user" | "environment">("user");
   const [stream, setStream] = useState<MediaStream | null>(null);
   const client = useRef<import("@anam-ai/js-sdk").AnamClient | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const selfRef = useRef<HTMLVideoElement | null>(null);
+  const remoteRef = useRef<HTMLVideoElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const cameraGeneration = useRef(0);
+  const teardown = useRef<Promise<void>>(Promise.resolve());
   const videoId = `ig-video-${call.key}`;
 
   const replace = useCallback((next: MediaStream | null, src: Source) => {
+    cameraGeneration.current += 1;
     streamRef.current?.getTracks().forEach((t) => t.stop());
     streamRef.current = next; setStream(next); setSource(src);
   }, []);
   const startCamera = useCallback(async (mode: "user" | "environment") => {
+    const generation = ++cameraGeneration.current;
     try {
       const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: mode, width: { ideal: 720 }, height: { ideal: 1280 } }, audio: false });
+      if (generation !== cameraGeneration.current) { s.getTracks().forEach((t) => t.stop()); return; }
       replace(s, "camera"); setFacing(mode); setNotice("");
-    } catch { replace(null, "off"); setNotice(ar ? "اسمح للتطبيق باستخدام الكاميرا" : "Allow camera access to show your video"); }
+    } catch { if (generation !== cameraGeneration.current) return; replace(null, "off"); setNotice(ar ? "اسمح للتطبيق باستخدام الكاميرا" : "Allow camera access to show your video"); }
   }, [ar, replace]);
   const startScreen = async () => {
+    const generation = ++cameraGeneration.current;
     try {
       const s = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+      if (generation !== cameraGeneration.current) { s.getTracks().forEach((t) => t.stop()); return; }
       s.getVideoTracks()[0]?.addEventListener("ended", () => { if (streamRef.current === s) void startCamera(facing); });
       replace(s, "screen"); setNotice("");
     } catch { /* user cancelled the picker */ }
   };
 
   // Your own camera opens with the call, like any video call.
-  useEffect(() => { void startCamera("user"); return () => { streamRef.current?.getTracks().forEach((t) => t.stop()); streamRef.current = null; }; }, [call.key]);
+  useEffect(() => { void startCamera("user"); return () => { cameraGeneration.current += 1; streamRef.current?.getTracks().forEach((t) => t.stop()); streamRef.current = null; }; }, [call.key]);
   useEffect(() => { if (selfRef.current) { selfRef.current.srcObject = stream; if (stream) void selfRef.current.play().catch(() => {}); } }, [stream]);
 
   // While live, the bot periodically "looks" at the camera or shared screen.
@@ -247,12 +258,36 @@ function VideoCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
 
   useEffect(() => {
     let cancelled = false;
-    setError(""); setStatus("connecting");
-    void (async () => {
+    let owned: import("@anam-ai/js-sdk").AnamClient | null = null;
+    let startup: Promise<void> = Promise.resolve();
+    let watchdog: ReturnType<typeof setTimeout> | undefined;
+    let disposal: Promise<void> | undefined;
+    const controller = new AbortController();
+    const dispose = () => {
+      if (!disposal) disposal = (async () => {
+        await startup.catch(() => {});
+        if (client.current === owned) client.current = null;
+        await owned?.stopStreaming().catch(() => {});
+      })();
+      return disposal;
+    };
+    const failed = (message: string) => {
+      if (cancelled) return;
+      cancelled = true; controller.abort(); clearTimeout(watchdog);
+      setError(message); setStatus("ended");
+      teardown.current = dispose();
+    };
+    setError(""); setNeedsTap(false); setStatus("connecting");
+    // Deferring startup cancels React's mount probe before it opens a provider session.
+    const begin = setTimeout(() => { startup = (async () => {
       try {
+        await teardown.current;
+        if (cancelled) return;
         const { data } = await supabase.auth.getSession();
+        if (cancelled) return;
         if (!data.session) throw new Error(ar ? "سجّل دخولك الأول" : "Please sign in");
         const res = await fetch("/api/video-call", {
+          signal: controller.signal,
           method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${data.session.access_token}` },
           body: JSON.stringify({ agentName: call.agent.name, agentPrompt: call.agent.prompt || "", language: ar ? "ar" : "en", reason: call.reason || "" }),
         });
@@ -260,22 +295,39 @@ function VideoCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
         if (!res.ok || !body.sessionToken) throw new Error(body.error || "Video unavailable");
         if (cancelled) return;
         const { createClient, AnamEvent } = await import("@anam-ai/js-sdk");
+        if (cancelled) return;
         const c = createClient(body.sessionToken);
-        client.current = c;
-        c.addListener(AnamEvent.VIDEO_PLAY_STARTED, () => { if (!cancelled) setStatus("live"); });
-        c.addListener(AnamEvent.CONNECTION_CLOSED, () => { if (!cancelled) setStatus("ended"); });
-        c.addListener(AnamEvent.MIC_PERMISSION_DENIED, () => { if (!cancelled) setError(ar ? "اسمح للتطبيق باستخدام الميكروفون" : "Allow microphone access to talk"); });
+        owned = c; client.current = c;
+        c.addListener(AnamEvent.VIDEO_STREAM_STARTED, () => {
+          if (cancelled) return;
+          void remoteRef.current?.play().catch(() => { if (!cancelled) setNeedsTap(true); });
+        });
+        c.addListener(AnamEvent.AUDIO_STREAM_STARTED, (audio) => {
+          if (cancelled || !audioRef.current) return;
+          audioRef.current.srcObject = audio;
+          void audioRef.current.play().catch(() => { if (!cancelled) setNeedsTap(true); });
+        });
+        c.addListener(AnamEvent.VIDEO_PLAY_STARTED, () => { if (!cancelled) { clearTimeout(watchdog); setStatus("live"); } });
+        c.addListener(AnamEvent.CONNECTION_CLOSED, () => failed(ar ? "اتصال الفيديو انقطع. حاول تاني." : "Video connection closed. Please retry."));
+        c.addListener(AnamEvent.MIC_PERMISSION_DENIED, () => failed(ar ? "اسمح للتطبيق باستخدام الميكروفون" : "Allow microphone access to talk"));
+        watchdog = setTimeout(() => failed(ar ? "الفيديو موصلش. حاول تاني أو راجع اتصال الإنترنت." : "Video did not connect. Retry or check your connection."), 30000);
         await c.streamToVideoElement(videoId);
-        if (cancelled) void c.stopStreaming();
-      } catch (e) { if (!cancelled) { setError(e instanceof Error ? e.message : "Video unavailable"); setStatus(""); } }
-    })();
-    return () => { cancelled = true; void client.current?.stopStreaming().catch(() => {}); client.current = null; };
+      } catch (e) {
+        const denied = e instanceof DOMException && (e.name === "NotAllowedError" || e.name === "SecurityError");
+        failed(denied ? (ar ? "اسمح للتطبيق باستخدام الميكروفون" : "Allow microphone access to talk") : ar ? "تعذّر بدء الفيديو. حاول تاني وتأكد إن مفيش مكالمة تانية مفتوحة." : "Could not start video. Retry and check no other call is open.");
+      }
+    })(); }, 0);
+    return () => {
+      cancelled = true; clearTimeout(begin); clearTimeout(watchdog); controller.abort();
+      if (audioRef.current) { audioRef.current.pause(); audioRef.current.srcObject = null; }
+      teardown.current = dispose();
+    };
   }, [call.key, attempt]);
 
-  const end = () => { void client.current?.stopStreaming().catch(() => {}); client.current = null; replace(null, "off"); calls.end(); };
+  const end = () => { replace(null, "off"); calls.end(); };
   const sharing = source === "screen";
   return <Shell call={call} minimized={minimized} connected={status === "live"} status={status} videoId={videoId}
-    video={<><CallBackdrop agent={call.agent} /><video id={videoId} className="ig-call-remote" data-live={status === "live" || undefined} autoPlay playsInline /></>}
+    video={<><CallBackdrop agent={call.agent} /><video ref={remoteRef} id={videoId} className="ig-call-remote" data-live={status === "live" || undefined} autoPlay playsInline muted /><audio ref={audioRef} autoPlay /></>}
     selfView={<div className="ig-call-self" data-hidden={source === "off" || undefined} data-mirror={(source === "camera" && facing === "user") || undefined}>
       <video ref={selfRef} autoPlay playsInline muted />
       {sharing && <span className="ig-call-self-tag"><ScreenShare size={12} />{ar ? "بتشارك الشاشة" : "Sharing"}</span>}
@@ -289,7 +341,11 @@ function VideoCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
     </>}>
     {status !== "live" && !error && <div className="ig-call-waiting"><span className="ig-call-avatar"><BotAvatar agent={call.agent} size={96} state="idle" /></span><p>{statusLabel(status, ar) || (ar ? "جاري الاتصال…" : "Calling…")}</p></div>}
     {notice && <p className="ig-call-pill" role="status">{notice}</p>}
-    {error && <button type="button" className="ig-call-pill" data-error role="alert" onClick={() => setAttempt((n) => n + 1)}>{error} · {ar ? "حاول تاني" : "Retry"}</button>}
+    {needsTap && <Button variant="ghost" className="ig-call-pill" onClick={() => {
+      const plays = [remoteRef.current?.play(), audioRef.current?.play()].filter((p): p is Promise<void> => Boolean(p));
+      void Promise.all(plays).then(() => setNeedsTap(false)).catch(() => setNeedsTap(true));
+    }}><Volume2 size={16} />{ar ? "اضغط لتشغيل الفيديو والصوت" : "Tap to start video and sound"}</Button>}
+    {error && <Button variant="ghost" className="ig-call-pill" data-error role="alert" onClick={() => setAttempt((n) => n + 1)}>{error} · {ar ? "حاول تاني" : "Retry"}</Button>}
   </Shell>;
 }
 

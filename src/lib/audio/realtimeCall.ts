@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { createSpeechDetector } from "./speechDetector";
 import { speechText } from "./voiceSchema";
 import { sharedAudioContext } from "./voiceClient";
+import { createPcmResampler, transcriptText } from "./callInput";
 
 export type CallPhase = "connecting" | "listening" | "thinking" | "speaking";
 export type CallTurn = { role: "user" | "assistant"; text: string };
@@ -64,19 +65,6 @@ export function takeSpeakable(buffer: string, final = false): { pieces: string[]
   return { pieces, rest };
 }
 
-function downsample(input: Float32Array, fromRate: number): Int16Array<ArrayBuffer> {
-  const ratio = fromRate / STT_RATE;
-  const length = Math.floor(input.length / ratio);
-  const out = new Int16Array(length);
-  for (let i = 0; i < length; i++) {
-    const start = Math.floor(i * ratio), end = Math.min(input.length, Math.floor((i + 1) * ratio));
-    let sum = 0; for (let j = start; j < end; j++) sum += input[j];
-    const v = Math.max(-1, Math.min(1, sum / Math.max(1, end - start)));
-    out[i] = v < 0 ? v * 0x8000 : v * 0x7fff;
-  }
-  return out;
-}
-
 function decodeFloat32(b64: string) {
   const bin = atob(b64);
   const bytes = new Uint8Array(bin.length);
@@ -116,7 +104,7 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
   // ---- STT socket ----
   let stt: WebSocket | null = null;
   let finals: string[] = [];
-  let flushWaiter: (() => void) | null = null;
+  let flushWaiter: ((drained: boolean) => void) | null = null;
   const openStt = async () => {
     if (stt && (stt.readyState === WebSocket.OPEN || stt.readyState === WebSocket.CONNECTING)) return stt;
     const url = new URL("wss://api.cartesia.ai/stt/websocket");
@@ -128,18 +116,20 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
     url.searchParams.set("access_token", await freshToken());
     const ws = new WebSocket(url); ws.binaryType = "arraybuffer";
     ws.onmessage = (ev) => {
+      if (ended || stt !== ws || (phase !== "listening" && !flushWaiter)) return;
       if (typeof ev.data !== "string") return;
       try {
         const msg = JSON.parse(ev.data) as { type?: string; is_final?: boolean; text?: string; message?: string };
-        if (msg.type === "transcript" && msg.text?.trim()) {
+        if (msg.type === "transcript" && typeof msg.text === "string") {
           lastHeardAt = performance.now();
-          if (msg.is_final) { finals.push(msg.text.trim()); scheduleTurnEnd(); }
+          if (msg.is_final) { finals.push(msg.text); if (phase === "listening") scheduleTurnEnd(); }
+          else if (phase === "listening" && finals.length) scheduleTurnEnd();
         }
-        else if (msg.type === "flush_done") { flushWaiter?.(); flushWaiter = null; }
+        else if (msg.type === "flush_done") { flushWaiter?.(true); }
         else if (msg.type === "error") fail(msg.message || "Speech recognition error");
       } catch { /* ignore */ }
     };
-    ws.onclose = () => { if (stt === ws) stt = null; flushWaiter?.(); flushWaiter = null; };
+    ws.onclose = () => { if (stt !== ws) return; stt = null; flushWaiter?.(false); };
     stt = ws;
     return ws;
   };
@@ -205,22 +195,22 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
   // Cartesia sends a final transcript when it hears a pause; answer shortly after unless more speech arrives.
   let turnTimer: ReturnType<typeof setTimeout> | null = null;
   // A short pause mid-sentence also yields a final; wait while the mic still hears the voice (up to 2.5s).
-  let lastHeardAt = 0, lastVoiceAt = 0, firstFinalAt = 0, noise = -60;
+  let lastHeardAt = 0, lastVoiceAt = 0, noise = -60;
   const scheduleTurnEnd = () => {
     if (turnTimer) clearTimeout(turnTimer);
-    if (!firstFinalAt) firstFinalAt = performance.now();
     turnTimer = setTimeout(() => {
       turnTimer = null;
       if (ended || phase !== "listening" || !finals.length) return;
       const now = performance.now();
-      if (now - lastVoiceAt < 600 && now - firstFinalAt < 2500) { scheduleTurnEnd(); return; }
-      void finishTurn(false);
+      if (now - lastHeardAt < 900 || (now - lastVoiceAt < 600 && now - lastHeardAt < 2500)) { scheduleTurnEnd(); return; }
+      void finishTurn();
     }, 650);
   };
   const startListening = () => {
     if (ended) return;
     if (turnTimer) { clearTimeout(turnTimer); turnTimer = null; }
-    finals = []; pending = []; firstFinalAt = 0;
+    finals = []; pending = []; lastHeardAt = 0; lastVoiceAt = 0; noise = -60;
+    resampler.reset();
     detector = createSpeechDetector({ noSpeechMs: 1e12, silenceMs: 750, minSpeechMs: 180 });
     turnStart = performance.now();
     setPhase("listening");
@@ -246,7 +236,8 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
     };
     try {
       const response = await callApi({ action: "reply", agentName: opts.agentName, agentPrompt: opts.agentPrompt.slice(0, 6000), language: lang || opts.language, reason: opts.reason || "", history: history.slice(-20) }, controller.signal);
-      const reader = response.body!.getReader(); const decoder = new TextDecoder();
+      if (!response.body) throw new Error("Reply stream unavailable");
+      const reader = response.body.getReader(); const decoder = new TextDecoder();
       for (;;) {
         const { done, value } = await reader.read();
         if (done) break;
@@ -271,15 +262,26 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
     } finally { if (replyAbort === controller) replyAbort = null; }
   };
 
-  const finishTurn = async (flush = true) => {
+  const finishTurn = async () => {
     if (phase !== "listening") return;
     if (turnTimer) { clearTimeout(turnTimer); turnTimer = null; }
     setPhase("thinking");
     const ws = stt;
-    if (flush && ws?.readyState === WebSocket.OPEN) {
-      await new Promise<void>((res) => { flushWaiter = res; ws.send("finalize"); setTimeout(res, 3500); });
+    if (ws?.readyState === WebSocket.OPEN) {
+      const drained = await new Promise<boolean>((resolve) => {
+        const done = (ok: boolean) => { clearTimeout(timeout); if (flushWaiter === done) flushWaiter = null; resolve(ok); };
+        const timeout = setTimeout(() => done(false), 3500);
+        flushWaiter = done;
+        try { ws.send("finalize"); } catch { done(false); }
+      });
+      if (!drained) {
+        if (stt === ws) stt = null;
+        ws.close(); finals = [];
+        fail("Speech connection interrupted. Please repeat that sentence.");
+        startListening(); return;
+      }
     }
-    const text = finals.join(" ").trim(); finals = [];
+    const text = transcriptText(finals); finals = [];
     if (ended) return;
     if (!text) { startListening(); return; }
     void respond(text);
@@ -287,6 +289,7 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
 
   // ---- microphone pipeline ----
   const source = ctx.createMediaStreamSource(stream);
+  const resampler = createPcmResampler(ctx.sampleRate, STT_RATE);
   const processor = ctx.createScriptProcessor(4096, 1, 1);
   const sink = ctx.createGain(); sink.gain.value = 0;
   source.connect(processor); processor.connect(sink); sink.connect(ctx.destination);
@@ -295,7 +298,7 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
     const input = ev.inputBuffer.getChannelData(0);
     let sum = 0; for (let i = 0; i < input.length; i++) sum += input[i] * input[i];
     const db = 20 * Math.log10(Math.sqrt(sum / input.length) || 1e-8);
-    const pcm = downsample(input, ctx.sampleRate);
+    const pcm = resampler.push(input);
     const ws = stt;
     if (ws?.readyState === WebSocket.OPEN) {
       for (const p of pending) ws.send(p); pending = [];
@@ -306,7 +309,7 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
     noise = db > noise + 10 ? noise * 0.995 + db * 0.005 : noise * 0.9 + db * 0.1;
     // Backups: our own silence detector, or a final transcript left unanswered for 2.5s.
     if (step.stop && step.heard) void finishTurn();
-    else if (finals.length && performance.now() - lastHeardAt > 2500) void finishTurn(false);
+    else if (finals.length && performance.now() - lastHeardAt > 2500) void finishTurn();
   };
 
   if (opts.reason) void respond(""); else startListening();
@@ -323,6 +326,7 @@ export async function startRealtimeCall(opts: RealtimeCallOptions): Promise<Real
     },
     end() {
       if (ended) return; ended = true;
+      flushWaiter?.(false);
       replyAbort?.abort(); stopPlayback();
       if (turnTimer) clearTimeout(turnTimer);
       processor.onaudioprocess = null;
