@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import TradePanel from "./TradePanel";
 import { ArrowDownToLine, Check, ChevronLeft, ChevronRight, Copy, ExternalLink, Globe, Send, TrendingUp } from "lucide-react";
 
 const CG = "https://api.coingecko.com/api/v3";
@@ -71,6 +72,7 @@ export function CoinDetail({ id, balance = 0, onBack, onReceive, onSend }: { id:
   const [copied, setCopied] = useState(false);
   const [scrub, setScrub] = useState<number[] | null>(null);
   const [full, setFull] = useState(false);
+  const [trade, setTrade] = useState<"buy" | "sell" | null>(null);
   const { data: info } = useJson<any>(`${CG}/coins/${id}?localization=false&tickers=false&community_data=false&developer_data=false`);
   const { data: chartRaw, err: chartErr } = useJson<{ prices: number[][] }>(`${CG}/coins/${id}/market_chart?vs_currency=usd&days=${range}`);
   const chart = chartRaw?.prices ?? [];
@@ -85,6 +87,7 @@ export function CoinDetail({ id, balance = 0, onBack, onReceive, onSend }: { id:
   const links = info?.links;
   const about = (info?.description?.en || "").replace(/<[^>]+>/g, "").trim();
   const sym = (info?.symbol || "").toUpperCase();
+  const solMint: string | undefined = info?.platforms?.solana || undefined;
 
   return (
     <div className="wl-detail">
@@ -144,10 +147,18 @@ export function CoinDetail({ id, balance = 0, onBack, onReceive, onSend }: { id:
         <div className="wl-tags">{info.categories.filter(Boolean).slice(0, 8).map((c: string) => <span key={c}>{c}</span>)}</div>
       </section>}
 
-      <div className="wl-dock">
-        <button type="button" className="wl-btn" onClick={onReceive}><ArrowDownToLine size={18} />Receive</button>
-        <button type="button" className="wl-btn wl-btn-main" disabled={!onSend || balance <= 0} onClick={onSend}><Send size={18} />Send</button>
-      </div>
+      {solMint ? (
+        <div className="wl-dock">
+          <button type="button" className="wl-btn" onClick={() => setTrade("sell")}>Sell</button>
+          <button type="button" className="wl-btn wl-btn-main" onClick={() => setTrade("buy")}>Buy</button>
+        </div>
+      ) : (
+        <div className="wl-dock">
+          <button type="button" className="wl-btn" onClick={onReceive}><ArrowDownToLine size={18} />Receive</button>
+          <button type="button" className="wl-btn wl-btn-main" disabled={!onSend || balance <= 0} onClick={onSend}><Send size={18} />Send</button>
+        </div>
+      )}
+      {trade && solMint && <TradePanel mint={solMint} symbol={sym} side={trade} onClose={() => setTrade(null)} />}
     </div>
   );
 }

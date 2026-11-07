@@ -1,5 +1,5 @@
 /** Server-only real transfers on every wallet network, plus Solana swaps through Jupiter (free, keyless). */
-import { createWalletClient, http, parseUnits, erc20Abi, type Chain } from "viem";
+import { createWalletClient, encodeFunctionData, http, parseUnits, erc20Abi, type Chain } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { mainnet, bsc, polygon, base, arbitrum } from "viem/chains";
 import { ed25519 } from "@noble/curves/ed25519.js";
@@ -33,8 +33,8 @@ async function sendEvm(t: EvmToken, k: WalletKeys, to: string, amount: string) {
   const feeTo = await feeAddress("evm");
   const { send, fee } = split(parseUnits(amount, t.decimals), feeTo);
   const go = (dest: string, v: bigint) => t.contract
-    ? client.writeContract({ address: t.contract, abi: erc20Abi, functionName: "transfer", args: [dest as `0x${string}`, v], chain: t.chain })
-    : client.sendTransaction({ to: dest as `0x${string}`, value: v, chain: t.chain });
+    ? client.sendTransaction({ to: t.contract, data: encodeFunctionData({ abi: erc20Abi, functionName: "transfer", args: [dest as `0x${string}`, v] }) } as any)
+    : client.sendTransaction({ to: dest as `0x${string}`, value: v } as any);
   const tx = await go(to, send);
   if (fee > 0n && feeTo) await go(feeTo, fee).catch(() => {});
   return tx;
