@@ -16,3 +16,11 @@
 .cx-call.cx-call-cartesia[role=dialog] .cx-call-restore{background:transparent!important}
 @keyframes call-breathe{50%{transform:scale(.93)}}
 @media(prefers-reduced-motion:reduce){.cx-call-avatar{animation:none!important}.cx-call.cx-call-cartesia{transition:none}}
+/* Call box stays neutral: no colored rings, halos, orbiting dots, glows or focus rings anywhere inside it. */
+.cx-call.cx-call-cartesia,.cx-call.cx-call-cartesia *,.cx-call.cx-call-cartesia *::before,.cx-call.cx-call-cartesia *::after{border-color:transparent!important;outline:0!important;box-shadow:none!important;--tw-ring-shadow:0 0 #0000!important;--tw-ring-offset-shadow:0 0 #0000!important;--tw-ring-color:transparent!important}
+.cx-call.cx-call-cartesia{border:0!important;background:var(--cv-panel)!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;filter:none!important;animation:none}
+.cx-call.cx-call-cartesia .ag-orb__halo,.cx-call.cx-call-cartesia .ag-orb__dots{display:none!important}
+.cx-call.cx-call-cartesia .ag-orb,.cx-call.cx-call-cartesia .ag-orb__body,.cx-call.cx-call-cartesia .hub-bot-avatar{filter:none!important;box-shadow:none!important}
+.cx-call.cx-call-cartesia .cx-call-btn{background:var(--cv-active)!important;color:var(--cv-ink)!important;border:0!important}
+.cx-call.cx-call-cartesia .cx-call-end{background:var(--cv-ink)!important;color:var(--cv-panel)!important}
+.cx-call.cx-call-cartesia .cx-call-restore{background:transparent!important}
