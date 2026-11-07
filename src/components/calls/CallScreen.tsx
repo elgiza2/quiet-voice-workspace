@@ -32,11 +32,11 @@ function statusLabel(s: string, ar: boolean) {
 
 /** Blurred, enlarged avatar behind the call — the Instagram backdrop. */
 export function CallBackdrop(_props: { agent: AgentInfo }) {
-  return <div className="ig-call-backdrop ig-call-aurora" aria-hidden><i /><i /><i /><i /></div>;
+  return <div className="ig-call-backdrop ig-call-aurora" aria-hidden />;
 }
 
 export function CallButton({ label, on, danger, accept, disabled, onClick, children }: { label: string; on?: boolean; danger?: boolean; accept?: boolean; disabled?: boolean; onClick: () => void; children: React.ReactNode }) {
-  return <button type="button" className="ig-call-btn" data-on={on || undefined} data-danger={danger || undefined} data-accept={accept || undefined} disabled={disabled} aria-label={label} aria-pressed={on} onClick={onClick}>{children}</button>;
+  return <Button variant="ghost" type="button" className="ig-call-btn" title={label} data-on={on || undefined} data-danger={danger || undefined} data-accept={accept || undefined} disabled={disabled} aria-label={label} aria-pressed={on} onClick={onClick}>{children}</Button>;
 }
 
 // ---------- minimized bubble: drag anywhere, snaps to the nearest side, tap to return ----------
@@ -104,7 +104,7 @@ function Shell({ call, status, connected, minimized, children, controls, video, 
       {video || <CallBackdrop agent={call.agent} />}
       <div className="ig-call-scrim" aria-hidden />
       <header className="ig-call-top">
-        <button type="button" className="ig-call-icon" aria-label={ar ? "تصغير" : "Minimize"} onClick={() => calls.minimize(true)}><ChevronDown size={26} /></button>
+        <Button variant="ghost" type="button" className="ig-call-icon" aria-label={ar ? "تصغير" : "Minimize"} onClick={() => calls.minimize(true)}><ChevronDown size={26} /></Button>
         {call.kind === "video" && <div className="ig-call-topinfo"><strong>{call.agent.name}</strong><span role="status">{sub}</span></div>}
         <span className="ig-call-icon-space" />
       </header>
@@ -165,7 +165,7 @@ function VoiceCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
       <CallButton label={ar ? "إنهاء" : "End call"} danger onClick={end}><PhoneOff size={24} /></CallButton>
     </>}>
     {needsTap && <button type="button" className="ig-call-pill" onClick={async () => { if (await live.current?.resumeAudio()) setNeedsTap(false); }}><Volume2 size={16} />{ar ? "اضغط لتشغيل الصوت" : "Tap to turn on sound"}</button>}
-    {(error || choice.error) && <button type="button" className="ig-call-pill" data-error role="alert" onClick={() => { setError(""); choice.reload(); setAttempt((n) => n + 1); }}>{error || choice.error} · {ar ? "حاول تاني" : "Retry"}</button>}
+    {(error || choice.error) && <Button variant="ghost" type="button" className="ig-call-pill" data-error role="alert" onClick={() => { setError(""); choice.reload(); setAttempt((n) => n + 1); }}>{error || choice.error} · {ar ? "حاول تاني" : "Retry"}</Button>}
   </Shell>;
 }
 
