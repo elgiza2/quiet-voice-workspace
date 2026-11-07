@@ -1,23 +1,32 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { SpaMount } from "@/lib/spaMount";
 
-// The home route ships no og:image, so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+// The home page is the Ceyo SPA itself (same mount as the catch-all `$` route).
 export const Route = createFileRoute("/")({
-  component: Index,
+  ssr: false,
+  component: SpaMount,
+  head: () => ({
+    meta: [
+      { title: "Ceyo — Your Personal Bots and Group Chats" },
+      {
+        name: "description",
+        content:
+          "Meet your main Ceyo bot, create personal bots, coordinate group chats and pick up every conversation from one calm home.",
+      },
+      { property: "og:title", content: "Ceyo — Your Personal Bots and Group Chats" },
+      {
+        property: "og:description",
+        content:
+          "Create personal bots and coordinated group chats, then continue every conversation from one clean, animated home.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Ceyo — Your Personal Bots and Group Chats" },
+      {
+        name: "twitter:description",
+        content:
+          "Create personal bots and coordinated group chats, then continue every conversation from one clean, animated home.",
+      },
+    ],
+  }),
 });
-
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
-function Index() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}

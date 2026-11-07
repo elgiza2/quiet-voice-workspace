@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.life_task_sync_nudge() FROM PUBLIC, anon, authenticated;

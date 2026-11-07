@@ -1,0 +1,209 @@
+/** @doc dodo-checkout — creates a Dodo Payments checkout session (global/USD payments)
+ *  and a pending dodo_orders row. Kashier stays the Arabic/EGP path. */
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+const admin = createClient(
+  Deno.env.get("SUPABASE_URL")!,
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+  { auth: { persistSession: false } },
+);
+
+function json(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+// Dodo catalogue key -> { plan, amount (USD), credits }. Keys match the
+// `interval` column of public.dodo_products.
+const PLANS: Record<string, { plan: string; amount: number; credits: number }> = {
+  monthly: { plan: "pro", amount: 15, credits: 1000 },
+  monthly_intro: { plan: "pro", amount: 7, credits: 1000 },
+  // 3-day trial for $1, then the $7 monthly plan charges automatically.
+  monthly_trial: { plan: "pro", amount: 1, credits: 1000 },
+  monthly_winback: { plan: "pro", amount: 5, credits: 1000 },
+  yearly: { plan: "pro", amount: 120, credits: 12000 },
+  yearly_winback: { plan: "pro", amount: 149, credits: 12000 },
+};
+
+/** Free-trial length (days) per catalogue key. */
+const TRIAL_DAYS: Record<string, number> = { monthly_trial: 3 };
+
+// Legacy SKUs still sent by older clients -> catalogue key.
+const SKU_TO_KEY: Record<string, string> = {
+  plan_pro_m: "monthly",
+  plan_pro_m_first: "monthly_intro",
+  plan_pro_m_trial: "monthly_trial",
+  plan_pro_m_winback: "monthly_winback",
+  plan_pro_y: "yearly",
+  plan_pro_y_winback: "yearly_winback",
+  plan_elite_m: "monthly",
+  plan_elite_m_first: "monthly_intro",
+  plan_elite_y: "yearly",
+};
+
+/**
+ * True only for a genuinely annual interval. A bare `y$` test is wrong here:
+ * "monthly" ends with a "y" and would be billed as a year.
+ */
+function isYearly(raw: string): boolean {
+  if (raw === "y" || raw === "yr" || raw === "yrs") return true;
+  return /year|annual/.test(raw);
+}
+
+/**
+ * Resolves the catalogue key from any of sku / interval / trial / offer.
+ *
+ * Mirrors `catalogSlot` in kashier-checkout: a monthly plan always starts on the
+ * discounted first month, so both gateways charge the price the site displays.
+ */
+function resolveKey(p: Record<string, unknown>): string | null {
+  const sku = String(p.sku ?? "").trim();
+  if (sku && SKU_TO_KEY[sku]) return SKU_TO_KEY[sku];
+
+  const raw = String(p.interval ?? p.plan_interval ?? "monthly").toLowerCase();
+  const yearly = isYearly(raw);
+  const offer = String(p.offer ?? "").toLowerCase();
+  const winback = p.winback === true || /winback|win_back|return/.test(offer);
+  const freeTrial = p.free_trial === true || /free_trial|trial3|3day|3-day/.test(offer);
+
+  if (yearly) return winback ? "yearly_winback" : "yearly";
+  if (winback) return "monthly_winback";
+  if (freeTrial) return "monthly_trial";
+  return "monthly_intro";
+}
+
+const API_BASE =
+  (Deno.env.get("DODO_PAYMENTS_ENVIRONMENT") || "live_mode") === "test_mode"
+    ? "https://test.dodopayments.com"
+    : "https://live.dodopayments.com";
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
+
+  const apiKey = Deno.env.get("DODO_PAYMENTS_API_KEY");
+  if (!apiKey) return json({ error: "Dodo Payments is not configured" }, 503);
+
+  const token = (req.headers.get("Authorization") || "").replace("Bearer ", "").trim();
+  const { data: userData } = await admin.auth.getUser(token);
+  const user = userData?.user;
+  if (!user) return json({ error: "unauthorized" }, 401);
+
+  let payload: Record<string, unknown> = {};
+  try {
+    payload = await req.json();
+  } catch {
+    return json({ error: "invalid json" }, 400);
+  }
+
+  const sku = String(payload.sku ?? "");
+  const key = resolveKey(payload);
+  const info = key ? PLANS[key] : null;
+  if (!key || !info) return json({ error: "unknown plan" }, 400);
+
+  // Resolve the exact Dodo product for this catalogue key. The trial offer runs
+  // on the $7 monthly product, so it falls back to `monthly_intro` when no
+  // dedicated trial product exists in the catalogue.
+  const productKeys = key === "monthly_trial" ? [key, "monthly_intro", "monthly"] : [key];
+  let productId = "";
+  for (const candidate of productKeys) {
+    if (productId) break;
+    const { data: product } = await admin
+      .from("dodo_products")
+      .select("product_id,interval")
+      .eq("interval", candidate)
+      .eq("active", true)
+      .order("updated_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    productId = product?.product_id ?? "";
+  }
+  if (!productId) {
+    return json({ error: `No Dodo product configured for "${key}"` }, 503);
+  }
+  const trialDays = TRIAL_DAYS[key] ?? 0;
+  const isSubscription = true; // every catalogue entry is a recurring plan
+
+  const orderId = `dodo_${crypto.randomUUID()}`;
+  const siteUrl = Deno.env.get("SITE_URL") || "https://megsyai.com";
+
+  const { error: insertErr } = await admin.from("dodo_orders").insert({
+    order_id: orderId,
+    user_id: user.id,
+    amount: info.amount,
+    currency: "USD",
+    credits: info.credits,
+    plan: info.plan,
+    status: "pending",
+    raw: { sku, plan_key: key, product_id: productId },
+  });
+
+  if (insertErr) return json({ error: insertErr.message }, 500);
+
+  const body: Record<string, unknown> = {
+    payment_link: true,
+    return_url: `${siteUrl}/billing/success?provider=dodo&order=${orderId}`,
+    customer: { email: user.email ?? "", name: user.user_metadata?.full_name ?? user.email ?? "" },
+    billing: {
+      city: String(payload.city ?? "NA"),
+      country: String(payload.country ?? "US"),
+      state: String(payload.state ?? "NA"),
+      street: String(payload.street ?? "NA"),
+      zipcode: String(payload.zipcode ?? "00000"),
+    },
+    metadata: {
+      order_id: orderId,
+      user_id: user.id,
+      sku,
+      plan_key: key,
+      credits: String(info.credits),
+      plan: info.plan,
+      trial_days: String(trialDays),
+    },
+    ...(isSubscription
+      ? { product_id: productId, quantity: 1 }
+      : { product_cart: [{ product_id: productId, quantity: 1 }] }),
+    ...(trialDays > 0 ? { trial_period_days: trialDays } : {}),
+  };
+
+  const call = (payloadBody: Record<string, unknown>) =>
+    fetch(`${API_BASE}/${isSubscription ? "subscriptions" : "payments"}`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify(payloadBody),
+    });
+
+  let res = await call(body);
+  let data = await res.json().catch(() => ({}));
+  // Some Dodo products carry the trial on the product itself and reject the
+  // per-subscription field — retry once without it so checkout still opens.
+  if (!res.ok && trialDays > 0) {
+    const { trial_period_days: _omit, ...withoutTrial } = body;
+    res = await call(withoutTrial);
+    data = await res.json().catch(() => ({}));
+  }
+  if (!res.ok) {
+    await admin.from("dodo_orders").update({ status: "failed", raw: data }).eq("order_id", orderId);
+    return json({ error: `Dodo error ${res.status}`, details: data }, 502);
+  }
+
+  const checkoutUrl = data.payment_link || data.checkout_url || data.url;
+  await admin
+    .from("dodo_orders")
+    .update({
+      dodo_payment_id: data.payment_id ?? null,
+      dodo_subscription_id: data.subscription_id ?? null,
+      raw: data,
+    })
+    .eq("order_id", orderId);
+
+  return json({ ok: true, checkout_url: checkoutUrl, order_id: orderId, plan_key: key });
+});

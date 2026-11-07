@@ -10,33 +10,521 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SplatRouteImport } from './routes/$'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as SecurityRouteImport } from './routes/security'
+import { Route as SubscriptionTermsRouteImport } from './routes/subscription-terms'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as ApiAnythingRouteImport } from './routes/api/anything'
+import { Route as ApiCeyoChatRouteImport } from './routes/api/ceyo-chat'
+import { Route as ApiCeyoTaskRouteImport } from './routes/api/ceyo-task'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as ApiClerkRouteImport } from './routes/api/clerk'
+import { Route as ApiComputerAgentRouteImport } from './routes/api/computer-agent'
+import { Route as ApiDeepResearchRouteImport } from './routes/api/deep-research'
+import { Route as ApiDevAdminRouteImport } from './routes/api/dev-admin'
+import { Route as ApiDevAgentRouteImport } from './routes/api/dev-agent'
+import { Route as ApiLongRunRouteImport } from './routes/api/long-run'
+import { Route as ApiManusAdminRouteImport } from './routes/api/manus-admin'
+import { Route as ApiMcpRouteImport } from './routes/api/mcp'
+import { Route as ApiReadUrlRouteImport } from './routes/api/read-url'
+import { Route as ApiRenderPdfRouteImport } from './routes/api/render-pdf'
+import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
+import { Route as ApiVoiceRouteImport } from './routes/api/voice'
+import { Route as ApiVoiceCallRouteImport } from './routes/api/voice-call'
+import { Route as ApiVoiceTranscribeRouteImport } from './routes/api/voice-transcribe'
+import { Route as ApiWebSearchRouteImport } from './routes/api/web-search'
+import { Route as ApiAgentSplatRouteImport } from './routes/api/agent.$'
+import { Route as ApiPublicCeyoJobsRouteImport } from './routes/api/public/ceyo-jobs'
+import { Route as ApiPublicCeyoRoutinesRouteImport } from './routes/api/public/ceyo-routines'
+import { Route as ApiPublicFxRouteImport } from './routes/api/public/fx'
+import { Route as ApiPublicGeoRouteImport } from './routes/api/public/geo'
+import { Route as ApiPublicRemindersTickRouteImport } from './routes/api/public/reminders-tick'
+import { Route as ApiPublicTelegramKeysRouteImport } from './routes/api/public/telegram-keys'
+import { Route as ApiPublicAgentToolsTokenRouteImport } from './routes/api/public/agent-tools.$token'
+import { Route as ApiPublicMediaStatusRunIdRouteImport } from './routes/api/public/media-status.$runId'
+import { Route as ApiPublicMediaRunIdIndexRouteImport } from './routes/api/public/media.$runId.$index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SplatRoute = SplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityRoute = SecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubscriptionTermsRoute = SubscriptionTermsRouteImport.update({
+  id: '/subscription-terms',
+  path: '/subscription-terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAnythingRoute = ApiAnythingRouteImport.update({
+  id: '/api/anything',
+  path: '/api/anything',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCeyoChatRoute = ApiCeyoChatRouteImport.update({
+  id: '/api/ceyo-chat',
+  path: '/api/ceyo-chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiCeyoTaskRoute = ApiCeyoTaskRouteImport.update({
+  id: '/api/ceyo-task',
+  path: '/api/ceyo-task',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiClerkRoute = ApiClerkRouteImport.update({
+  id: '/api/clerk',
+  path: '/api/clerk',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiComputerAgentRoute = ApiComputerAgentRouteImport.update({
+  id: '/api/computer-agent',
+  path: '/api/computer-agent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDeepResearchRoute = ApiDeepResearchRouteImport.update({
+  id: '/api/deep-research',
+  path: '/api/deep-research',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDevAdminRoute = ApiDevAdminRouteImport.update({
+  id: '/api/dev-admin',
+  path: '/api/dev-admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiDevAgentRoute = ApiDevAgentRouteImport.update({
+  id: '/api/dev-agent',
+  path: '/api/dev-agent',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiLongRunRoute = ApiLongRunRouteImport.update({
+  id: '/api/long-run',
+  path: '/api/long-run',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiManusAdminRoute = ApiManusAdminRouteImport.update({
+  id: '/api/manus-admin',
+  path: '/api/manus-admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiMcpRoute = ApiMcpRouteImport.update({
+  id: '/api/mcp',
+  path: '/api/mcp',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiReadUrlRoute = ApiReadUrlRouteImport.update({
+  id: '/api/read-url',
+  path: '/api/read-url',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiRenderPdfRoute = ApiRenderPdfRouteImport.update({
+  id: '/api/render-pdf',
+  path: '/api/render-pdf',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiTranscribeRoute = ApiTranscribeRouteImport.update({
+  id: '/api/transcribe',
+  path: '/api/transcribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiVoiceRoute = ApiVoiceRouteImport.update({
+  id: '/api/voice',
+  path: '/api/voice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiVoiceCallRoute = ApiVoiceCallRouteImport.update({
+  id: '/api/voice-call',
+  path: '/api/voice-call',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiVoiceTranscribeRoute = ApiVoiceTranscribeRouteImport.update({
+  id: '/api/voice-transcribe',
+  path: '/api/voice-transcribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiWebSearchRoute = ApiWebSearchRouteImport.update({
+  id: '/api/web-search',
+  path: '/api/web-search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAgentSplatRoute = ApiAgentSplatRouteImport.update({
+  id: '/api/agent/$',
+  path: '/api/agent/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCeyoJobsRoute = ApiPublicCeyoJobsRouteImport.update({
+  id: '/api/public/ceyo-jobs',
+  path: '/api/public/ceyo-jobs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicCeyoRoutinesRoute = ApiPublicCeyoRoutinesRouteImport.update({
+  id: '/api/public/ceyo-routines',
+  path: '/api/public/ceyo-routines',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicFxRoute = ApiPublicFxRouteImport.update({
+  id: '/api/public/fx',
+  path: '/api/public/fx',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicGeoRoute = ApiPublicGeoRouteImport.update({
+  id: '/api/public/geo',
+  path: '/api/public/geo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicRemindersTickRoute = ApiPublicRemindersTickRouteImport.update({
+  id: '/api/public/reminders-tick',
+  path: '/api/public/reminders-tick',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTelegramKeysRoute = ApiPublicTelegramKeysRouteImport.update({
+  id: '/api/public/telegram-keys',
+  path: '/api/public/telegram-keys',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicAgentToolsTokenRoute =
+  ApiPublicAgentToolsTokenRouteImport.update({
+    id: '/api/public/agent-tools/$token',
+    path: '/api/public/agent-tools/$token',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicMediaStatusRunIdRoute =
+  ApiPublicMediaStatusRunIdRouteImport.update({
+    id: '/api/public/media-status/$runId',
+    path: '/api/public/media-status/$runId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicMediaRunIdIndexRoute =
+  ApiPublicMediaRunIdIndexRouteImport.update({
+    id: '/api/public/media/$runId/$index',
+    path: '/api/public/media/$runId/$index',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/privacy': typeof PrivacyRoute
+  '/security': typeof SecurityRoute
+  '/subscription-terms': typeof SubscriptionTermsRoute
+  '/terms': typeof TermsRoute
+  '/api/anything': typeof ApiAnythingRoute
+  '/api/ceyo-chat': typeof ApiCeyoChatRoute
+  '/api/ceyo-task': typeof ApiCeyoTaskRoute
+  '/api/chat': typeof ApiChatRoute
+  '/api/clerk': typeof ApiClerkRoute
+  '/api/computer-agent': typeof ApiComputerAgentRoute
+  '/api/deep-research': typeof ApiDeepResearchRoute
+  '/api/dev-admin': typeof ApiDevAdminRoute
+  '/api/dev-agent': typeof ApiDevAgentRoute
+  '/api/long-run': typeof ApiLongRunRoute
+  '/api/manus-admin': typeof ApiManusAdminRoute
+  '/api/mcp': typeof ApiMcpRoute
+  '/api/read-url': typeof ApiReadUrlRoute
+  '/api/render-pdf': typeof ApiRenderPdfRoute
+  '/api/transcribe': typeof ApiTranscribeRoute
+  '/api/voice': typeof ApiVoiceRoute
+  '/api/voice-call': typeof ApiVoiceCallRoute
+  '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
+  '/api/web-search': typeof ApiWebSearchRoute
+  '/api/agent/$': typeof ApiAgentSplatRoute
+  '/api/public/ceyo-jobs': typeof ApiPublicCeyoJobsRoute
+  '/api/public/ceyo-routines': typeof ApiPublicCeyoRoutinesRoute
+  '/api/public/fx': typeof ApiPublicFxRoute
+  '/api/public/geo': typeof ApiPublicGeoRoute
+  '/api/public/reminders-tick': typeof ApiPublicRemindersTickRoute
+  '/api/public/telegram-keys': typeof ApiPublicTelegramKeysRoute
+  '/api/public/agent-tools/$token': typeof ApiPublicAgentToolsTokenRoute
+  '/api/public/media-status/$runId': typeof ApiPublicMediaStatusRunIdRoute
+  '/api/public/media/$runId/$index': typeof ApiPublicMediaRunIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/privacy': typeof PrivacyRoute
+  '/security': typeof SecurityRoute
+  '/subscription-terms': typeof SubscriptionTermsRoute
+  '/terms': typeof TermsRoute
+  '/api/anything': typeof ApiAnythingRoute
+  '/api/ceyo-chat': typeof ApiCeyoChatRoute
+  '/api/ceyo-task': typeof ApiCeyoTaskRoute
+  '/api/chat': typeof ApiChatRoute
+  '/api/clerk': typeof ApiClerkRoute
+  '/api/computer-agent': typeof ApiComputerAgentRoute
+  '/api/deep-research': typeof ApiDeepResearchRoute
+  '/api/dev-admin': typeof ApiDevAdminRoute
+  '/api/dev-agent': typeof ApiDevAgentRoute
+  '/api/long-run': typeof ApiLongRunRoute
+  '/api/manus-admin': typeof ApiManusAdminRoute
+  '/api/mcp': typeof ApiMcpRoute
+  '/api/read-url': typeof ApiReadUrlRoute
+  '/api/render-pdf': typeof ApiRenderPdfRoute
+  '/api/transcribe': typeof ApiTranscribeRoute
+  '/api/voice': typeof ApiVoiceRoute
+  '/api/voice-call': typeof ApiVoiceCallRoute
+  '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
+  '/api/web-search': typeof ApiWebSearchRoute
+  '/api/agent/$': typeof ApiAgentSplatRoute
+  '/api/public/ceyo-jobs': typeof ApiPublicCeyoJobsRoute
+  '/api/public/ceyo-routines': typeof ApiPublicCeyoRoutinesRoute
+  '/api/public/fx': typeof ApiPublicFxRoute
+  '/api/public/geo': typeof ApiPublicGeoRoute
+  '/api/public/reminders-tick': typeof ApiPublicRemindersTickRoute
+  '/api/public/telegram-keys': typeof ApiPublicTelegramKeysRoute
+  '/api/public/agent-tools/$token': typeof ApiPublicAgentToolsTokenRoute
+  '/api/public/media-status/$runId': typeof ApiPublicMediaStatusRunIdRoute
+  '/api/public/media/$runId/$index': typeof ApiPublicMediaRunIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$': typeof SplatRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/privacy': typeof PrivacyRoute
+  '/security': typeof SecurityRoute
+  '/subscription-terms': typeof SubscriptionTermsRoute
+  '/terms': typeof TermsRoute
+  '/api/anything': typeof ApiAnythingRoute
+  '/api/ceyo-chat': typeof ApiCeyoChatRoute
+  '/api/ceyo-task': typeof ApiCeyoTaskRoute
+  '/api/chat': typeof ApiChatRoute
+  '/api/clerk': typeof ApiClerkRoute
+  '/api/computer-agent': typeof ApiComputerAgentRoute
+  '/api/deep-research': typeof ApiDeepResearchRoute
+  '/api/dev-admin': typeof ApiDevAdminRoute
+  '/api/dev-agent': typeof ApiDevAgentRoute
+  '/api/long-run': typeof ApiLongRunRoute
+  '/api/manus-admin': typeof ApiManusAdminRoute
+  '/api/mcp': typeof ApiMcpRoute
+  '/api/read-url': typeof ApiReadUrlRoute
+  '/api/render-pdf': typeof ApiRenderPdfRoute
+  '/api/transcribe': typeof ApiTranscribeRoute
+  '/api/voice': typeof ApiVoiceRoute
+  '/api/voice-call': typeof ApiVoiceCallRoute
+  '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
+  '/api/web-search': typeof ApiWebSearchRoute
+  '/api/agent/$': typeof ApiAgentSplatRoute
+  '/api/public/ceyo-jobs': typeof ApiPublicCeyoJobsRoute
+  '/api/public/ceyo-routines': typeof ApiPublicCeyoRoutinesRoute
+  '/api/public/fx': typeof ApiPublicFxRoute
+  '/api/public/geo': typeof ApiPublicGeoRoute
+  '/api/public/reminders-tick': typeof ApiPublicRemindersTickRoute
+  '/api/public/telegram-keys': typeof ApiPublicTelegramKeysRoute
+  '/api/public/agent-tools/$token': typeof ApiPublicAgentToolsTokenRoute
+  '/api/public/media-status/$runId': typeof ApiPublicMediaStatusRunIdRoute
+  '/api/public/media/$runId/$index': typeof ApiPublicMediaRunIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/$'
+    | '/about'
+    | '/contact'
+    | '/cookies'
+    | '/privacy'
+    | '/security'
+    | '/subscription-terms'
+    | '/terms'
+    | '/api/anything'
+    | '/api/ceyo-chat'
+    | '/api/ceyo-task'
+    | '/api/chat'
+    | '/api/clerk'
+    | '/api/computer-agent'
+    | '/api/deep-research'
+    | '/api/dev-admin'
+    | '/api/dev-agent'
+    | '/api/long-run'
+    | '/api/manus-admin'
+    | '/api/mcp'
+    | '/api/read-url'
+    | '/api/render-pdf'
+    | '/api/transcribe'
+    | '/api/voice'
+    | '/api/voice-call'
+    | '/api/voice-transcribe'
+    | '/api/web-search'
+    | '/api/agent/$'
+    | '/api/public/ceyo-jobs'
+    | '/api/public/ceyo-routines'
+    | '/api/public/fx'
+    | '/api/public/geo'
+    | '/api/public/reminders-tick'
+    | '/api/public/telegram-keys'
+    | '/api/public/agent-tools/$token'
+    | '/api/public/media-status/$runId'
+    | '/api/public/media/$runId/$index'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/$'
+    | '/about'
+    | '/contact'
+    | '/cookies'
+    | '/privacy'
+    | '/security'
+    | '/subscription-terms'
+    | '/terms'
+    | '/api/anything'
+    | '/api/ceyo-chat'
+    | '/api/ceyo-task'
+    | '/api/chat'
+    | '/api/clerk'
+    | '/api/computer-agent'
+    | '/api/deep-research'
+    | '/api/dev-admin'
+    | '/api/dev-agent'
+    | '/api/long-run'
+    | '/api/manus-admin'
+    | '/api/mcp'
+    | '/api/read-url'
+    | '/api/render-pdf'
+    | '/api/transcribe'
+    | '/api/voice'
+    | '/api/voice-call'
+    | '/api/voice-transcribe'
+    | '/api/web-search'
+    | '/api/agent/$'
+    | '/api/public/ceyo-jobs'
+    | '/api/public/ceyo-routines'
+    | '/api/public/fx'
+    | '/api/public/geo'
+    | '/api/public/reminders-tick'
+    | '/api/public/telegram-keys'
+    | '/api/public/agent-tools/$token'
+    | '/api/public/media-status/$runId'
+    | '/api/public/media/$runId/$index'
+  id:
+    | '__root__'
+    | '/'
+    | '/$'
+    | '/about'
+    | '/contact'
+    | '/cookies'
+    | '/privacy'
+    | '/security'
+    | '/subscription-terms'
+    | '/terms'
+    | '/api/anything'
+    | '/api/ceyo-chat'
+    | '/api/ceyo-task'
+    | '/api/chat'
+    | '/api/clerk'
+    | '/api/computer-agent'
+    | '/api/deep-research'
+    | '/api/dev-admin'
+    | '/api/dev-agent'
+    | '/api/long-run'
+    | '/api/manus-admin'
+    | '/api/mcp'
+    | '/api/read-url'
+    | '/api/render-pdf'
+    | '/api/transcribe'
+    | '/api/voice'
+    | '/api/voice-call'
+    | '/api/voice-transcribe'
+    | '/api/web-search'
+    | '/api/agent/$'
+    | '/api/public/ceyo-jobs'
+    | '/api/public/ceyo-routines'
+    | '/api/public/fx'
+    | '/api/public/geo'
+    | '/api/public/reminders-tick'
+    | '/api/public/telegram-keys'
+    | '/api/public/agent-tools/$token'
+    | '/api/public/media-status/$runId'
+    | '/api/public/media/$runId/$index'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SplatRoute: typeof SplatRoute
+  AboutRoute: typeof AboutRoute
+  ContactRoute: typeof ContactRoute
+  CookiesRoute: typeof CookiesRoute
+  PrivacyRoute: typeof PrivacyRoute
+  SecurityRoute: typeof SecurityRoute
+  SubscriptionTermsRoute: typeof SubscriptionTermsRoute
+  TermsRoute: typeof TermsRoute
+  ApiAnythingRoute: typeof ApiAnythingRoute
+  ApiCeyoChatRoute: typeof ApiCeyoChatRoute
+  ApiCeyoTaskRoute: typeof ApiCeyoTaskRoute
+  ApiChatRoute: typeof ApiChatRoute
+  ApiClerkRoute: typeof ApiClerkRoute
+  ApiComputerAgentRoute: typeof ApiComputerAgentRoute
+  ApiDeepResearchRoute: typeof ApiDeepResearchRoute
+  ApiDevAdminRoute: typeof ApiDevAdminRoute
+  ApiDevAgentRoute: typeof ApiDevAgentRoute
+  ApiLongRunRoute: typeof ApiLongRunRoute
+  ApiManusAdminRoute: typeof ApiManusAdminRoute
+  ApiMcpRoute: typeof ApiMcpRoute
+  ApiReadUrlRoute: typeof ApiReadUrlRoute
+  ApiRenderPdfRoute: typeof ApiRenderPdfRoute
+  ApiTranscribeRoute: typeof ApiTranscribeRoute
+  ApiVoiceRoute: typeof ApiVoiceRoute
+  ApiVoiceCallRoute: typeof ApiVoiceCallRoute
+  ApiVoiceTranscribeRoute: typeof ApiVoiceTranscribeRoute
+  ApiWebSearchRoute: typeof ApiWebSearchRoute
+  ApiAgentSplatRoute: typeof ApiAgentSplatRoute
+  ApiPublicCeyoJobsRoute: typeof ApiPublicCeyoJobsRoute
+  ApiPublicCeyoRoutinesRoute: typeof ApiPublicCeyoRoutinesRoute
+  ApiPublicFxRoute: typeof ApiPublicFxRoute
+  ApiPublicGeoRoute: typeof ApiPublicGeoRoute
+  ApiPublicRemindersTickRoute: typeof ApiPublicRemindersTickRoute
+  ApiPublicTelegramKeysRoute: typeof ApiPublicTelegramKeysRoute
+  ApiPublicAgentToolsTokenRoute: typeof ApiPublicAgentToolsTokenRoute
+  ApiPublicMediaStatusRunIdRoute: typeof ApiPublicMediaStatusRunIdRoute
+  ApiPublicMediaRunIdIndexRoute: typeof ApiPublicMediaRunIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +536,307 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$': {
+      id: '/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security': {
+      id: '/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof SecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subscription-terms': {
+      id: '/subscription-terms'
+      path: '/subscription-terms'
+      fullPath: '/subscription-terms'
+      preLoaderRoute: typeof SubscriptionTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/anything': {
+      id: '/api/anything'
+      path: '/api/anything'
+      fullPath: '/api/anything'
+      preLoaderRoute: typeof ApiAnythingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ceyo-chat': {
+      id: '/api/ceyo-chat'
+      path: '/api/ceyo-chat'
+      fullPath: '/api/ceyo-chat'
+      preLoaderRoute: typeof ApiCeyoChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ceyo-task': {
+      id: '/api/ceyo-task'
+      path: '/api/ceyo-task'
+      fullPath: '/api/ceyo-task'
+      preLoaderRoute: typeof ApiCeyoTaskRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/clerk': {
+      id: '/api/clerk'
+      path: '/api/clerk'
+      fullPath: '/api/clerk'
+      preLoaderRoute: typeof ApiClerkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/computer-agent': {
+      id: '/api/computer-agent'
+      path: '/api/computer-agent'
+      fullPath: '/api/computer-agent'
+      preLoaderRoute: typeof ApiComputerAgentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/deep-research': {
+      id: '/api/deep-research'
+      path: '/api/deep-research'
+      fullPath: '/api/deep-research'
+      preLoaderRoute: typeof ApiDeepResearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dev-admin': {
+      id: '/api/dev-admin'
+      path: '/api/dev-admin'
+      fullPath: '/api/dev-admin'
+      preLoaderRoute: typeof ApiDevAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dev-agent': {
+      id: '/api/dev-agent'
+      path: '/api/dev-agent'
+      fullPath: '/api/dev-agent'
+      preLoaderRoute: typeof ApiDevAgentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/long-run': {
+      id: '/api/long-run'
+      path: '/api/long-run'
+      fullPath: '/api/long-run'
+      preLoaderRoute: typeof ApiLongRunRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/manus-admin': {
+      id: '/api/manus-admin'
+      path: '/api/manus-admin'
+      fullPath: '/api/manus-admin'
+      preLoaderRoute: typeof ApiManusAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/mcp': {
+      id: '/api/mcp'
+      path: '/api/mcp'
+      fullPath: '/api/mcp'
+      preLoaderRoute: typeof ApiMcpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/read-url': {
+      id: '/api/read-url'
+      path: '/api/read-url'
+      fullPath: '/api/read-url'
+      preLoaderRoute: typeof ApiReadUrlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/render-pdf': {
+      id: '/api/render-pdf'
+      path: '/api/render-pdf'
+      fullPath: '/api/render-pdf'
+      preLoaderRoute: typeof ApiRenderPdfRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/transcribe': {
+      id: '/api/transcribe'
+      path: '/api/transcribe'
+      fullPath: '/api/transcribe'
+      preLoaderRoute: typeof ApiTranscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/voice': {
+      id: '/api/voice'
+      path: '/api/voice'
+      fullPath: '/api/voice'
+      preLoaderRoute: typeof ApiVoiceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/voice-call': {
+      id: '/api/voice-call'
+      path: '/api/voice-call'
+      fullPath: '/api/voice-call'
+      preLoaderRoute: typeof ApiVoiceCallRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/voice-transcribe': {
+      id: '/api/voice-transcribe'
+      path: '/api/voice-transcribe'
+      fullPath: '/api/voice-transcribe'
+      preLoaderRoute: typeof ApiVoiceTranscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/web-search': {
+      id: '/api/web-search'
+      path: '/api/web-search'
+      fullPath: '/api/web-search'
+      preLoaderRoute: typeof ApiWebSearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/agent/$': {
+      id: '/api/agent/$'
+      path: '/api/agent/$'
+      fullPath: '/api/agent/$'
+      preLoaderRoute: typeof ApiAgentSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/ceyo-jobs': {
+      id: '/api/public/ceyo-jobs'
+      path: '/api/public/ceyo-jobs'
+      fullPath: '/api/public/ceyo-jobs'
+      preLoaderRoute: typeof ApiPublicCeyoJobsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/ceyo-routines': {
+      id: '/api/public/ceyo-routines'
+      path: '/api/public/ceyo-routines'
+      fullPath: '/api/public/ceyo-routines'
+      preLoaderRoute: typeof ApiPublicCeyoRoutinesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/fx': {
+      id: '/api/public/fx'
+      path: '/api/public/fx'
+      fullPath: '/api/public/fx'
+      preLoaderRoute: typeof ApiPublicFxRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/geo': {
+      id: '/api/public/geo'
+      path: '/api/public/geo'
+      fullPath: '/api/public/geo'
+      preLoaderRoute: typeof ApiPublicGeoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/reminders-tick': {
+      id: '/api/public/reminders-tick'
+      path: '/api/public/reminders-tick'
+      fullPath: '/api/public/reminders-tick'
+      preLoaderRoute: typeof ApiPublicRemindersTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/telegram-keys': {
+      id: '/api/public/telegram-keys'
+      path: '/api/public/telegram-keys'
+      fullPath: '/api/public/telegram-keys'
+      preLoaderRoute: typeof ApiPublicTelegramKeysRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/agent-tools/$token': {
+      id: '/api/public/agent-tools/$token'
+      path: '/api/public/agent-tools/$token'
+      fullPath: '/api/public/agent-tools/$token'
+      preLoaderRoute: typeof ApiPublicAgentToolsTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/media-status/$runId': {
+      id: '/api/public/media-status/$runId'
+      path: '/api/public/media-status/$runId'
+      fullPath: '/api/public/media-status/$runId'
+      preLoaderRoute: typeof ApiPublicMediaStatusRunIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/media/$runId/$index': {
+      id: '/api/public/media/$runId/$index'
+      path: '/api/public/media/$runId/$index'
+      fullPath: '/api/public/media/$runId/$index'
+      preLoaderRoute: typeof ApiPublicMediaRunIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SplatRoute: SplatRoute,
+  AboutRoute: AboutRoute,
+  ContactRoute: ContactRoute,
+  CookiesRoute: CookiesRoute,
+  PrivacyRoute: PrivacyRoute,
+  SecurityRoute: SecurityRoute,
+  SubscriptionTermsRoute: SubscriptionTermsRoute,
+  TermsRoute: TermsRoute,
+  ApiAnythingRoute: ApiAnythingRoute,
+  ApiCeyoChatRoute: ApiCeyoChatRoute,
+  ApiCeyoTaskRoute: ApiCeyoTaskRoute,
+  ApiChatRoute: ApiChatRoute,
+  ApiClerkRoute: ApiClerkRoute,
+  ApiComputerAgentRoute: ApiComputerAgentRoute,
+  ApiDeepResearchRoute: ApiDeepResearchRoute,
+  ApiDevAdminRoute: ApiDevAdminRoute,
+  ApiDevAgentRoute: ApiDevAgentRoute,
+  ApiLongRunRoute: ApiLongRunRoute,
+  ApiManusAdminRoute: ApiManusAdminRoute,
+  ApiMcpRoute: ApiMcpRoute,
+  ApiReadUrlRoute: ApiReadUrlRoute,
+  ApiRenderPdfRoute: ApiRenderPdfRoute,
+  ApiTranscribeRoute: ApiTranscribeRoute,
+  ApiVoiceRoute: ApiVoiceRoute,
+  ApiVoiceCallRoute: ApiVoiceCallRoute,
+  ApiVoiceTranscribeRoute: ApiVoiceTranscribeRoute,
+  ApiWebSearchRoute: ApiWebSearchRoute,
+  ApiAgentSplatRoute: ApiAgentSplatRoute,
+  ApiPublicCeyoJobsRoute: ApiPublicCeyoJobsRoute,
+  ApiPublicCeyoRoutinesRoute: ApiPublicCeyoRoutinesRoute,
+  ApiPublicFxRoute: ApiPublicFxRoute,
+  ApiPublicGeoRoute: ApiPublicGeoRoute,
+  ApiPublicRemindersTickRoute: ApiPublicRemindersTickRoute,
+  ApiPublicTelegramKeysRoute: ApiPublicTelegramKeysRoute,
+  ApiPublicAgentToolsTokenRoute: ApiPublicAgentToolsTokenRoute,
+  ApiPublicMediaStatusRunIdRoute: ApiPublicMediaStatusRunIdRoute,
+  ApiPublicMediaRunIdIndexRoute: ApiPublicMediaRunIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

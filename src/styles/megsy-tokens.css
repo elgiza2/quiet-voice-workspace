@@ -1,0 +1,29 @@
+/* Settings design tokens — every settings surface reads from the shared glass
+   palette (--settings-*) so sub-pages, the home list and billing all match. */
+:root {
+  --mn-bg: var(--settings-canvas);
+  --mn-card: var(--settings-surface);
+  --mn-card-2: var(--settings-surface);
+  --mn-fg: var(--settings-ink);
+  --mn-fg-strong: var(--settings-ink);
+  --mn-muted: var(--settings-muted);
+  --mn-faint: var(--settings-muted);
+  --mn-sep: var(--settings-line);
+  --mn-cta-bg: var(--settings-ink);
+  --mn-cta-fg: var(--settings-canvas);
+  --mn-seg: var(--settings-line);
+  --mn-seg-active: var(--settings-surface);
+  --mn-seg-active-fg: var(--settings-ink);
+  --mn-sheet: var(--settings-surface);
+  --mn-input: var(--settings-surface);
+  --mn-avatar: var(--settings-violet);
+  --mn-danger: var(--settings-red);
+  --mn-accent: var(--settings-blue);
+  --mn-press: var(--settings-line);
+}
+
+html[data-theme="light"] {
+  --mn-sep: var(--settings-line);
+  --mn-press: var(--settings-line);
+  --mn-avatar: var(--settings-violet);
+}

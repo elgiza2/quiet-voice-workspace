@@ -1,0 +1,104 @@
+/* Isolated illustrated paywall: no checkout or global theme overrides. */
+:root {
+  --paywall-bg: oklch(1 0 0);
+  --paywall-fg: oklch(.2 0 0);
+  --paywall-muted: oklch(.48 0 0);
+  --paywall-accent: hsl(340 72% 52%); /* theme primary */
+  --paywall-ink: oklch(1 0 0);
+  --paywall-border: oklch(.83 0 0);
+  --paywall-pane: oklch(.98 0 0);
+  --paywall-shade: oklch(.12 0 0 / .65);
+  --paywall-hero-fg: oklch(1 0 0);
+}
+html.dark, html[data-theme="dark"] {
+  --paywall-bg: oklch(.18 0 0);
+  --paywall-fg: oklch(.97 0 0);
+  --paywall-muted: oklch(.74 0 0);
+  --paywall-accent: hsl(0 0% 98%); /* theme primary */
+  --paywall-ink: oklch(.18 0 0);
+  --paywall-border: oklch(.43 0 0);
+  --paywall-pane: oklch(.23 0 0);
+}
+.botanical-pricing { position: relative; isolation: isolate; width: 100%; min-height: 100dvh; overflow: hidden; color: var(--paywall-fg); background: var(--paywall-bg); font-family: "Geist", "Inter", system-ui, sans-serif; letter-spacing: 0; }
+.botanical-art { position: fixed; inset: 0; height: 100dvh; z-index: -3; }
+.botanical-art img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+.botanical-scrim { position: fixed; inset: 0; height: 100dvh; z-index: -2; background: linear-gradient(to bottom, oklch(0 0 0 / .28) 0%, transparent 26%); }
+.botanical-content { position: relative; min-height: 100dvh; max-width: 440px; margin: auto; padding: max(env(safe-area-inset-top), 16px) 20px max(env(safe-area-inset-bottom), 24px); display: flex; flex-direction: column; }
+.botanical-nav { display: flex; align-items: center; justify-content: space-between; margin-inline: -8px; }
+.botanical-nav { min-height: 44px; }
+html .botanical-pricing button.botanical-menu { background: transparent !important; color: oklch(1 0 0) !important; border: 0 !important; box-shadow: none !important; filter: drop-shadow(0 1px 6px oklch(0 0 0 / .55)); }
+.botanical-heading { text-align: center; margin-top: 8px; color: oklch(1 0 0); text-shadow: 0 1px 10px oklch(0 0 0 / .55), 0 0 2px oklch(0 0 0 / .4); }
+html .botanical-pricing .botanical-heading * { color: oklch(1 0 0) !important; }
+html .botanical-pricing .botanical-benefits { color: var(--paywall-fg) !important; }
+.botanical-heading h1 { font-size: 42px; line-height: 1.2; font-weight: 400; text-align: center; letter-spacing: 0; }
+.botanical-heading h1 span { font-size: 31px; line-height: .96; display: inline-block; border: 1.5px solid currentColor; border-radius: 2px; padding: 0 4px 3px; vertical-align: 3px; }
+.botanical-heading p { margin-top: 9px; font-size: 16px; line-height: 1.35; text-align: center; }
+.botanical-details { margin-top: auto; padding-top: 40px; }
+.botanical-benefits { display: flex; flex-direction: column; gap: 14px; padding: 16px; margin: 0 0 26px; list-style: none; border-radius: 14px; border: 1px solid color-mix(in oklch, var(--paywall-border) 60%, transparent); background: color-mix(in oklch, var(--paywall-pane) 76%, transparent); backdrop-filter: blur(14px) saturate(1.1); -webkit-backdrop-filter: blur(14px) saturate(1.1); }
+.botanical-benefits li { display: flex; align-items: center; gap: 11px; font-size: 15px; font-weight: 450; line-height: 1.4; }
+.botanical-benefits svg { flex-shrink: 0; width: 21px; height: 21px; color: var(--paywall-accent); stroke-width: 2.5; }
+.botanical-options { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 16px; }
+.botanical-pricing .botanical-option { position: relative; display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 6px; height: 150px; padding: 17px 15px; border: 1px solid oklch(1 0 0 / .38); border-radius: 14px; background: oklch(1 0 0 / .14); backdrop-filter: blur(16px) saturate(1.15); color: oklch(1 0 0); box-shadow: inset 0 1px 0 oklch(1 0 0 / .25); text-align: start; font-weight: 400; transition: border-color .3s cubic-bezier(.32,.72,.35,1), background .3s cubic-bezier(.32,.72,.35,1), transform .45s cubic-bezier(.34,1.56,.5,1); will-change: transform; }
+.botanical-pricing .botanical-option[data-selected="true"] { border-color: oklch(1 0 0 / .85); background: oklch(1 0 0 / .22); transform: scale(1.035); }
+.botanical-pricing .botanical-option:active { transform: scale(.97); transition-duration: .12s; }
+.botanical-pricing .botanical-option:hover { background: oklch(1 0 0 / .2); }
+.botanical-option-label { font-size: 15px; line-height: 1.3; font-weight: 500; }
+.botanical-price { font-size: 27px; line-height: 1.2; font-weight: 500; text-align: start; }
+.botanical-option-note { font-size: 11px; color: oklch(1 0 0 / .78); }
+.botanical-option-detail { margin-top: auto; font-size: 12px; line-height: 1.35; color: oklch(1 0 0 / .85); }
+.botanical-selection { position: absolute; top: -8px; inset-inline-end: -6px; width: 21px; height: 21px; display: grid; place-items: center; border-radius: 50%; color: var(--paywall-accent); background: oklch(1 0 0); box-shadow: 0 1px 4px oklch(0 0 0 / .35); animation: botanical-pop .45s cubic-bezier(.34,1.8,.5,1) both; }
+@keyframes botanical-pop { 0% { transform: scale(.3); opacity: 0; } 60% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+.botanical-selection svg { width: 14px; height: 14px; }
+.botanical-pricing .botanical-subscribe { margin-top: 17px; width: 100%; height: 50px; border: 0; border-radius: 999px; background: var(--paywall-accent); color: var(--paywall-ink); font-weight: 600; font-size: 15px; box-shadow: none; }
+.botanical-pricing .botanical-subscribe:hover { background: var(--paywall-accent); filter: brightness(1.08); }
+.botanical-pricing .botanical-subscribe svg { display: block; height: 19px; width: 19px; }
+/* Legacy theme button rules are important; keep the exception inside this screen. */
+html .botanical-pricing button.botanical-option {
+  background: oklch(1 0 0 / .14) !important;
+  background-image: none !important;
+  backdrop-filter: blur(16px) saturate(1.15);
+  color: oklch(1 0 0) !important;
+  border: 1px solid oklch(1 0 0 / .38) !important;
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / .25) !important;
+  border-radius: 14px !important;
+}
+html .botanical-pricing button.botanical-option[data-selected="true"] {
+  background: oklch(1 0 0 / .22) !important;
+  border-color: oklch(1 0 0 / .85) !important;
+}
+html .botanical-pricing .botanical-option-label,
+html .botanical-pricing .botanical-price,
+html .botanical-pricing .botanical-option-detail { color: oklch(1 0 0) !important; -webkit-text-fill-color: oklch(1 0 0) !important; text-shadow: 0 1px 3px oklch(0 0 0 / .5); }
+html .botanical-pricing .botanical-option-note { color: oklch(1 0 0 / .78) !important; -webkit-text-fill-color: oklch(1 0 0 / .78) !important; text-shadow: 0 1px 2px oklch(0 0 0 / .5); }
+html .botanical-pricing button.botanical-subscribe {
+  background: var(--paywall-accent) !important;
+  background-image: none !important;
+  color: var(--paywall-ink) !important;
+  -webkit-text-fill-color: var(--paywall-ink) !important;
+  border-radius: 999px !important;
+  box-shadow: none !important;
+}
+html .botanical-pricing button.botanical-subscribe * { color: var(--paywall-ink) !important; -webkit-text-fill-color: var(--paywall-ink) !important; }
+html .botanical-pricing button::before, html .botanical-pricing button::after { display: none !important; }
+.botanical-desktop .botanical-pricing, .botanical-desktop .botanical-content { min-height: min(900px,100dvh); }
+.botanical-desktop .botanical-content { padding-top: 24px; padding-bottom: 35px; }
+@media (max-width: 360px) { .botanical-content { padding-inline: 16px; } .botanical-options { gap: 12px; } .botanical-pricing .botanical-option { padding-inline: 12px; } .botanical-benefits li { font-size: 14px; } }
+@media (max-height: 740px) and (max-width: 767px) { .botanical-details { padding-top: 150px; } .botanical-benefits { gap: 10px; margin-bottom: 22px; } .botanical-pricing .botanical-option { height: 136px; padding-top: 13px; padding-bottom: 13px; } .botanical-heading h1 { font-size: 36px; } }
+@media (prefers-reduced-motion: reduce) { .botanical-pricing * { transition: none; } }
+
+/* Benefits sit directly on the photo — no pane; contrast tuned per artwork. */
+.botanical-pricing .botanical-benefits { padding: 4px 2px; border: 0; background: none; backdrop-filter: none; -webkit-backdrop-filter: none; border-radius: 0; }
+.botanical-pricing .botanical-benefits li { color: oklch(1 0 0); -webkit-text-fill-color: oklch(1 0 0); font-weight: 560; }
+.botanical-pricing .botanical-benefits svg { color: oklch(1 0 0); filter: drop-shadow(0 1px 3px oklch(0 0 0 / .7)); }
+/* Aura: dark, even lower half — a light lift is enough. */
+.botanical-pricing[data-art="aura"] .botanical-benefits li { text-shadow: 0 1px 2px oklch(0 0 0 / .65), 0 0 14px oklch(0 0 0 / .45); }
+/* Car: bright band behind the list — heavier soft halo, no edges. */
+.botanical-pricing[data-art="car"] .botanical-benefits li { font-weight: 620; text-shadow: 0 1px 2px oklch(0 0 0 / .9), 0 0 10px oklch(0 0 0 / .75), 0 0 24px oklch(0 0 0 / .6); }
+.botanical-pricing[data-art="car"] .botanical-benefits { position: relative; isolation: isolate; }
+.botanical-pricing[data-art="car"] .botanical-benefits::before { content: ""; position: absolute; inset: -24px -32px; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at center, oklch(0 0 0 / .42), transparent 70%); }
+
+/* Orange-coat: bright marble + white pebbles behind the text, so it needs the strongest soft darkening */
+.botanical-pricing[data-art="coat"] .botanical-benefits li { font-weight: 620; text-shadow: 0 1px 2px oklch(0 0 0 / .95), 0 0 12px oklch(0 0 0 / .8), 0 0 28px oklch(0 0 0 / .65); }
+.botanical-pricing[data-art="coat"] .botanical-benefits { position: relative; isolation: isolate; }
+.botanical-pricing[data-art="coat"] .botanical-benefits::before { content: ""; position: absolute; inset: -26px -34px; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at center, oklch(0 0 0 / .5), transparent 72%); }
+.botanical-pricing[data-art="coat"] .botanical-heading p { text-shadow: 0 1px 3px oklch(0 0 0 / .85), 0 0 16px oklch(0 0 0 / .6); }

@@ -1,0 +1,20 @@
+:root {
+  --confirmation-scrim: oklch(.15 0 0 / .36);
+  --confirmation-shadow: 0 24px 80px -20px oklch(.15 0 0 / .3);
+}
+.cfd-overlay { position: fixed; inset: 0; z-index: 250; background: var(--confirmation-scrim); animation: cfd-fade .2s ease-out; }
+.cfd-card { position: fixed; z-index: 251; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(380px, calc(100% - 40px)); padding: 28px; border-radius: 20px; background: hsl(var(--card)); color: hsl(var(--foreground)); box-shadow: var(--confirmation-shadow); outline: none; animation: cfd-fade .2s ease-out; }
+.cfd-icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 14px; margin-bottom: 24px; background: hsl(var(--muted)); color: hsl(var(--foreground)); }
+.cfd-icon.is-danger { color: hsl(var(--destructive)); background: hsl(var(--destructive) / .08); }
+.cfd-title { margin: 0; font-size: 22px; font-weight: 600; line-height: 1.3; letter-spacing: 0; }
+.cfd-desc { margin: 10px 0 0; font-size: 14px; line-height: 1.6; color: hsl(var(--muted-foreground)); }
+.cfd-actions { margin-top: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cfd-card .cfd-btn { height: 48px; border-radius: 10px; background: hsl(var(--muted)); color: hsl(var(--foreground)); font-size: 14px; font-weight: 500; }
+.cfd-card .cfd-btn-primary { background: hsl(var(--foreground)); color: hsl(var(--background)); }
+.cfd-card .cfd-btn-primary.is-danger { background: hsl(var(--destructive)); color: hsl(var(--destructive-foreground)); }
+.cfd-card .cfd-btn:focus-visible { outline: 2px solid hsl(var(--foreground)); outline-offset: 3px; box-shadow: none; }
+[role="dialog"].cfd-card { background: hsl(var(--card)) !important; color: hsl(var(--foreground)) !important; border: 0 !important; box-shadow: var(--confirmation-shadow) !important; }
+[role="dialog"].cfd-card .cfd-title { color: hsl(var(--foreground)) !important; font-weight: 600 !important; letter-spacing: 0; }
+[role="dialog"].cfd-card .cfd-btn { border: 0 !important; box-shadow: none !important; }
+@keyframes cfd-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .cfd-overlay, .cfd-card { animation: none; } }

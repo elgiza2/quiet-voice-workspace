@@ -1,0 +1,137 @@
+/* ─── Chat vivid layer ────────────────────────────────────────────────
+   Adds color to the chat workspace (mobile + desktop) without touching
+   component structure. Brand: rose → amber "sunset" gradient with a cool
+   sky counter-accent. Doubled class selectors beat the older !important
+   rules in deferred.css / megsy-theme.css by specificity. */
+
+:root {
+  --chat-grad-a: 340 82% 56%;   /* rose */
+  --chat-grad-b: 22 95% 55%;    /* amber-orange */
+  --chat-grad-c: 217 91% 60%;   /* sky blue */
+}
+
+/* Override the desktop "claude" skin's grey bubble variable (doubled
+   attribute selector beats its single [data-skin="claude"] rule). */
+[data-skin="claude"][data-skin="claude"] {
+  --user-bubble: linear-gradient(
+    135deg,
+    hsl(var(--chat-grad-a)) 0%,
+    hsl(15 88% 55%) 55%,
+    hsl(var(--chat-grad-b)) 100%
+  );
+  --user-bubble-text: #ffffff;
+}
+
+/* ── User message bubble: sunset gradient ── */
+.user-bubble.user-bubble,
+html.dark [data-shell="megsy"] .user-bubble.user-bubble,
+html[dir="rtl"] .user-bubble.user-bubble {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--chat-grad-a)) 0%,
+    hsl(15 88% 55%) 55%,
+    hsl(var(--chat-grad-b)) 100%
+  ) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow:
+    0 1px 0 hsl(0 0% 100% / 0.18) inset,
+    0 10px 26px -10px hsl(var(--chat-grad-a) / 0.55),
+    0 4px 14px -6px hsl(var(--chat-grad-b) / 0.45) !important;
+  font-weight: 500;
+}
+.user-bubble.user-bubble :where(a, code, strong) {
+  color: #ffffff !important;
+}
+.user-bubble.user-bubble code {
+  background: hsl(0 0% 100% / 0.18) !important;
+}
+
+/* ── Composer card: soft tinted surface + gradient hairline ── */
+.chat-composer-frame.chat-composer-frame,
+html.dark [data-shell="megsy"] .chat-composer-frame.chat-composer-frame,
+html.dark [data-shell="megsy"] .composer-card.composer-card {
+  border: 1px solid transparent !important;
+  background:
+    linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
+    linear-gradient(
+      120deg,
+      hsl(var(--chat-grad-a) / 0.55),
+      hsl(var(--chat-grad-b) / 0.45) 45%,
+      hsl(var(--chat-grad-c) / 0.5)
+    ) border-box !important;
+  box-shadow:
+    0 12px 40px -12px hsl(var(--chat-grad-a) / 0.28),
+    0 4px 18px -8px hsl(var(--chat-grad-c) / 0.22),
+    0 8px 30px hsl(var(--foreground) / 0.06) !important;
+}
+.chat-composer-frame.chat-composer-frame:focus-within {
+  box-shadow:
+    0 0 0 3px hsl(var(--chat-grad-a) / 0.18),
+    0 16px 48px -12px hsl(var(--chat-grad-a) / 0.38),
+    0 6px 22px -8px hsl(var(--chat-grad-c) / 0.3) !important;
+}
+
+/* ── Send button: sunset gradient ── */
+.chat-composer-frame [data-testid="mobile-composer-send"] {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--chat-grad-a)),
+    hsl(var(--chat-grad-b))
+  ) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 6px 18px -6px hsl(var(--chat-grad-a) / 0.6) !important;
+  transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+}
+.chat-composer-frame [data-testid="mobile-composer-send"]:not(:disabled):hover {
+  filter: brightness(1.06);
+  box-shadow: 0 8px 24px -6px hsl(var(--chat-grad-a) / 0.75) !important;
+}
+.chat-composer-frame [data-testid="mobile-composer-send"]:not(:disabled):active {
+  transform: scale(0.94);
+}
+
+/* ── Ambient chat background: tri-color glow instead of flat grey ── */
+.chat-ambient-glow {
+  opacity: 0.85;
+  background:
+    radial-gradient(55% 45% at 18% 0%, hsl(var(--chat-grad-a) / 0.20), transparent 70%),
+    radial-gradient(50% 42% at 85% 8%, hsl(var(--chat-grad-c) / 0.18), transparent 70%),
+    radial-gradient(60% 45% at 50% 105%, hsl(var(--chat-grad-b) / 0.16), transparent 70%);
+}
+html.dark .chat-ambient-glow,
+[data-theme="dark"] .chat-ambient-glow {
+  opacity: 0.7;
+  background:
+    radial-gradient(55% 45% at 18% 0%, hsl(var(--chat-grad-a) / 0.16), transparent 70%),
+    radial-gradient(50% 42% at 85% 8%, hsl(var(--chat-grad-c) / 0.14), transparent 70%),
+    radial-gradient(60% 45% at 50% 105%, hsl(var(--chat-grad-b) / 0.12), transparent 70%);
+}
+
+/* ── Scroll-to-bottom pill: accent instead of plain ── */
+button[aria-label*="Scroll to bottom" i] {
+  background: linear-gradient(135deg, hsl(var(--chat-grad-a)), hsl(var(--chat-grad-b))) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 8px 22px -8px hsl(var(--chat-grad-a) / 0.65) !important;
+}
+
+/* ── Editing chip + active agent pill pick up the accent ── */
+.chat-composer-frame .bg-primary\/12 {
+  background: hsl(var(--chat-grad-a) / 0.12) !important;
+  color: hsl(var(--chat-grad-a)) !important;
+  border-color: hsl(var(--chat-grad-a) / 0.3) !important;
+}
+
+/* ── Assistant message hover actions + reaction chips keep readable ── */
+.prose-chat ::selection,
+.user-bubble ::selection {
+  background: hsl(var(--chat-grad-a) / 0.35);
+  color: inherit;
+}
+
+/* ── Mobile: keep the color but respect the perf budget (no blur) ── */
+@media (max-width: 768px) {
+  .chat-ambient-glow { opacity: 0.6; }
+}

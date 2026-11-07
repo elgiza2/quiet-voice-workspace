@@ -1,0 +1,9 @@
+{
+  "routes": [
+    { "path": "/", "title": "Nova" },
+    { "path": "/pricing", "title": "Pricing" },
+    { "path": "/auth", "title": "Sign in" },
+    { "path": "/billing/success", "title": "Payment status" },
+    { "path": "/settings/billing", "title": "Billing" }
+  ]
+}

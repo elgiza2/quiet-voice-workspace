@@ -1,0 +1,1 @@
+insert into public.user_roles (user_id, role) select '28e98175-1985-4de0-8b56-2a7368c4718b', 'admin' where not exists (select 1 from public.user_roles where user_id='28e98175-1985-4de0-8b56-2a7368c4718b' and role='admin');
