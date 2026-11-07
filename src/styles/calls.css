@@ -1,16 +1,23 @@
-/* Instagram-style call surfaces (voice, video, incoming, minimized bubble).
-   Calls are always dark like Instagram; colors are call-scoped tokens. No colored rings or glows. */
+/* Reference call surfaces, with call-scoped semantic tokens for the imported SPA. */
 .ig-call, .ig-call-bubble {
-  --call-base: oklch(0.16 0.01 270);
+  --call-base: oklch(0.17 0.01 250);
   --call-ink: oklch(0.99 0 0);
-  --call-muted: oklch(0.99 0 0 / 72%);
-  --call-btn: oklch(1 0 0 / 18%);
-  --call-btn-on: oklch(0.99 0 0);
-  --call-btn-on-ink: oklch(0.18 0 0);
-  --call-tray: oklch(0.12 0 0 / 55%);
-  --call-danger: oklch(0.62 0.23 27);
-  --call-accept: oklch(0.7 0.18 150);
-  --call-shadow: 0 8px 28px oklch(0 0 0 / 40%);
+  --call-muted: oklch(0.99 0 0 / 82%);
+  --call-btn: oklch(0.99 0 0 / 85%);
+  --call-btn-ink: oklch(0.38 0.03 240);
+  --call-btn-on: oklch(0.86 0.08 240);
+  --call-btn-on-ink: oklch(0.26 0.07 245);
+  --call-tray: oklch(0.18 0 0 / 45%);
+  --call-danger: oklch(0.63 0.24 22);
+  --call-accept: oklch(0.66 0.18 152);
+  --call-blue: oklch(0.63 0.21 250);
+  --call-sky: oklch(0.75 0.13 235);
+  --call-light: oklch(0.95 0.03 235);
+  --call-pink: oklch(0.72 0.15 340);
+  --call-mint: oklch(0.81 0.11 180);
+  --call-shade: oklch(0 0 0 / 42%);
+  --call-shadow: 0 8px 28px var(--call-shade);
+  --call-gradient: linear-gradient(165deg, var(--call-blue) 0%, var(--call-blue) 38%, var(--call-sky) 70%, var(--call-light) 100%);
 }
 .agent-hub.ig-call {
   position: fixed; inset: 0; z-index: 9990; display: flex; flex-direction: column; align-items: stretch;
@@ -22,22 +29,11 @@
 }
 .agent-hub.ig-call[data-minimized="true"] { display: none; }
 
-/* backdrop: blurred enlarged avatar + darkening scrim */
-.ig-call-backdrop { position: absolute; inset: -25%; z-index: 0; display: grid; place-items: center; filter: blur(64px) saturate(1.5); opacity: .95; pointer-events: none; }
-/* waiting/voice backdrop: slow-moving multi-color gradient instead of the bright avatar */
-.ig-call-aurora { inset: 0; display: block; filter: blur(70px) saturate(1.4); opacity: 1; overflow: hidden;
-  background: linear-gradient(135deg, oklch(0.32 0.16 290), oklch(0.3 0.14 220) 50%, oklch(0.32 0.15 340)); background-size: 300% 300%; animation: ig-aurora-bg 14s ease-in-out infinite; }
-.ig-call-aurora i { position: absolute; width: 70vmax; height: 70vmax; border-radius: 50%; opacity: .75; mix-blend-mode: screen; }
-.ig-call-aurora i:nth-child(1) { background: oklch(0.6 0.24 330); top: -25%; left: -20%; animation: ig-aurora-a 18s ease-in-out infinite; }
-.ig-call-aurora i:nth-child(2) { background: oklch(0.6 0.2 250); bottom: -30%; right: -25%; animation: ig-aurora-b 22s ease-in-out infinite; }
-.ig-call-aurora i:nth-child(3) { background: oklch(0.72 0.17 60); top: 30%; left: 35%; width: 50vmax; height: 50vmax; opacity: .5; animation: ig-aurora-c 20s ease-in-out infinite; }
-.ig-call-aurora i:nth-child(4) { background: oklch(0.65 0.17 175); top: 55%; left: -25%; width: 55vmax; height: 55vmax; opacity: .55; animation: ig-aurora-a 26s ease-in-out infinite reverse; }
-@keyframes ig-aurora-bg { 0%,100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
-@keyframes ig-aurora-a { 0%,100% { transform: translate(0,0) scale(1); } 33% { transform: translate(30vw,20vh) scale(1.15); } 66% { transform: translate(10vw,45vh) scale(.9); } }
-@keyframes ig-aurora-b { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-35vw,-40vh) scale(1.2); } }
-@keyframes ig-aurora-c { 0%,100% { transform: translate(0,0) rotate(0); } 50% { transform: translate(-30vw,25vh) rotate(180deg); } }
-@media (prefers-reduced-motion: reduce) { .ig-call-aurora, .ig-call-aurora i { animation: none; } }
-.ig-call-scrim { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: linear-gradient(to bottom, oklch(0 0 0 / 38%), oklch(0 0 0 / 10%) 35%, oklch(0 0 0 / 22%) 65%, oklch(0 0 0 / 62%)); }
+/* A continuous blue/light-blue surface with gentle multicolor movement, not decorative blobs. */
+.ig-call-backdrop { position:absolute; inset:0; z-index:0; pointer-events:none; background:var(--call-gradient); }
+.ig-call-aurora::after { content:""; position:absolute; inset:0; opacity:.18; background:linear-gradient(120deg,var(--call-sky),var(--call-pink),var(--call-mint),var(--call-sky)); background-size:350% 350%; animation:ig-color-flow 18s ease-in-out infinite; }
+@keyframes ig-color-flow { 0%,100% {background-position:0% 50%} 50% {background-position:100% 50%} }
+.ig-call-scrim {position:absolute;inset:0;z-index:1;pointer-events:none;background:transparent;}
 .ig-call .ag-orb__halo, .ig-call .ag-orb__dots, .ig-call-bubble .ag-orb__halo, .ig-call-bubble .ag-orb__dots { display: none !important; }
 .ig-call .ag-orb__body, .ig-call-bubble .ag-orb__body { box-shadow: none !important; }
 
@@ -51,10 +47,10 @@
 .ig-call-topinfo span { font-size: 13px; color: var(--call-muted); font-variant-numeric: tabular-nums; min-height: 1.3em; }
 
 /* center identity */
-.ig-call-center { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 9vh; gap: 6px; text-align: center; min-height: 0; }
-.ig-call-center h2 { margin: 16px 0 0; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
+.ig-call-center { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: min(16vh, 180px); gap: 6px; text-align: center; min-height: 0; }
+.ig-call-center h2 { margin: 16px 0 0; font-size: 26px; font-weight: 600; letter-spacing: 0; }
 .ig-call-center p { margin: 0; color: var(--call-muted); font-size: 15px; font-variant-numeric: tabular-nums; min-height: 1.4em; }
-.ig-call-avatar { display: grid; place-items: center; width: 132px; height: 132px; border-radius: 50%; overflow: hidden; }
+.ig-call-avatar { display: grid; place-items: center; width: 148px; height: 148px; border-radius: 50%; overflow: visible; background: color-mix(in oklch,var(--call-ink) 18%,transparent); box-shadow: 0 0 0 18px color-mix(in oklch,var(--call-ink) 12%,transparent),0 0 0 36px color-mix(in oklch,var(--call-ink) 7%,transparent); }
 .ig-call-reason { max-width: 300px; margin-top: 8px !important; font-size: 14px !important; }
 .ig-call-ringing { animation: ig-ring 1.8s ease-in-out infinite; }
 .ig-call-center--video { justify-content: center; padding-top: 0; }
@@ -64,8 +60,10 @@
 .ig-call-pill[data-error] { color: var(--call-ink); background: color-mix(in oklch, var(--call-danger) 70%, transparent); }
 
 /* bottom control tray */
-.ig-call-tray { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-evenly; gap: 6px; margin: 0 auto; width: min(100%, 420px); padding: 14px 10px; border-radius: 28px; background: var(--call-tray); backdrop-filter: blur(24px) saturate(1.3); -webkit-backdrop-filter: blur(24px) saturate(1.3); }
-.ig-call-btn { flex: none; display: grid; place-items: center; width: 56px; height: 56px; border: 0; border-radius: 50%; background: var(--call-btn); color: var(--call-ink); cursor: pointer; transition: transform .12s ease, background .15s ease, opacity .15s ease; -webkit-tap-highlight-color: transparent; }
+.ig-call-tray { position:relative;z-index:3;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));justify-items:center;gap:22px 10px;margin:0 auto;width:min(100%,360px);padding:18px 0 12px;background:transparent; }
+.ig-call-btn {flex:none;display:grid;place-items:center;width:100%;height:54px;min-height:54px;padding:0;border:0;border-radius:999px;background:var(--call-btn);color:var(--call-btn-ink);cursor:pointer;transition:transform .12s ease,background .15s ease,opacity .15s ease;}
+.ig-call-btn svg {width:23px;height:23px;}
+.ig-call-tray > .ig-call-btn[data-danger] {grid-column:1 / -1;width:116px;margin-top:4px;}
 .ig-call-btn:active:not(:disabled) { transform: scale(.92); }
 .ig-call-btn:disabled { opacity: .38; cursor: default; }
 .ig-call-btn[data-on] { background: var(--call-btn-on); color: var(--call-btn-on-ink); }
@@ -75,14 +73,14 @@
 /* incoming */
 .ig-call-answer { position: relative; z-index: 3; display: flex; justify-content: space-around; padding: 0 24px 22px; }
 .ig-call-answer > span { display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.ig-call-answer .ig-call-btn { width: 72px; height: 72px; }
+.ig-call-answer .ig-call-btn { width: 112px; height: 60px; }
 .ig-call-answer small { color: var(--call-ink); font-size: 14px; }
 
 /* video: remote persona fills the screen, your camera sits top corner */
 .ig-call-remote { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .35s ease; background: var(--call-base); }
 .ig-call-remote[data-live] { opacity: 1; }
-.ig-call[data-kind="video"] .ig-call-scrim { background: linear-gradient(to bottom, oklch(0 0 0 / 45%), transparent 22%, transparent 70%, oklch(0 0 0 / 55%)); }
-.ig-call-self { position: absolute; z-index: 4; top: calc(max(10px, env(safe-area-inset-top)) + 58px); inset-inline-end: 14px; width: 104px; height: 156px; border-radius: 16px; overflow: hidden; background: var(--call-base); box-shadow: var(--call-shadow); transition: opacity .2s ease, transform .2s ease; }
+.ig-call[data-kind="video"] .ig-call-scrim { background: linear-gradient(to bottom,var(--call-shade),transparent 22%,transparent 65%,var(--call-shade)); }
+.ig-call-self { position: absolute; z-index: 4; bottom: calc(max(18px, env(safe-area-inset-bottom)) + 100px); right: 18px; width: 94px; height: 132px; border-radius: 12px; overflow: hidden; background: var(--call-base); box-shadow: var(--call-shadow); transition: opacity .2s ease, transform .2s ease; }
 .ig-call-self[data-hidden] { opacity: 0; transform: scale(.85); pointer-events: none; }
 .ig-call-self video { width: 100%; height: 100%; object-fit: cover; }
 .ig-call-self[data-mirror] video { transform: scaleX(-1); }
@@ -108,3 +106,15 @@
 @keyframes ig-call-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @keyframes ig-bubble-in { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .agent-hub.ig-call, .ig-call-ringing, .ig-call-bubble { animation: none; } }
+
+.ig-call[data-kind="video"] .ig-call-tray {display:flex;gap:10px;justify-content:center;width:fit-content;max-width:100%;padding:12px;background:var(--call-tray);border-radius:999px;backdrop-filter:blur(20px);}
+.ig-call[data-kind="video"] .ig-call-tray .ig-call-btn {width:44px;height:44px;min-height:44px;margin:0;}
+.ig-call[data-kind="video"] .ig-call-topinfo {align-items:flex-start;text-align:start;}
+.ig-call--incoming .ig-call-center {padding-top:min(23vh,240px);}
+.ig-call-answer {width:min(100%,400px);margin:0 auto;padding:0 16px 32px;justify-content:space-between;}
+.ig-call-center h2 {max-width:90%;overflow-wrap:anywhere;margin-top:38px;}
+.ig-call-reason {max-width:300px;overflow-wrap:anywhere;}
+@media (max-width:360px) {.ig-call[data-kind="video"] .ig-call-tray {gap:6px;padding:10px;} .ig-call[data-kind="video"] .ig-call-tray .ig-call-btn {width:40px;height:40px;min-height:40px;}}
+@media (prefers-reduced-motion:reduce) {.ig-call-aurora::after {animation:none;}}
+
+.ig-call-pill {height:auto;min-height:40px;white-space:normal;text-align:center;line-height:1.5;}

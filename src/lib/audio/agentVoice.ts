@@ -29,10 +29,14 @@ export function assignAgentVoices(voices: Voice[], agentIds: string[], existing:
 
 export function resolveVoice(voices: Voice[], agentId: string, agentIds: string[], settings: AgentVoiceSettings, userLanguage: string) {
   const language = resolveLanguage(settings.language, userLanguage);
-  const explicit = voices.find((v) => v.id === settings.voice) || voices.find((v) => v.id === settings.autoVoiceId);
-  // Cartesia voices are multilingual; the bot's identity does not change with language.
-  const voiceId = explicit?.id || assignAgentVoices(voices, [...agentIds, agentId])[agentId] || "";
+  const matching = voicesForLanguage(voices, language);
+  const explicit = matching.find((v) => v.id === settings.voice) || matching.find((v) => v.id === settings.autoVoiceId);
+  const voiceId = explicit?.id || assignAgentVoices(matching, [...agentIds, agentId])[agentId] || "";
   return { language, voiceId };
+}
+
+export function voicesForLanguage(voices: Voice[], language: string) {
+  return voices.filter(v => resolveLanguage(v.language, "en") === resolveLanguage(language, "en"));
 }
 
 export function prefersVoiceReply(origin?: string, text = "") {

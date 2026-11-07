@@ -61,9 +61,12 @@ export async function startLiveAgentCall(opts: RealtimeCallOptions): Promise<Rea
   ws.onmessage = (ev) => {
     if (ended) return;
     if (typeof ev.data !== "string") { if (!dropAudio) play(ev.data as ArrayBuffer); return; }
-    let msg: { type?: string; description?: string };
+    let msg: { type?: string; description?: string; role?: string; content?: string };
     try { msg = JSON.parse(ev.data); } catch { return; }
     switch (msg.type) {
+      case "ConversationText":
+        if ((msg.role === "user" || msg.role === "assistant") && msg.content?.trim() && !msg.content.startsWith("(I just")) opts.onTurn?.({ role: msg.role, text: msg.content });
+        break;
       case "SettingsApplied":
         ready = true; phase("listening");
         ws.send(JSON.stringify({ type: "InjectUserMessage", content: opts.reason ? "(I just answered your call.)" : "(I just called you. Greet me.)" }));

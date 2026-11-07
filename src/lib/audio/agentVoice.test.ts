@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { assignAgentVoices, resolveVoice, prefersVoiceReply } from "./agentVoice";
+import { assignAgentVoices, resolveVoice, prefersVoiceReply, voicesForLanguage } from "./agentVoice";
 import { buildTranscript } from "../agentsky/transcript";
 const voices = [{ id: "1", name: "One", language: "en" }, { id: "2", name: "Two", language: "ar" }, { id: "3", name: "Three", language: "es" }];
 const settings = { voice: "Not set", language: "Auto", speed: 1 };
@@ -8,7 +8,7 @@ describe("agent voice rules", () => {
     expect(resolveVoice(voices, "bot", ["bot"], settings, "ar-EG").language).toBe("ar");
   });
   it("respects an explicitly selected language and voice", () => {
-    expect(resolveVoice(voices, "bot", ["bot"], { ...settings, voice: "2", language: "es" }, "ar")).toEqual({ language: "es", voiceId: "2" });
+    expect(resolveVoice(voices, "bot", ["bot"], { ...settings, voice: "3", language: "es" }, "ar")).toEqual({ language: "es", voiceId: "3" });
   });
   it("assigns distinct voices to different bots", () => {
     expect(new Set(Object.values(assignAgentVoices(voices, ["a", "b", "c"]))).size).toBe(3);
@@ -23,8 +23,10 @@ describe("agent voice rules", () => {
   it("keeps an automatic saved voice even when the catalogue grows", () => {
     expect(resolveVoice(voices, "bot", ["bot"], { ...settings, autoVoiceId: "2" }, "ar").voiceId).toBe("2");
   });
-  it("keeps a bot voice fixed across language and catalogue order", () => {
-    expect(resolveVoice(voices, "bot", ["other", "bot"], settings, "ar").voiceId).toBe(resolveVoice([...voices].reverse(), "bot", ["bot", "other"], settings, "en").voiceId);
+  it("shows and resolves only voices matching the selected language", () => {
+    expect(voicesForLanguage(voices, "ar-EG").map(v => v.id)).toEqual(["2"]);
+    expect(resolveVoice(voices, "bot", ["bot"], { ...settings, voice: "1", language: "ar" }, "en").voiceId).toBe("2");
+    expect(resolveVoice(voices, "bot", ["bot"], { ...settings, language: "fr" }, "en").voiceId).toBe("");
   });
   it("prefers voice for ordinary replies to recordings", () => {
     expect(prefersVoiceReply("recording", "أكيد، هبدأ دلوقتي.")).toBe(true);

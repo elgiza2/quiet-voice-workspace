@@ -108,20 +108,22 @@ export async function runAgentLoop(
   signal: AbortSignal,
   /** New user messages sent while the bot is working; they steer the same run. */
   poll: () => Promise<string[]> = async () => [],
-  opts: { maxSteps?: number; extra?: { def: object; name: string; run: (args: any) => Promise<string> }; extras?: { def: object; name: string; run: (args: any) => Promise<string> }[] } = {},
+  opts: { chatModel?: boolean; maxSteps?: number; extra?: { def: object; name: string; run: (args: any) => Promise<string> }; extras?: { def: object; name: string; run: (args: any) => Promise<string> }[] } = {},
 ): Promise<string> {
   const extras = [...(opts.extras || []), ...(opts.extra ? [opts.extra] : [])];
   const allTools = [...tools, ...extras.map((extra) => extra.def)];
   const maxSteps = opts.maxSteps ?? MAX_STEPS;
-  const keys = (await getCerebrasKeys()).map((k) => k.api_key);
-  if (!keys.length) throw new Error("AI is not configured");
+  const keys = opts.chatModel ? [] : (await getCerebrasKeys()).map((k) => k.api_key);
+  if (!opts.chatModel && !keys.length) throw new Error("AI is not configured");
   const messages: Msg[] = [{ role: "system", content: system }, ...history];
   let answer = "";
   const turn = crypto.randomUUID().slice(0, 8);
 
   for (let step = 0; step < maxSteps; step++) {
     signal.throwIfAborted();
-    const res = await cerebrasRequest(keys, JSON.stringify({ model: MODEL, messages, tools: allTools, stream: true, reasoning_effort: "low" }), signal);
+    const res = opts.chatModel
+      ? await (await import("./chatModel.server")).chatModelResponse(messages, allTools, signal)
+      : await cerebrasRequest(keys, JSON.stringify({ model: MODEL, messages, tools: allTools, stream: true, reasoning_effort: "low" }), signal);
     if (!res.ok || !res.body) throw new Error(`AI error ${res.status}: ${(await res.text()).slice(0, 200)}`);
     const reader = res.body.getReader();
     const dec = new TextDecoder();
@@ -143,7 +145,9 @@ export async function runAgentLoop(
         if (data === "[DONE]") continue;
         let j: any;
         try { j = JSON.parse(data); } catch { continue; }
+        if (j.error) throw new Error("The chat model could not complete this reply. Your message is saved.");
         const d = j.choices?.[0]?.delta ?? {};
+        if (d.refusal) throw new Error(d.refusal);
         if (d.reasoning) emit({ id: `${sid}-r${n++}`, type: "agent.reasoning", part: { type: "reasoning", text: d.reasoning, stream_id: `${sid}-r` } });
         if (d.content) {
           text += d.content;

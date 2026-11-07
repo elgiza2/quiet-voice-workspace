@@ -1,0 +1,1 @@
+- Active chat and inline specialists opt into the typed Gateway model adapter; scheduled and call inference retain their existing providers. Why: upgrade the requested chat workloads without changing unrelated calls.
