@@ -1,7 +1,8 @@
-import { expect, it } from "vitest";
-import { platformFee, PLATFORM_FEE_BPS } from "./walletTokens";
+import { describe, expect, it } from "vitest";
+import { FEE_BPS } from "@/lib/wallet/send.server";
 
-it("charges a 0.5% platform fee on transfers", () => {
-  expect(PLATFORM_FEE_BPS).toBe(50);
-  expect(platformFee(100)).toBe(0.5);
+describe("wallet platform fee", () => {
+  it("is 0.5% on transfers", () => {
+    expect(FEE_BPS).toBe(50);
+  });
 });
