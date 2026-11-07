@@ -8,6 +8,7 @@ import { keccak_256 } from "@noble/hashes/sha3.js";
 import { base58 } from "@scure/base";
 import { p2wpkh } from "@scure/btc-signer";
 import { WalletContractV4 } from "@ton/ton";
+import { Buffer } from "buffer";
 
 export type WalletAddresses = { evm: string; solana: string; bitcoin: string; ton: string };
 
