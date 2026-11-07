@@ -5,6 +5,8 @@
 - [x] Bot rings the user: call_user tool (now/scheduled) and background-task completion write ringing calls; incoming-call screen picks them up while the app is open. Not verified end-to-end.
 - [x] Clean full-screen call UI for voice and video; incoming-call screen.
 - [x] Move voice + video call buttons to the chat header.
+- [x] Instagram-style call screens; draggable minimized call bubble (drag + tap verified in test browser).
+- [x] Video call: user's own camera, flip/off, screen share where supported; bot sees frames via vision (vision model verified on a sample image). Live Anam call with camera not verified.
 - [x] Mic button: white background, slightly smaller; WhatsApp-style hold-to-record with animation (slide to cancel, lock), sends a voice message to the bot like WhatsApp.
 - [ ] Android later: calls show in background like a normal phone call (needs native wrapper; web can only use notifications while open).
 
