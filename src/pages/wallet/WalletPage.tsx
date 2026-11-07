@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowDownToLine, Check, ChevronLeft, Copy, QrCode, Search, Send, X } from "lucide-react";
+import { TrendingUp, ArrowDownToLine, Check, ChevronLeft, Copy, QrCode, Search, Send, X } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import SEOHead from "@/components/common/SEOHead";
 import { addressFor, fetchMarkets, fetchWallet, WALLET_TOKENS, type Addresses, type Market } from "./walletTokens";
-import MarketsView from "./MarketsView";
+import MarketsView, { CoinDetail } from "./MarketsView";
 import "@/styles/wallet.css";
 
 type View = "home" | "receive" | "send";
@@ -21,6 +21,8 @@ export default function WalletPage() {
   const nav = useNavigate();
   const [view, setView] = useState<View>("home");
   const [tab, setTab] = useState<"home" | "trade">("home");
+  const [coin, setCoin] = useState<string | null>(null);
+  useEffect(() => { window.scrollTo(0, 0); }, [coin, view, tab]);
   const [q, setQ] = useState("");
   const [markets, setMarkets] = useState<Record<string, Market>>({});
   const [priceError, setPriceError] = useState(false);
@@ -51,7 +53,8 @@ export default function WalletPage() {
       {list.map((t) => {
         const m = markets[t.id]; const ch = m?.price_change_percentage_24h ?? null;
         return (
-          <div key={t.id} className="wl-card wl-net">
+          <div key={t.id} className={`wl-card wl-net ${action ? "" : "wl-tap"}`} role={action ? undefined : "button"} tabIndex={action ? undefined : 0}
+            onClick={action ? undefined : () => { if (view === "send") return; setCoin(t.id); }}>
             <TokenIcon m={m} symbol={t.symbol} />
             <span className="wl-net-copy">
               <strong>{t.name}</strong>
@@ -74,7 +77,8 @@ export default function WalletPage() {
   return (
     <div className="wl" dir="ltr">
       <SEOHead path="/wallet" title="Ceyo Wallet" description="Your multi-network crypto wallet inside Ceyo." />
-      {view === "home" && (
+      {coin && <CoinDetail id={coin} balance={balances[coin] || 0} onBack={() => setCoin(null)} onReceive={() => { setCoin(null); setView("receive"); }} onSend={() => { setCoin(null); setView("send"); }} />}
+      {!coin && view === "home" && (
         <>
           <header className="wl-top">
             <button type="button" className="wl-round" aria-label="Back" onClick={() => nav("/")}><ChevronLeft size={22} /></button>
@@ -83,12 +87,14 @@ export default function WalletPage() {
               <button type="button" className={`wl-pill ${tab === "trade" ? "wl-pill-on" : ""}`} onClick={() => setTab("trade")}>Markets</button>
             </div>
           </header>
-          {tab === "trade" ? <MarketsView onReceive={() => setView("receive")} /> : <>
+          {tab === "trade" ? <MarketsView onOpen={setCoin} /> : <>
           <p className="wl-acct">Account 1</p>
           <h1 className="wl-bal">{usd(total)}</h1>
-          <div className="wl-actions" style={{ marginTop: 22 }}>
-            <button type="button" className="wl-btn" onClick={() => setView("send")}><Send size={18} />Send</button>
-            <button type="button" className="wl-btn" onClick={() => setView("receive")}><ArrowDownToLine size={18} />Receive</button>
+          <p className="wl-acct" style={{ marginTop: 6 }}>{WALLET_TOKENS.length} coins · prices update live</p>
+          <div className="wl-qa">
+            <button type="button" onClick={() => setView("receive")}><span><ArrowDownToLine size={22} /></span>Receive</button>
+            <button type="button" onClick={() => setView("send")}><span><Send size={22} /></span>Send</button>
+            <button type="button" onClick={() => setTab("trade")}><span><TrendingUp size={22} /></span>Markets</button>
           </div>
           <h2 className="wl-h">Tokens</h2>
           {walletError && <p className="wl-note" role="alert">{walletError}</p>}
@@ -97,14 +103,14 @@ export default function WalletPage() {
           </>}
         </>
       )}
-      {view === "receive" && (
+      {!coin && view === "receive" && (
         <>
           <header className="wl-top"><button type="button" className="wl-round" aria-label="Back" onClick={() => setView("home")}><ChevronLeft size={22} /></button><h2 className="wl-title">Receive</h2></header>
           {rows(receiveList, "receive")}
           <p className="wl-note">Only send each coin on the network shown under it.</p>
         </>
       )}
-      {view === "send" && (
+      {!coin && view === "send" && (
         <>
           <header className="wl-top"><button type="button" className="wl-round" aria-label="Close" onClick={() => setView("home")}><X size={20} /></button><h2 className="wl-title">Send</h2></header>
           <label className="wl-search"><Search size={18} /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" /></label>
