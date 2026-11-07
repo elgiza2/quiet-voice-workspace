@@ -1,3 +1,8 @@
+## Arabic recording language regression — 2026-11-07 13:17 UTC
+- [x] Fix confirmed voice-transcribe language=en overriding Arabic input: remove UI locale hint and use existing owner Deepgram key with Nova-3 language=multi; Cartesia only handles synthesis here.
+- [x] Real Arabic audio → Arabic transcript → Egyptian reply and English audio → English transcript → English reply verified; 16 tests pass, build OK; handoff updated.
+- [ ] Signed-in UI recording/send persistence and physical microphone: blocked by external_unmanaged session and unavailable phone. Existing mistranscribed history left intact.
+
 ## Per-user reply language and dialect — 2026-11-07 13:12 UTC
 - [x] Enforce latest-user language/dialect through the shared chat/specialist/background loop and invoking people-chat member, independent of app language and old English history; explicit translation requests preserved.
 - [x] 10 focused tests pass; real Egyptian, Saudi, English-switch and explicit translation responses verified; build OK and handoff updated.

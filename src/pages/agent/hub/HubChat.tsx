@@ -154,7 +154,7 @@ function Composer({
   const sendRecording = async (blob: Blob) => {
     setUploading(true);
     try {
-      const words = await transcribeRecording(blob, ar ? "ar" : "en");
+      const words = await transcribeRecording(blob);
       if (!recordingAlive.current) return;
       const recordingId = crypto.randomUUID();
       await cacheRecording(recordingId, blob);
