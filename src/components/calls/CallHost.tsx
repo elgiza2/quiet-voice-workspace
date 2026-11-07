@@ -111,6 +111,8 @@ export default function CallHost() {
       agentIdsCache[row.id] = bot.ids;
       const ar = isAr();
       const kind = row.kind === "video" ? "video" : "voice";
+      // App is on screen: ring here only, so the phone's scheduled ring doesn't double up.
+      if (document.visibilityState === "visible" && handedToPhone.current.has(row.id)) cancelNativeCall(row.id);
       calls.ring({ callId: row.id, kind, agent: bot.agent, reason: row.reason });
       // In the Android app the phone shows its own call screen (lock screen, other apps, app closed).
       if (document.visibilityState !== "visible" && hasNativeCalls()) {
