@@ -1,3 +1,8 @@
+## Realtime calls — 2026-11-07 09:40 UTC
+- [x] Import full project from GitHub.
+- [x] Calls use Cartesia realtime WebSockets; call speech no longer posted to chat; neutral call box (no colored edges).
+- [ ] Live microphone call test: blocked on CARTESIA_API_KEY being added to this project and a signed-in session.
+
 # Roadmap
 
 ## Voice call repair — 2026-11-07 09:10 UTC
