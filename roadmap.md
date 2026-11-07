@@ -1,11 +1,12 @@
 ## Chat, one-time ringing and call settings — 2026-11-07 12:32 UTC
-- [ ] Upgrade the active chat model to a stronger available model without changing call providers.
-- [ ] Prevent answered/declined/missed calls and old one-time requests from ringing again; add regression tests.
-- [ ] Replace the irritating ringtone with a softer, quieter chime.
-- [ ] Send one agent follow-up message after a completed call summarizing understanding and intended next steps; do not post live call turns.
-- [ ] Use in-app language/voice lists and restrict voices to the selected language.
-- [ ] Redesign voice, video and incoming screens using the supplied references; verify mobile and desktop.
-- [ ] Run targeted tests and update the current verification handoff.
+- [x] Upgrade active chat and inline specialists to GPT-6.1 Terra without changing call providers; real model response verified. External host needs a private Gateway key.
+- [x] Prevent stale/settled calls and repeated tool requests from ringing again; conditional state saves and deterministic IDs, regression tests pass.
+- [x] Replace irritating ringtone with a quieter three-note chime every 5.5 seconds. Phone listening assessment unverified.
+- [x] Send one agent follow-up after an ended call with actual user speech; scoped conversation, call-ID message reservation, no live-turn chat writes. Authenticated persistence remains unverified.
+- [x] In-app language/voice lists with language-matched options and resolution; regression tests pass.
+- [x] Reference voice/incoming and full-screen video layouts; mobile isolated screenshots reviewed, remote camera requires real call.
+- [x] Run targeted tests and update handoff; current build OK.
+- [ ] Real signed-in chat/call-follow-up persistence, audible ringtone and provider camera/voice check: blocked by external_unmanaged session and no physical phone.
 
 ## Live calls + header order — 2026-11-07 12:06 UTC
 - [x] Header order: voice/video on the left, three-dot button at the far right, joined cleanly.
