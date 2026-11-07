@@ -37,7 +37,6 @@ export const Route = createFileRoute("/api/wallet-action")({
             if ((await s.evmBalance(n, addrs.evm, b.inputMint)) < b.amount) return Response.json({ error: "Not enough balance" }, { status: 400, headers: noStore });
             return Response.json({ tx: await s.evmSwap(auth.userId, n, b.inputMint, b.outputMint, b.amount) }, { headers: noStore });
           }
-          if (false) return Response.json({ tx: await s.sendToken(auth.userId, b.token, b.to, b.amount) }, { headers: noStore });
           if (b.action === "balance") return Response.json({ balance: await s.splBalance(owner, b.mint) }, { headers: noStore });
           if (b.action === "quote") { const q = await s.quote(b.inputMint, b.outputMint, b.amount); return Response.json({ out: q.out, impact: q.impact }, { headers: noStore }); }
           const have = await s.splBalance(owner, b.inputMint);

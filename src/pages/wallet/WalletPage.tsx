@@ -47,7 +47,7 @@ export default function WalletPage() {
   const total = WALLET_TOKENS.reduce((s, t) => s + value(t), 0);
   const filtered = useMemo(() => WALLET_TOKENS.filter((t) => (balances[t.id] || 0) > 0 && `${t.name} ${t.symbol} ${t.network}`.toLowerCase().includes(q.toLowerCase())), [q, balances]);
   // One row per network: tokens on the same chain (e.g. USDT on Ethereum) arrive at that chain's address.
-  const receiveList = useMemo(() => WALLET_TOKENS.filter((t, i) => WALLET_TOKENS.findIndex((o) => addressFor(o.network, { evm: "e", solana: "s", bitcoin: "b", ton: "t" }) === addressFor(t.network, { evm: "e", solana: "s", bitcoin: "b", ton: "t" })) === i), []);
+  const receiveList = useMemo(() => WALLET_TOKENS.filter((t, i) => WALLET_TOKENS.findIndex((o) => addressFor(o.network, { evm: "e", solana: "s", bitcoin: "b", ton: "t", tron: "r" }) === addressFor(t.network, { evm: "e", solana: "s", bitcoin: "b", ton: "t", tron: "r" })) === i), []);
   const copy = (t: Token) => { if (!addresses) return; void navigator.clipboard.writeText(addressFor(t.network, addresses)); setCopied(t.id); setTimeout(() => setCopied(""), 1500); };
 
   const rows = (list: readonly Token[], action?: "receive") => (
