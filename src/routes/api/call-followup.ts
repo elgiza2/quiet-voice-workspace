@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
-import { hasCallConversation } from "@/lib/calls/callFollowup";
+import { hasCallConversation } from "@/lib/calls/callConversation";
 
 export const Route = createFileRoute("/api/call-followup")({ server: { handlers: {
   POST: async ({ request }) => {

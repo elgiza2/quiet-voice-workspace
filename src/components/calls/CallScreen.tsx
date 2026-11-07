@@ -3,7 +3,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Mic, MicOff, PhoneOff, ChevronDown, Hand, Video, VideoOff, Volume2, SwitchCamera, ScreenShare, ScreenShareOff } from "lucide-react";
 import { BotAvatar } from "@/pages/agent/hub/HubParts";
 import { useVoiceChoice } from "@/pages/agent/hub/VoiceControls";
-import { type CallPhase, type RealtimeCall } from "@/lib/audio/realtimeCall";
+import { type CallPhase, type RealtimeCall, type CallTurn } from "@/lib/audio/realtimeCall";
+import { sendCallFollowup } from "@/lib/calls/callFollowup";
+import { toast } from "sonner";
 import { startLiveAgentCall as startRealtimeCall } from "@/lib/audio/liveAgentCall";
 import { supabase } from "@/integrations/supabase/client";
 import { calls, useCalls, type ActiveCall } from "@/lib/calls/callStore";
@@ -133,6 +135,13 @@ function VoiceCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
   const [needsTap, setNeedsTap] = useState(false);
   const [attempt, setAttempt] = useState(0);
   const live = useRef<RealtimeCall | null>(null);
+  const turns = useRef<CallTurn[]>([]);
+  const followedUp = useRef(false);
+  const followUp = () => {
+    if (followedUp.current) return;
+    followedUp.current = true;
+    void sendCallFollowup(call, turns.current, choice.language).catch(() => toast.error(ar ? "تعذّر إرسال رسالة بعد المكالمة" : "Could not send the call follow-up"));
+  };
 
   useEffect(() => {
     if (!choice.voiceId) { if (choice.error) setError(choice.error); return; }
@@ -142,6 +151,7 @@ function VoiceCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
       voiceId: choice.voiceId, language: choice.language, agentName: call.agent.name, agentPrompt: call.agent.prompt || call.agent.description || "", reason: call.reason,
       onPhase: (p) => { if (!cancelled) { setPhase(p); if (p === "speaking") setError(""); } },
       onError: (m) => { if (!cancelled) setError(m); },
+      onTurn: turn => { if (!cancelled) turns.current.push(turn); },
     }).then(async (c) => {
       if (cancelled) { c.end(); return; }
       handle = c; live.current = c;
@@ -155,7 +165,7 @@ function VoiceCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
     return () => { cancelled = true; handle?.end(); live.current = null; };
   }, [choice.voiceId, choice.language, call.key, attempt]);
 
-  const end = () => { live.current?.end(); live.current = null; calls.end(); };
+  const end = () => { live.current?.end(); live.current = null; followUp(); calls.end(); };
   const status = muted && phase === "listening" ? "muted" : phase === "ready" ? "" : phase;
   return <Shell call={call} minimized={minimized} connected={phase !== "connecting" && phase !== "ready"} status={status}
     controls={<>
@@ -164,7 +174,7 @@ function VoiceCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
       <CallButton label={ar ? "قاطعه" : "Interrupt"} disabled={phase !== "speaking"} onClick={() => live.current?.interrupt()}><Hand size={24} /></CallButton>
       <CallButton label={ar ? "إنهاء" : "End call"} danger onClick={end}><PhoneOff size={24} /></CallButton>
     </>}>
-    {needsTap && <button type="button" className="ig-call-pill" onClick={async () => { if (await live.current?.resumeAudio()) setNeedsTap(false); }}><Volume2 size={16} />{ar ? "اضغط لتشغيل الصوت" : "Tap to turn on sound"}</button>}
+    {needsTap && <Button variant="ghost" type="button" className="ig-call-pill" onClick={async () => { if (await live.current?.resumeAudio()) setNeedsTap(false); }}><Volume2 size={16} />{ar ? "اضغط لتشغيل الصوت" : "Tap to turn on sound"}</Button>}
     {(error || choice.error) && <Button variant="ghost" type="button" className="ig-call-pill" data-error role="alert" onClick={() => { setError(""); choice.reload(); setAttempt((n) => n + 1); }}>{error || choice.error} · {ar ? "حاول تاني" : "Retry"}</Button>}
   </Shell>;
 }
@@ -202,6 +212,13 @@ function VideoCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
   const cameraGeneration = useRef(0);
   const teardown = useRef<Promise<void>>(Promise.resolve());
   const videoId = `ig-video-${call.key}`;
+  const turns = useRef<CallTurn[]>([]);
+  const followedUp = useRef(false);
+  const followUp = () => {
+    if (followedUp.current) return;
+    followedUp.current = true;
+    void sendCallFollowup(call, turns.current, ar ? "ar" : "en").catch(() => toast.error(ar ? "تعذّر إرسال رسالة بعد المكالمة" : "Could not send the call follow-up"));
+  };
 
   const replace = useCallback((next: MediaStream | null, src: Source) => {
     cameraGeneration.current += 1;
@@ -299,6 +316,9 @@ function VideoCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
         if (cancelled) return;
         const c = createClient(body.sessionToken);
         owned = c; client.current = c;
+        c.addListener(AnamEvent.MESSAGE_HISTORY_UPDATED, history => {
+          if (!cancelled) turns.current = history.filter(m => m.content.trim()).map(m => ({ role: m.role === "user" ? "user" : "assistant", text: m.content }));
+        });
         c.addListener(AnamEvent.VIDEO_STREAM_STARTED, () => {
           if (cancelled) return;
           void remoteRef.current?.play().catch(() => { if (!cancelled) setNeedsTap(true); });
@@ -325,7 +345,7 @@ function VideoCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
     };
   }, [call.key, attempt]);
 
-  const end = () => { replace(null, "off"); calls.end(); };
+  const end = () => { followUp(); replace(null, "off"); calls.end(); };
   const sharing = source === "screen";
   return <Shell call={call} minimized={minimized} connected={status === "live"} status={status} videoId={videoId}
     video={<><CallBackdrop agent={call.agent} /><video ref={remoteRef} id={videoId} className="ig-call-remote" data-live={status === "live" || undefined} autoPlay playsInline muted /><audio ref={audioRef} autoPlay /></>}
