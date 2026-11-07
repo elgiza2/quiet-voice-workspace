@@ -18,6 +18,7 @@ import {
   Loader2,
   Plus,
   Search,
+  Wallet,
 } from "lucide-react";
 import SEOHead from "@/components/common/SEOHead";
 import { supabase } from "@/integrations/supabase/client";
@@ -386,6 +387,7 @@ export default function AgentHubPage({ demo = false }: { demo?: boolean }) {
 
       <div className="hub-home-bottom">
         <HubIconButton label="Connect apps" className="hub-apps-btn" onClick={() => nav("/settings/apps")}><Grid2x2Plus size={21} strokeWidth={1.8} /></HubIconButton>
+        <HubIconButton label="Wallet" className="hub-apps-btn" onClick={() => nav("/wallet")}><Wallet size={21} strokeWidth={1.8} /></HubIconButton>
         <button type="button" className="hub-search-trigger" onClick={() => setSearchOpen(true)}><Search size={18} /><span>{ar ? "بحث" : "Search"}</span></button>
       </div>
       {rowMenu && <div className="hub-backdrop" onPointerDown={() => setRowMenu(null)} />}
