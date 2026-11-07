@@ -2,12 +2,13 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 
 const noStore = { "Cache-Control": "no-store" };
-const mint = z.string().regex(/^[1-9A-HJ-NP-Za-km-z]{32,44}$/);
+const mint = z.string().regex(/^([1-9A-HJ-NP-Za-km-z]{32,44}|0x[0-9a-fA-F]{40})$/);
+const network = z.enum(["solana", "ethereum", "binance-smart-chain", "polygon-pos", "base", "arbitrum-one", "avalanche"]).default("solana");
 const Body = z.discriminatedUnion("action", [
   z.object({ action: z.literal("send"), token: z.string().max(60), to: z.string().min(20).max(120), amount: z.string().regex(/^\d+(\.\d+)?$/) }),
-  z.object({ action: z.literal("quote"), inputMint: mint, outputMint: mint, amount: z.number().positive() }),
-  z.object({ action: z.literal("swap"), inputMint: mint, outputMint: mint, amount: z.number().positive() }),
-  z.object({ action: z.literal("balance"), mint }),
+  z.object({ action: z.literal("quote"), network, inputMint: mint, outputMint: mint, amount: z.number().positive() }),
+  z.object({ action: z.literal("swap"), network, inputMint: mint, outputMint: mint, amount: z.number().positive() }),
+  z.object({ action: z.literal("balance"), network, mint }),
 ]);
 
 /** Signed-in caller's own wallet actions: real transfers and Solana trades. Keys never leave the server. */
@@ -24,8 +25,19 @@ export const Route = createFileRoute("/api/wallet-action")({
         try {
           const s = await import("@/lib/wallet/send.server");
           const { getOrCreateWallet } = await import("@/lib/wallet/wallet.server");
-          const owner = (await getOrCreateWallet(auth.userId)).solana;
+          const addrs = await getOrCreateWallet(auth.userId);
+          const owner = addrs.solana;
           if (b.action === "send") return Response.json({ tx: await s.sendToken(auth.userId, b.token, b.to, b.amount) }, { headers: noStore });
+          if (b.network !== "solana") {
+            const n = b.network;
+            const isEvm = (m: string) => /^0x[0-9a-fA-F]{40}$/.test(m);
+            if (b.action === "balance") { if (!isEvm(b.mint)) throw new Error("Invalid token"); return Response.json({ balance: await s.evmBalance(n, addrs.evm, b.mint) }, { headers: noStore }); }
+            if (!isEvm(b.inputMint) || !isEvm(b.outputMint)) throw new Error("Invalid token");
+            if (b.action === "quote") return Response.json(await s.evmQuote(n, b.inputMint, b.outputMint, b.amount), { headers: noStore });
+            if ((await s.evmBalance(n, addrs.evm, b.inputMint)) < b.amount) return Response.json({ error: "Not enough balance" }, { status: 400, headers: noStore });
+            return Response.json({ tx: await s.evmSwap(auth.userId, n, b.inputMint, b.outputMint, b.amount) }, { headers: noStore });
+          }
+          if (false) return Response.json({ tx: await s.sendToken(auth.userId, b.token, b.to, b.amount) }, { headers: noStore });
           if (b.action === "balance") return Response.json({ balance: await s.splBalance(owner, b.mint) }, { headers: noStore });
           if (b.action === "quote") { const q = await s.quote(b.inputMint, b.outputMint, b.amount); return Response.json({ out: q.out, impact: q.impact }, { headers: noStore }); }
           const have = await s.splBalance(owner, b.inputMint);
