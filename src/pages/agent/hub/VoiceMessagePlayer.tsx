@@ -43,7 +43,12 @@ export function VoiceMessagePlayer({ text, recordingId, agentId, voiceId = "", l
     try { await el.play(); setError(""); }
     catch { setError(ar ? "تعذّر تشغيل الصوت، جرّب تاني" : "Could not play audio. Try again."); }
   };
-  const metadata = () => { const d = audio.current?.duration; if (d && Number.isFinite(d)) setDuration(d); };
+  const metadata = () => {
+    const el = audio.current; if (!el) return;
+    if (el.duration && Number.isFinite(el.duration)) { setDuration(el.duration); if (el.currentTime > el.duration) el.currentTime = 0; }
+    // MediaRecorder WebM often has no duration header until its final timestamp is inspected.
+    else if (el.duration === Infinity && el.currentTime === 0 && el.paused) el.currentTime = 1e10;
+  };
   return <div className="cx-voice-message" data-own={own}>
     <div className="cx-voice-player" dir="ltr">
       <Button variant="ghost" size="icon" className="cx-voice-play" disabled={loading || !url} aria-label={playing ? (ar ? "إيقاف مؤقت" : "Pause recording") : (ar ? "تشغيل التسجيل" : "Play recording")} onClick={() => void toggle()}>

@@ -125,3 +125,4 @@
 .ig-call-self{bottom:calc(max(18px,env(safe-area-inset-bottom)) + 188px);width:94px;height:132px}
 .ig-call-waiting{padding-top:60px}
 .ig-call-waiting h2{margin-top:38px}
+.ig-call[data-connected="false"] .ig-call-self{visibility:hidden}

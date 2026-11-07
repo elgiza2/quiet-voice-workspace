@@ -102,7 +102,7 @@ function Shell({ call, status, connected, minimized, children, controls, video, 
   const label = connected ? time : statusLabel(status, ar);
   const sub = [connected ? time : "", statusLabel(status, ar)].filter(Boolean).join(" · ");
   return <>
-    <div className="agent-hub ig-call" data-minimized={minimized} data-kind={call.kind} role="dialog" aria-modal={!minimized} aria-label={ar ? "مكالمة" : "Call"} dir="auto">
+    <div className="agent-hub ig-call" data-minimized={minimized} data-kind={call.kind} data-connected={connected} role="dialog" aria-modal={!minimized} aria-label={ar ? "مكالمة" : "Call"} dir="auto">
       {video || <CallBackdrop agent={call.agent} />}
       <div className="ig-call-scrim" aria-hidden />
       <header className="ig-call-top">
