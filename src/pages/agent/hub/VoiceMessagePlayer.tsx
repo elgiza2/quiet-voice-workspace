@@ -26,7 +26,7 @@ export function VoiceMessagePlayer({ text, recordingId, agentId, voiceId = "", l
         const key = own ? recordingId : `${recordingId}:${agentId}:${voiceId}:${language}`;
         let blob = await cachedRecording(key);
         if (!blob) {
-          if (own) throw new Error(ar ? "التسجيل مش موجود على الجهاز ده" : "Recording isn't saved on this device");
+          if (own) return;
           blob = await getSpeech(speechText(text), voiceId, language, controller.signal);
           await cacheRecording(key, blob).catch(() => {});
         }
