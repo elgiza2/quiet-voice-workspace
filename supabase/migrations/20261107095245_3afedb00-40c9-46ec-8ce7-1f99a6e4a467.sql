@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.touch_people_thread() FROM anon, authenticated, public;
