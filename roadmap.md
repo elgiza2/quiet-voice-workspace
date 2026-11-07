@@ -1,3 +1,7 @@
+## Arabic recording language regression — 2026-11-07 13:17 UTC
+- [ ] Fix confirmed voice-transcribe language=en overriding Arabic recorded input; preserve original spoken language.
+- [ ] Test Arabic recording → original transcript → Arabic reply and update verification.
+
 ## Per-user reply language and dialect — 2026-11-07 13:12 UTC
 - [x] Enforce latest-user language/dialect through the shared chat/specialist/background loop and invoking people-chat member, independent of app language and old English history; explicit translation requests preserved.
 - [x] 10 focused tests pass; real Egyptian, Saudi, English-switch and explicit translation responses verified; build OK and handoff updated.
