@@ -1,3 +1,10 @@
+## Clean calls and voice recordings — 2026-11-07 13:01 UTC
+- [x] Remove switch-to-video from voice call only; header video action remains.
+- [x] Restyle video controls/waiting identity to match voice; separate red end button, no preview/error overlap.
+- [x] Repair permission/release/upward-lock race and player/cache failures; custom playback without download/native controls.
+- [x] Verify real browser record → upward lock → release → save → play with fake mic; 8 targeted tests pass, mobile/desktop images reviewed and handoff updated.
+- [ ] Real signed-in transcription/send and physical phone recording: blocked by external_unmanaged session and unavailable physical device.
+
 ## Chat, one-time ringing and call settings — 2026-11-07 12:32 UTC
 - [x] Upgrade active chat and inline specialists to GPT-6.1 Terra without changing call providers; real model response verified. External host needs a private Gateway key.
 - [x] Prevent stale/settled calls and repeated tool requests from ringing again; conditional state saves and deterministic IDs, regression tests pass.

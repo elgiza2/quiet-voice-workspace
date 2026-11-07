@@ -102,12 +102,12 @@ function Shell({ call, status, connected, minimized, children, controls, video, 
   const label = connected ? time : statusLabel(status, ar);
   const sub = [connected ? time : "", statusLabel(status, ar)].filter(Boolean).join(" · ");
   return <>
-    <div className="agent-hub ig-call" data-minimized={minimized} data-kind={call.kind} role="dialog" aria-modal={!minimized} aria-label={ar ? "مكالمة" : "Call"} dir="auto">
+    <div className="agent-hub ig-call" data-minimized={minimized} data-kind={call.kind} data-connected={connected} role="dialog" aria-modal={!minimized} aria-label={ar ? "مكالمة" : "Call"} dir="auto">
       {video || <CallBackdrop agent={call.agent} />}
       <div className="ig-call-scrim" aria-hidden />
       <header className="ig-call-top">
         <Button variant="ghost" type="button" className="ig-call-icon" aria-label={ar ? "تصغير" : "Minimize"} onClick={() => calls.minimize(true)}><ChevronDown size={26} /></Button>
-        {call.kind === "video" && <div className="ig-call-topinfo"><strong>{call.agent.name}</strong><span role="status">{sub}</span></div>}
+        {call.kind === "video" && connected && <div className="ig-call-topinfo"><strong>{call.agent.name}</strong><span role="status">{sub}</span></div>}
         <span className="ig-call-icon-space" />
       </header>
       {call.kind === "voice"
@@ -169,7 +169,6 @@ function VoiceCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
   const status = muted && phase === "listening" ? "muted" : phase === "ready" ? "" : phase;
   return <Shell call={call} minimized={minimized} connected={phase !== "connecting" && phase !== "ready"} status={status}
     controls={<>
-      <CallButton label={ar ? "فيديو" : "Switch to video"} onClick={() => { end(); calls.start({ ...call, kind: "video" }); }}><Video size={24} /></CallButton>
       <CallButton label={muted ? (ar ? "فتح الميكروفون" : "Unmute") : (ar ? "كتم" : "Mute")} on={muted} onClick={() => { const n = !muted; setMuted(n); live.current?.setMuted(n); }}>{muted ? <MicOff size={24} /> : <Mic size={24} />}</CallButton>
       <CallButton label={ar ? "قاطعه" : "Interrupt"} disabled={phase !== "speaking"} onClick={() => live.current?.interrupt()}><Hand size={24} /></CallButton>
       <CallButton label={ar ? "إنهاء" : "End call"} danger onClick={end}><PhoneOff size={24} /></CallButton>
@@ -360,7 +359,7 @@ function VideoCall({ call, minimized }: { call: ActiveCall; minimized: boolean }
       {canShareScreen() && <CallButton label={sharing ? (ar ? "وقف مشاركة الشاشة" : "Stop sharing") : (ar ? "مشاركة الشاشة" : "Share screen")} on={sharing} onClick={() => (sharing ? void startCamera(facing) : void startScreen())}>{sharing ? <ScreenShareOff size={24} /> : <ScreenShare size={24} />}</CallButton>}
       <CallButton label={ar ? "إنهاء" : "End call"} danger onClick={end}><PhoneOff size={24} /></CallButton>
     </>}>
-    {status !== "live" && !error && <div className="ig-call-waiting"><span className="ig-call-avatar"><BotAvatar agent={call.agent} size={96} state="idle" /></span><p>{statusLabel(status, ar) || (ar ? "جاري الاتصال…" : "Calling…")}</p></div>}
+    {status !== "live" && <div className="ig-call-waiting"><span className="ig-call-avatar"><BotAvatar agent={call.agent} size={112} state="idle" /></span><h2>{call.agent.name}</h2><p>{statusLabel(status, ar) || (ar ? "جاري الاتصال…" : "Calling…")}</p></div>}
     {notice && <p className="ig-call-pill" role="status">{notice}</p>}
     {needsTap && <Button variant="ghost" className="ig-call-pill" onClick={() => {
       const plays = [remoteRef.current?.play(), audioRef.current?.play()].filter((p): p is Promise<void> => Boolean(p));

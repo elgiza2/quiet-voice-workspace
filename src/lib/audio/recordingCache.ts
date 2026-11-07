@@ -22,5 +22,6 @@ export async function cacheRecording(key: string, blob: Blob) {
     transaction.objectStore("audio").put(blob, key);
     transaction.oncomplete = () => resolve();
     transaction.onerror = () => reject(transaction.error);
+    transaction.onabort = () => reject(transaction.error || new Error("Could not save recording on this device"));
   }); } finally { db.close(); }
 }
