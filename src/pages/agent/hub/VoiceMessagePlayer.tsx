@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Loader2, Pause, Play, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cachedRecording, cacheRecording } from "@/lib/audio/recordingCache";
-import { getSpeech } from "@/lib/audio/voiceClient";
+import { getSpeech, sharedAudioContext } from "@/lib/audio/voiceClient";
 import { speechText } from "@/lib/audio/voiceSchema";
 
 const time = (seconds: number) => `${Math.floor(seconds / 60)}:${String(Math.floor(seconds % 60)).padStart(2, "0")}`;
@@ -32,6 +32,9 @@ export function VoiceMessagePlayer({ text, recordingId, agentId, voiceId = "", l
         }
         if (controller.signal.aborted) return;
         objectUrl = URL.createObjectURL(blob); setUrl(objectUrl);
+        // Decode a copy for WebM's missing duration header; never seek the player to its end.
+        const ctx = sharedAudioContext();
+        if (ctx) void blob.arrayBuffer().then(bytes => ctx.decodeAudioData(bytes)).then(decoded => { if (!controller.signal.aborted) setDuration(decoded.duration); }).catch(() => {});
       } catch (e) { if (!controller.signal.aborted) setError(e instanceof Error ? e.message : "Audio unavailable"); }
       finally { if (!controller.signal.aborted) setLoading(false); }
     })();
@@ -46,8 +49,6 @@ export function VoiceMessagePlayer({ text, recordingId, agentId, voiceId = "", l
   const metadata = () => {
     const el = audio.current; if (!el) return;
     if (el.duration && Number.isFinite(el.duration)) { setDuration(el.duration); if (el.currentTime > el.duration) el.currentTime = 0; }
-    // MediaRecorder WebM often has no duration header until its final timestamp is inspected.
-    else if (el.duration === Infinity && el.currentTime === 0 && el.paused) el.currentTime = 1e10;
   };
   return <div className="cx-voice-message" data-own={own}>
     <div className="cx-voice-player" dir="ltr">
