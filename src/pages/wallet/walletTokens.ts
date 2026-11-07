@@ -26,8 +26,8 @@ export async function fetchWallet(): Promise<{ addresses: Addresses; balances: R
 }
 
 /** Platform fee on outgoing transfers, in basis points (50 = 0.5%). */
-export const PLATFORM_FEE_BPS = 50;
-export const platformFee = (amount: number) => Math.round(amount * PLATFORM_FEE_BPS) / 10000;
+
+
 
 export type Market = { id: string; image: string; current_price: number; price_change_percentage_24h: number | null };
 
@@ -38,3 +38,15 @@ export async function fetchMarkets(signal?: AbortSignal): Promise<Record<string,
   const list = (await res.json()) as Market[];
   return Object.fromEntries(list.map((m) => [m.id, m]));
 }
+
+/** Authenticated wallet actions (send, Solana quote/swap/balance). */
+export async function walletAction<T = any>(body: Record<string, unknown>): Promise<T> {
+  const { supabase } = await import("@/integrations/supabase/client");
+  const { data } = await supabase.auth.getSession();
+  if (!data.session) throw new Error("Please sign in");
+  const res = await fetch("/api/wallet-action", { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${data.session.access_token}` }, body: JSON.stringify(body) });
+  const j = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(j.error || "Action failed");
+  return j as T;
+}
+export const SOL_MINT = "So11111111111111111111111111111111111111112";
