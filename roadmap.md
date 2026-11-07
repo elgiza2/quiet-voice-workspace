@@ -1,3 +1,8 @@
+## Chat reply failure and recording controls — 2026-11-07 13:07 UTC
+- [ ] Repair the gateway HTTP 400 request contract without changing the selected chat model.
+- [x] Remove Transcript controls from voice messages.
+- [ ] Run focused regression tests and verify the actual gateway request; update handoff.
+
 ## Clean calls and voice recordings — 2026-11-07 13:01 UTC
 - [x] Remove switch-to-video from voice call only; header video action remains.
 - [x] Restyle video controls/waiting identity to match voice; separate red end button, no preview/error overlap.
