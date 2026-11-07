@@ -62,24 +62,7 @@
 }
 
 :root {
-  --call-base: oklch(0.17 0.01 250);
-  --call-ink: oklch(0.99 0 0);
-  --call-muted: oklch(0.99 0 0 / 82%);
-  --call-btn: oklch(0.99 0 0 / 85%);
-  --call-btn-ink: oklch(0.38 0.03 240);
-  --call-btn-on: oklch(0.86 0.08 240);
-  --call-btn-on-ink: oklch(0.26 0.07 245);
-  --call-tray: oklch(0.18 0 0 / 45%);
-  --call-danger: oklch(0.63 0.24 22);
-  --call-accept: oklch(0.66 0.18 152);
-  --call-blue: oklch(0.63 0.21 250);
-  --call-sky: oklch(0.75 0.13 235);
-  --call-light: oklch(0.95 0.03 235);
-  --call-pink: oklch(0.72 0.15 340);
-  --call-mint: oklch(0.81 0.11 180);
-  --call-shade: oklch(0 0 0 / 42%);
-  --call-shadow: 0 8px 28px var(--call-shade);
-  --call-gradient: linear-gradient(165deg, var(--call-blue) 0%, var(--call-blue) 38%, var(--call-sky) 70%, var(--call-light) 100%);
+
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);

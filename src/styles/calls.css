@@ -1,5 +1,24 @@
-/* Instagram-style call surfaces (voice, video, incoming, minimized bubble).
-   Calls are always dark like Instagram; colors are call-scoped tokens. No colored rings or glows. */
+/* Reference call surfaces, with call-scoped semantic tokens for the imported SPA. */
+.ig-call, .ig-call-bubble {
+  --call-base: oklch(0.17 0.01 250);
+  --call-ink: oklch(0.99 0 0);
+  --call-muted: oklch(0.99 0 0 / 82%);
+  --call-btn: oklch(0.99 0 0 / 85%);
+  --call-btn-ink: oklch(0.38 0.03 240);
+  --call-btn-on: oklch(0.86 0.08 240);
+  --call-btn-on-ink: oklch(0.26 0.07 245);
+  --call-tray: oklch(0.18 0 0 / 45%);
+  --call-danger: oklch(0.63 0.24 22);
+  --call-accept: oklch(0.66 0.18 152);
+  --call-blue: oklch(0.63 0.21 250);
+  --call-sky: oklch(0.75 0.13 235);
+  --call-light: oklch(0.95 0.03 235);
+  --call-pink: oklch(0.72 0.15 340);
+  --call-mint: oklch(0.81 0.11 180);
+  --call-shade: oklch(0 0 0 / 42%);
+  --call-shadow: 0 8px 28px var(--call-shade);
+  --call-gradient: linear-gradient(165deg, var(--call-blue) 0%, var(--call-blue) 38%, var(--call-sky) 70%, var(--call-light) 100%);
+}
 .agent-hub.ig-call {
   position: fixed; inset: 0; z-index: 9990; display: flex; flex-direction: column; align-items: stretch;
   width: 100%; height: 100dvh; grid-template-columns: none; overflow: hidden;
@@ -97,3 +116,5 @@
 .ig-call-reason {max-width:300px;overflow-wrap:anywhere;}
 @media (max-width:360px) {.ig-call[data-kind="video"] .ig-call-tray {gap:6px;padding:10px;} .ig-call[data-kind="video"] .ig-call-tray .ig-call-btn {width:40px;height:40px;min-height:40px;}}
 @media (prefers-reduced-motion:reduce) {.ig-call-aurora::after {animation:none;}}
+
+.ig-call-pill {height:auto;min-height:40px;white-space:normal;text-align:center;line-height:1.5;}
