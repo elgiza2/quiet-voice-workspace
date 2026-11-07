@@ -1,4 +1,4 @@
-import { expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import { deriveAddresses } from "./derive";
 
 // Standard BIP39 test phrase; addresses match MetaMask / Phantom / BIP84 reference vectors.

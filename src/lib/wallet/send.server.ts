@@ -211,12 +211,12 @@ const KH = { "x-client-id": "megsy-wallet", "Content-Type": "application/json" }
 const pub = (n: EvmNet) => createPublicClient({ chain: EVM_NETS[n].chain, transport: http(EVM_NETS[n].rpc) });
 async function evmDecimals(n: EvmNet, token: string) {
   if (token.toLowerCase() === NATIVE.toLowerCase()) return 18;
-  return Number(await pub(n).readContract({ address: token as `0x${string}`, abi: erc20Abi, functionName: "decimals" }));
+  return Number(await (pub(n).readContract as any)({ address: token as `0x${string}`, abi: erc20Abi, functionName: "decimals" }));
 }
 export async function evmBalance(n: EvmNet, owner: string, token: string) {
   const c = pub(n);
   const raw = token.toLowerCase() === NATIVE.toLowerCase() ? await c.getBalance({ address: owner as `0x${string}` })
-    : await c.readContract({ address: token as `0x${string}`, abi: erc20Abi, functionName: "balanceOf", args: [owner as `0x${string}`] });
+    : await (c.readContract as any)({ address: token as `0x${string}`, abi: erc20Abi, functionName: "balanceOf", args: [owner as `0x${string}`] });
   return Number(raw) / 10 ** (await evmDecimals(n, token));
 }
 async function kyberRoute(n: EvmNet, tokenIn: string, tokenOut: string, ui: number) {
@@ -247,7 +247,7 @@ export async function evmSwap(userId: string, n: EvmNet, tokenIn: string, tokenO
   const c = pub(n);
   const native = tokenIn.toLowerCase() === NATIVE.toLowerCase();
   if (!native) {
-    const allowance = await c.readContract({ address: tokenIn as `0x${string}`, abi: erc20Abi, functionName: "allowance", args: [account.address, router] });
+    const allowance: bigint = await (c.readContract as any)({ address: tokenIn as `0x${string}`, abi: erc20Abi, functionName: "allowance", args: [account.address, router] });
     if (allowance < amountIn) {
       const h = await wallet.writeContract({ address: tokenIn as `0x${string}`, abi: erc20Abi, functionName: "approve", args: [router, amountIn] } as any);
       await c.waitForTransactionReceipt({ hash: h, timeout: 90_000 });
