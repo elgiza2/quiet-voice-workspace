@@ -1,1 +1,2 @@
 - Active chat and inline specialists opt into the typed Gateway model adapter; scheduled and call inference retain their existing providers. Why: upgrade the requested chat workloads without changing unrelated calls.
+- Recompute replyLanguageInstruction from the latest user message at each agent-loop step, after persona and saved context; people-bot uses the invoking member's message. Why: language switches, tool outputs and other participants must not override the current user's language or dialect.

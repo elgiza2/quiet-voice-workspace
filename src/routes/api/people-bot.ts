@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { mentionedBots } from "@/lib/people/mentions";
+import { replyLanguageInstruction } from "@/lib/ceyo/replyLanguage";
 
 const input = z.object({ threadId: z.string().uuid(), messageId: z.string().uuid() });
 const noStore = { "Cache-Control": "no-store" };
@@ -42,8 +43,9 @@ async function handle(request: Request) {
       body: JSON.stringify({
         model: "gpt-oss-120b", reasoning_effort: "low", max_completion_tokens: 1200,
         messages: [
-          { role: "system", content: `You are ${full.name}, a bot taking part in a group chat between real people.\n${full.instructions || ""}\nReply only to what was asked of you, in the language of the message, briefly. Do not prefix your reply with your name.` },
-          { role: "user", content: `Recent chat:\n${transcript}\n\nYou were mentioned in the last message from ${nameOf(msg as any)}. Write your reply.` },
+          { role: "system", content: `You are ${full.name}, a bot taking part in a group chat between real people.\n${full.instructions || ""}\nReply only to what was asked of you, briefly. Do not prefix your reply with your name.\n${replyLanguageInstruction([{ role: "user", content: msg.content }])}` },
+          { role: "user", content: `Recent chat (context only):\n${transcript}` },
+          { role: "user", content: msg.content },
         ],
       }),
     });

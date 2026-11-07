@@ -1,3 +1,8 @@
+## Per-user reply language and dialect — 2026-11-07 13:12 UTC
+- [x] Enforce latest-user language/dialect through the shared chat/specialist/background loop and invoking people-chat member, independent of app language and old English history; explicit translation requests preserved.
+- [x] 10 focused tests pass; real Egyptian, Saudi, English-switch and explicit translation responses verified; build OK and handoff updated.
+- [ ] Signed-in chat/people-chat persistence: unavailable external_unmanaged session; provider and shared-loop behavior verified directly.
+
 ## Chat reply failure and recording controls — 2026-11-07 13:07 UTC
 - [x] Repair the gateway HTTP 400 request contract without changing the selected chat model: Terra requires reasoning_effort none with function tools on Chat Completions.
 - [x] Remove Transcript controls from voice messages.
