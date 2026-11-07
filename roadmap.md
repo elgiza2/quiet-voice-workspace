@@ -1,3 +1,7 @@
+## Per-user reply language and dialect — 2026-11-07 13:12 UTC
+- [ ] Enforce latest-user language/dialect through chat and specialist replies, independent of app language and old English history.
+- [ ] Add focused language tests and verify real Arabic/dialect and language-switch responses; update handoff.
+
 ## Chat reply failure and recording controls — 2026-11-07 13:07 UTC
 - [x] Repair the gateway HTTP 400 request contract without changing the selected chat model: Terra requires reasoning_effort none with function tools on Chat Completions.
 - [x] Remove Transcript controls from voice messages.
