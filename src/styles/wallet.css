@@ -35,3 +35,8 @@
 .wl-net-copy em[data-up="true"] { color: hsl(145 60% 50%); }
 .wl-amt { display: grid; text-align: right; }
 .wl-amt small { color: var(--wl-mute); }
+.wl-sheet { position: fixed; inset: 0; z-index: 50; display: grid; place-items: end center; background: hsl(0 0% 0% / .6); padding: 16px; }
+.wl-qr { width: 100%; max-width: 420px; display: grid; gap: 14px; justify-items: center; text-align: center; margin-bottom: env(safe-area-inset-bottom); }
+.wl-qr-box { background: hsl(0 0% 100%); padding: 14px; border-radius: 18px; }
+.wl-qr code { font-size: 13px; word-break: break-all; color: var(--wl-mute); }
+.wl-qr .wl-btn { width: 100%; }

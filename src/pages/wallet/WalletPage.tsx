@@ -1,12 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowDownToLine, ChevronLeft, Copy, QrCode, Search, Send, X } from "lucide-react";
+import { ArrowDownToLine, Check, ChevronLeft, Copy, QrCode, Search, Send, X } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import SEOHead from "@/components/common/SEOHead";
-import { fetchMarkets, PLATFORM_FEE_BPS, WALLET_TOKENS, type Market } from "./walletTokens";
+import { addressFor, fetchMarkets, fetchWallet, PLATFORM_FEE_BPS, WALLET_TOKENS, type Addresses, type Market } from "./walletTokens";
 import "@/styles/wallet.css";
 
 type View = "home" | "receive" | "send";
-const usd = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: n < 1 ? 4 : 2 });
+type Token = (typeof WALLET_TOKENS)[number];
+const usd = (n: number) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: n > 0 && n < 1 ? 4 : 2 });
+const amount = (n: number) => (n ? n.toLocaleString("en-US", { maximumFractionDigits: 6 }) : "0");
+const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
 
 function TokenIcon({ m, symbol }: { m?: Market; symbol: string }) {
   return m?.image ? <img className="wl-logo wl-img" src={m.image} alt="" loading="lazy" /> : <span className="wl-logo">{symbol[0]}</span>;
@@ -18,18 +22,27 @@ export default function WalletPage() {
   const [q, setQ] = useState("");
   const [markets, setMarkets] = useState<Record<string, Market>>({});
   const [priceError, setPriceError] = useState(false);
+  const [addresses, setAddresses] = useState<Addresses | null>(null);
+  const [balances, setBalances] = useState<Record<string, number>>({});
+  const [walletError, setWalletError] = useState("");
+  const [qr, setQr] = useState<Token | null>(null);
+  const [copied, setCopied] = useState("");
 
   useEffect(() => {
     let ctrl = new AbortController();
-    const load = () => fetchMarkets(ctrl.signal).then((m) => { setMarkets(m); setPriceError(false); }).catch((e) => { if (!ctrl.signal.aborted) setPriceError(true); void e; });
-    load();
-    const t = setInterval(() => { ctrl.abort(); ctrl = new AbortController(); load(); }, 60000);
+    const load = () => fetchMarkets(ctrl.signal).then((m) => { setMarkets(m); setPriceError(false); }).catch(() => { if (!ctrl.signal.aborted) setPriceError(true); });
+    const loadWallet = () => fetchWallet().then((w) => { setAddresses(w.addresses); setBalances(w.balances); setWalletError(""); }).catch((e) => setWalletError(e instanceof Error ? e.message : "Wallet unavailable"));
+    load(); void loadWallet();
+    const t = setInterval(() => { ctrl.abort(); ctrl = new AbortController(); load(); void loadWallet(); }, 60000);
     return () => { clearInterval(t); ctrl.abort(); };
   }, []);
 
+  const value = (t: Token) => (balances[t.id] || 0) * (markets[t.id]?.current_price || 0);
+  const total = WALLET_TOKENS.reduce((s, t) => s + value(t), 0);
   const filtered = useMemo(() => WALLET_TOKENS.filter((t) => `${t.name} ${t.symbol} ${t.network}`.toLowerCase().includes(q.toLowerCase())), [q]);
+  const copy = (t: Token) => { if (!addresses) return; void navigator.clipboard.writeText(addressFor(t.network, addresses)); setCopied(t.id); setTimeout(() => setCopied(""), 1500); };
 
-  const rows = (list: readonly (typeof WALLET_TOKENS)[number][], action?: "send" | "receive") => (
+  const rows = (list: readonly Token[], action?: "receive") => (
     <div className="wl-list">
       {list.map((t) => {
         const m = markets[t.id]; const ch = m?.price_change_percentage_24h ?? null;
@@ -38,13 +51,15 @@ export default function WalletPage() {
             <TokenIcon m={m} symbol={t.symbol} />
             <span className="wl-net-copy">
               <strong>{t.name}</strong>
-              <small>{m ? usd(m.current_price) : "—"}{ch !== null && <em data-up={ch >= 0}> {ch >= 0 ? "+" : ""}{ch.toFixed(2)}%</em>}</small>
+              {action === "receive"
+                ? <small>{t.network} · {addresses ? short(addressFor(t.network, addresses)) : "…"}</small>
+                : <small>{m ? usd(m.current_price) : "—"}{ch !== null && <em data-up={ch >= 0}> {ch >= 0 ? "+" : ""}{ch.toFixed(2)}%</em>}</small>}
             </span>
             {action === "receive" ? (
-              <><button type="button" className="wl-sq" aria-label={`${t.symbol} QR`} disabled><QrCode size={18} /></button>
-              <button type="button" className="wl-sq" aria-label={`Copy ${t.symbol}`} disabled><Copy size={18} /></button></>
+              <><button type="button" className="wl-sq" aria-label={`${t.symbol} QR`} disabled={!addresses} onClick={() => setQr(t)}><QrCode size={18} /></button>
+              <button type="button" className="wl-sq" aria-label={`Copy ${t.symbol} address`} disabled={!addresses} onClick={() => copy(t)}>{copied === t.id ? <Check size={18} /> : <Copy size={18} />}</button></>
             ) : (
-              <span className="wl-amt"><strong>$0.00</strong><small>0 {t.symbol}</small></span>
+              <span className="wl-amt"><strong>{usd(value(t))}</strong><small>{amount(balances[t.id] || 0)} {t.symbol}</small></span>
             )}
           </div>
         );
@@ -62,13 +77,13 @@ export default function WalletPage() {
             <span className="wl-pill wl-pill-on">Home</span>
           </header>
           <p className="wl-acct">Account 1</p>
-          <h1 className="wl-bal">$0.00</h1>
-          <p className="wl-delta">+$0.00 <span>0.00%</span></p>
-          <div className="wl-actions">
+          <h1 className="wl-bal">{usd(total)}</h1>
+          <div className="wl-actions" style={{ marginTop: 22 }}>
             <button type="button" className="wl-btn" onClick={() => setView("send")}><Send size={18} />Send</button>
             <button type="button" className="wl-btn" onClick={() => setView("receive")}><ArrowDownToLine size={18} />Receive</button>
           </div>
           <h2 className="wl-h">Tokens</h2>
+          {walletError && <p className="wl-note" role="alert">{walletError}</p>}
           {priceError && <p className="wl-note">Live prices are unavailable right now.</p>}
           {rows(WALLET_TOKENS)}
         </>
@@ -77,7 +92,7 @@ export default function WalletPage() {
         <>
           <header className="wl-top"><button type="button" className="wl-round" aria-label="Back" onClick={() => setView("home")}><ChevronLeft size={22} /></button><h2 className="wl-title">Receive</h2></header>
           {rows(WALLET_TOKENS, "receive")}
-          <p className="wl-note">Addresses appear once the wallet service is activated for your account.</p>
+          <p className="wl-note">Only send each coin on the network shown under it.</p>
         </>
       )}
       {view === "send" && (
@@ -86,8 +101,18 @@ export default function WalletPage() {
           <label className="wl-search"><Search size={18} /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search" /></label>
           <div style={{ height: 14 }} />
           {rows(filtered)}
-          <p className="wl-note">A {PLATFORM_FEE_BPS / 100}% service fee applies to transfers. You have no balance to send yet.</p>
+          <p className="wl-note">A {PLATFORM_FEE_BPS / 100}% service fee applies to transfers.{total === 0 ? " You have no balance to send yet." : ""}</p>
         </>
+      )}
+      {qr && addresses && (
+        <div className="wl-sheet" role="dialog" aria-label={`${qr.name} address`} onClick={() => setQr(null)}>
+          <div className="wl-card wl-qr" onClick={(e) => e.stopPropagation()}>
+            <strong>{qr.name} · {qr.network}</strong>
+            <div className="wl-qr-box"><QRCodeSVG value={addressFor(qr.network, addresses)} size={210} /></div>
+            <code>{addressFor(qr.network, addresses)}</code>
+            <button type="button" className="wl-btn" onClick={() => copy(qr)}>{copied === qr.id ? <Check size={18} /> : <Copy size={18} />}Copy address</button>
+          </div>
+        </div>
       )}
     </div>
   );
