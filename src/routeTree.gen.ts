@@ -42,6 +42,7 @@ import { Route as ApiVoiceRouteImport } from './routes/api/voice'
 import { Route as ApiVoiceCallRouteImport } from './routes/api/voice-call'
 import { Route as ApiVoiceTranscribeRouteImport } from './routes/api/voice-transcribe'
 import { Route as ApiWalletRouteImport } from './routes/api/wallet'
+import { Route as ApiWalletActionRouteImport } from './routes/api/wallet-action'
 import { Route as ApiWebSearchRouteImport } from './routes/api/web-search'
 import { Route as ApiAgentSplatRouteImport } from './routes/api/agent.$'
 import { Route as ApiPublicCeyoJobsRouteImport } from './routes/api/public/ceyo-jobs'
@@ -219,6 +220,11 @@ const ApiWalletRoute = ApiWalletRouteImport.update({
   path: '/api/wallet',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWalletActionRoute = ApiWalletActionRouteImport.update({
+  id: '/api/wallet-action',
+  path: '/api/wallet-action',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiWebSearchRoute = ApiWebSearchRouteImport.update({
   id: '/api/web-search',
   path: '/api/web-search',
@@ -312,6 +318,7 @@ export interface FileRoutesByFullPath {
   '/api/voice-call': typeof ApiVoiceCallRoute
   '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
   '/api/wallet': typeof ApiWalletRoute
+  '/api/wallet-action': typeof ApiWalletActionRoute
   '/api/web-search': typeof ApiWebSearchRoute
   '/api/agent/$': typeof ApiAgentSplatRoute
   '/api/public/ceyo-jobs': typeof ApiPublicCeyoJobsRoute
@@ -358,6 +365,7 @@ export interface FileRoutesByTo {
   '/api/voice-call': typeof ApiVoiceCallRoute
   '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
   '/api/wallet': typeof ApiWalletRoute
+  '/api/wallet-action': typeof ApiWalletActionRoute
   '/api/web-search': typeof ApiWebSearchRoute
   '/api/agent/$': typeof ApiAgentSplatRoute
   '/api/public/ceyo-jobs': typeof ApiPublicCeyoJobsRoute
@@ -405,6 +413,7 @@ export interface FileRoutesById {
   '/api/voice-call': typeof ApiVoiceCallRoute
   '/api/voice-transcribe': typeof ApiVoiceTranscribeRoute
   '/api/wallet': typeof ApiWalletRoute
+  '/api/wallet-action': typeof ApiWalletActionRoute
   '/api/web-search': typeof ApiWebSearchRoute
   '/api/agent/$': typeof ApiAgentSplatRoute
   '/api/public/ceyo-jobs': typeof ApiPublicCeyoJobsRoute
@@ -453,6 +462,7 @@ export interface FileRouteTypes {
     | '/api/voice-call'
     | '/api/voice-transcribe'
     | '/api/wallet'
+    | '/api/wallet-action'
     | '/api/web-search'
     | '/api/agent/$'
     | '/api/public/ceyo-jobs'
@@ -499,6 +509,7 @@ export interface FileRouteTypes {
     | '/api/voice-call'
     | '/api/voice-transcribe'
     | '/api/wallet'
+    | '/api/wallet-action'
     | '/api/web-search'
     | '/api/agent/$'
     | '/api/public/ceyo-jobs'
@@ -545,6 +556,7 @@ export interface FileRouteTypes {
     | '/api/voice-call'
     | '/api/voice-transcribe'
     | '/api/wallet'
+    | '/api/wallet-action'
     | '/api/web-search'
     | '/api/agent/$'
     | '/api/public/ceyo-jobs'
@@ -592,6 +604,7 @@ export interface RootRouteChildren {
   ApiVoiceCallRoute: typeof ApiVoiceCallRoute
   ApiVoiceTranscribeRoute: typeof ApiVoiceTranscribeRoute
   ApiWalletRoute: typeof ApiWalletRoute
+  ApiWalletActionRoute: typeof ApiWalletActionRoute
   ApiWebSearchRoute: typeof ApiWebSearchRoute
   ApiAgentSplatRoute: typeof ApiAgentSplatRoute
   ApiPublicCeyoJobsRoute: typeof ApiPublicCeyoJobsRoute
@@ -838,6 +851,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWalletRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/wallet-action': {
+      id: '/api/wallet-action'
+      path: '/api/wallet-action'
+      fullPath: '/api/wallet-action'
+      preLoaderRoute: typeof ApiWalletActionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/web-search': {
       id: '/api/web-search'
       path: '/api/web-search'
@@ -952,6 +972,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiVoiceCallRoute: ApiVoiceCallRoute,
   ApiVoiceTranscribeRoute: ApiVoiceTranscribeRoute,
   ApiWalletRoute: ApiWalletRoute,
+  ApiWalletActionRoute: ApiWalletActionRoute,
   ApiWebSearchRoute: ApiWebSearchRoute,
   ApiAgentSplatRoute: ApiAgentSplatRoute,
   ApiPublicCeyoJobsRoute: ApiPublicCeyoJobsRoute,
