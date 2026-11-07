@@ -24,12 +24,22 @@ async function encryptionKey(db: ReturnType<typeof admin>) {
   return crypto.subtle.importKey("raw", unb64(data.api_key), "AES-GCM", false, ["encrypt", "decrypt"]);
 }
 
+type SealedWallet = { addresses: WalletAddresses; iv: string; phrase: string };
+/** Wallets created before TON support gain a TON address from their existing phrase. */
+async function addTon(db: ReturnType<typeof admin>, user: { id: string; app_metadata: Record<string, unknown> }, w: SealedWallet) {
+  const phrase = new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: unb64(w.iv) }, await encryptionKey(db), unb64(w.phrase)));
+  const addresses = deriveAddresses(phrase);
+  await db.auth.admin.updateUserById(user.id, { app_metadata: { ...user.app_metadata, wallet: { ...w, addresses } } });
+  return addresses;
+}
+
 export async function getOrCreateWallet(userId: string): Promise<WalletAddresses> {
   const db = admin();
   const { data, error } = await db.auth.admin.getUserById(userId);
   if (error || !data.user) throw new Error("Account not found");
   const existing = data.user.app_metadata?.wallet as { addresses?: WalletAddresses } | undefined;
-  if (existing?.addresses?.evm) return existing.addresses;
+  if (existing?.addresses?.evm && existing.addresses.ton) return existing.addresses;
+  if (existing?.addresses?.evm) return addTon(db, data.user, existing as SealedWallet);
   const phrase = newMnemonic();
   const addresses = deriveAddresses(phrase);
   const iv = crypto.getRandomValues(new Uint8Array(12));
@@ -61,7 +71,7 @@ const erc20 = async (chain: keyof typeof EVM_RPC, token: string, owner: string, 
 /** Balances keyed by token id from walletTokens.ts; a failed network reads as 0 instead of breaking the page. */
 export async function walletBalances(a: WalletAddresses): Promise<Record<string, number>> {
   const safe = (p: Promise<number>) => p.catch(() => 0);
-  const [btc, eth, sol, bnb, pol, usdt, usdc, arb] = await Promise.all([
+  const [btc, eth, sol, bnb, pol, usdt, usdc, arb, ton] = await Promise.all([
     safe(fetch(`https://mempool.space/api/address/${a.bitcoin}`).then((r) => r.json()).then((j: any) => (j.chain_stats.funded_txo_sum - j.chain_stats.spent_txo_sum) / 1e8)),
     safe(rpc(EVM_RPC.ethereum, "eth_getBalance", [a.evm, "latest"]).then((h) => hexToNum(h, 18))),
     safe(rpc("https://solana-rpc.publicnode.com", "getBalance", [a.solana]).then((r) => (r?.value ?? 0) / 1e9)),
@@ -70,6 +80,7 @@ export async function walletBalances(a: WalletAddresses): Promise<Record<string,
     safe(erc20("ethereum", "0xdAC17F958D2ee523a2206206994597C13D831ec7", a.evm, 6)),
     safe(erc20("base", "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913", a.evm, 6)),
     safe(erc20("arbitrum", "0x912CE59144191C1204E64559FE8253a0e49E6548", a.evm, 18)),
+    safe(fetch(`https://toncenter.com/api/v2/getAddressBalance?address=${a.ton}`).then((r) => r.json()).then((j: any) => Number(j.result || 0) / 1e9)),
   ]);
-  return { bitcoin: btc, ethereum: eth, solana: sol, binancecoin: bnb, "polygon-ecosystem-token": pol, tether: usdt, "usd-coin": usdc, arbitrum: arb };
+  return { bitcoin: btc, ethereum: eth, solana: sol, binancecoin: bnb, "polygon-ecosystem-token": pol, tether: usdt, "usd-coin": usdc, arbitrum: arb, "the-open-network": ton };
 }
