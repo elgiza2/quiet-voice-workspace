@@ -1,0 +1,39 @@
+/* Full-screen call surfaces (voice, video, incoming). Neutral by design: no colored rings or glows. */
+.agent-hub.cx-callscreen {
+  position: fixed; inset: 0; z-index: 9990; display: flex; flex-direction: column; align-items: stretch;
+  width: 100%; height: 100dvh; grid-template-columns: none;
+  background: var(--hub-bg); color: var(--hub-ink);
+  padding: max(16px, env(safe-area-inset-top)) 20px max(28px, env(safe-area-inset-bottom));
+  animation: cx-callscreen-in .22s ease-out;
+}
+.agent-hub.cx-callscreen[data-minimized="true"] { display: none; }
+.cx-callscreen-top { position: relative; z-index: 2; display: flex; justify-content: flex-start; }
+.cx-callscreen-icon { display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--hub-surface); color: var(--hub-ink); cursor: pointer; }
+.cx-callscreen-who { position: relative; z-index: 2; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; min-height: 0; }
+.cx-callscreen-who h2 { margin: 18px 0 0; font-size: 30px; font-weight: 600; letter-spacing: -0.01em; }
+.cx-callscreen-who p { margin: 0; color: var(--hub-muted); font-size: 15px; font-variant-numeric: tabular-nums; min-height: 1.4em; }
+.cx-callscreen-avatar { display: grid; place-items: center; width: 168px; height: 168px; border-radius: 50%; background: var(--hub-surface); }
+.cx-callscreen .ag-orb__halo, .cx-callscreen .ag-orb__dots, .cx-callbubble .ag-orb__halo, .cx-callbubble .ag-orb__dots { display: none !important; }
+.cx-callscreen .ag-orb__body, .cx-callbubble .ag-orb__body { box-shadow: none !important; }
+.cx-callscreen-controls { position: relative; z-index: 2; display: flex; align-items: center; justify-content: center; gap: 22px; padding-top: 16px; }
+.cx-callscreen-btn { display: grid; place-items: center; width: 64px; height: 64px; border: 0; border-radius: 50%; background: var(--hub-surface-raised); color: var(--hub-ink); cursor: pointer; transition: transform .12s ease, background .15s ease; }
+.cx-callscreen-btn:active { transform: scale(.94); }
+.cx-callscreen-btn[data-on="true"] { background: var(--hub-ink); color: var(--hub-bg); }
+.cx-callscreen-end { width: 72px; height: 72px; background: var(--hub-danger); color: var(--hub-ink); }
+.cx-callscreen-accept { width: 72px; height: 72px; background: var(--hub-online); color: var(--hub-bg); }
+.cx-callscreen-pill, .cx-callscreen-error { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; padding: 10px 16px; border: 0; border-radius: 999px; background: var(--hub-surface-raised); color: var(--hub-ink); font-size: 14px; cursor: pointer; max-width: 92%; overflow-wrap: anywhere; }
+.cx-callscreen-error { color: var(--hub-danger); background: var(--hub-surface); }
+.cx-callscreen-video { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; background: var(--hub-bg); }
+.cx-callscreen[data-kind="video"] .cx-callscreen-who { justify-content: flex-start; padding-top: 8px; }
+.cx-callscreen[data-kind="video"] .cx-callscreen-who h2 { margin-top: 0; font-size: 22px; text-shadow: 0 1px 8px oklch(0 0 0 / 55%); }
+.cx-callscreen[data-kind="video"] .cx-callscreen-who p { color: var(--hub-ink); text-shadow: 0 1px 8px oklch(0 0 0 / 55%); }
+.cx-callbubble { position: fixed; z-index: 9989; top: max(12px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%); display: inline-flex; align-items: center; gap: 10px; padding: 6px 16px 6px 6px; border: 0; border-radius: 999px; background: var(--hub-online); color: var(--hub-bg); font: 600 14px/1 "DM Sans", system-ui, sans-serif; font-variant-numeric: tabular-nums; cursor: pointer; }
+.cx-incoming-label { font-size: 14px !important; letter-spacing: .02em; }
+.cx-incoming-reason { max-width: 320px; color: var(--hub-muted); }
+.cx-incoming-controls { gap: 40px; }
+.cx-incoming-controls > span { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.cx-incoming-controls small { color: var(--hub-muted); font-size: 13px; }
+.cx-incoming-pulse { animation: cx-ring-pulse 1.6s ease-in-out infinite; }
+@keyframes cx-ring-pulse { 50% { transform: scale(1.05); } }
+@keyframes cx-callscreen-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .agent-hub.cx-callscreen, .cx-incoming-pulse { animation: none; } }
