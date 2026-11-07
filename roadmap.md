@@ -1,3 +1,11 @@
+## Video, people messaging, bot-initiated calls — 2026-11-07 09:53 UTC
+- [ ] Anam video call (key in Supabase provider_api_keys).
+- [ ] Usernames + person-to-person chats + people groups with bots.
+- [ ] Fix no-audio in voice calls (user report on device).
+- [ ] Bot rings the user: on request ("call me"), at reminder time, and when a background task finishes.
+- [ ] Clean full-screen call UI for voice and video; incoming-call screen.
+- [ ] Android later: calls show in background like a normal phone call (needs native wrapper; web can only use notifications while open).
+
 ## Realtime calls — 2026-11-07 09:40 UTC
 - [x] Import full project from GitHub.
 - [x] Calls use Cartesia realtime WebSockets; call speech no longer posted to chat; neutral call box (no colored edges).
