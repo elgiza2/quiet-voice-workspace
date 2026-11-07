@@ -765,3 +765,30 @@ html[data-ceyo-surface="bot"] .agent-hub.ceyo-page{--ceyo-page-bg:#1b1b20;--ceyo
 .cx-mentions{margin:0 4px 8px;padding:6px;border-radius:20px;background:rgba(40,40,42,.92);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.08)}
 .cx-mentions button{display:flex;width:100%;align-items:center;gap:10px;padding:8px 10px;border:0;border-radius:14px;background:none;color:#fff;font-size:14.5px;text-align:start}
 .cx-mentions button:first-child,.cx-mentions button:hover{background:rgba(255,255,255,.07)}
+
+/* Header call buttons */
+.cx-head-calls{display:flex;gap:6px;flex:none}
+.cx-head .cx-head-calls .cx-circle{width:40px;height:40px}
+
+/* WhatsApp-style voice notes */
+.cx-chat .cx-composer .cx-mic{width:32px;height:32px;background:#fff;color:#000;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;transition:transform .12s ease-out,background .15s}
+.cx-chat .cx-composer .cx-mic[data-active="true"]{position:relative;z-index:4;background:#25d366;color:#fff;animation:cx-wa-pulse 1.2s ease-out infinite;transition:none}
+.cx-chat .cx-composer .cx-wa-send{background:#25d366;color:#fff;animation:cx-wa-pop .2s ease-out}
+@keyframes cx-wa-pulse{0%{box-shadow:0 0 0 0 rgba(37,211,102,.5)}100%{box-shadow:0 0 0 14px rgba(37,211,102,0)}}
+@keyframes cx-wa-pop{from{transform:scale(.6)}to{transform:none}}
+.cx-wa-rec{position:absolute;inset:0 48px 0 0;z-index:3;display:flex;align-items:center;gap:10px;padding-inline:16px 10px;border-radius:inherit;background:#232325;animation:cx-wa-in .18s ease-out;overflow:hidden}
+.cx-wa-rec[data-locked="true"]{inset-inline-end:44px;padding-inline-start:6px}
+@keyframes cx-wa-in{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+[dir="rtl"] .cx-wa-rec{animation-name:cx-wa-in-rtl}
+@keyframes cx-wa-in-rtl{from{opacity:0;transform:translateX(-16px)}to{opacity:1;transform:none}}
+.cx-wa-dot{width:10px;height:10px;flex:none;border-radius:50%;background:#ff453a;animation:cx-rec-blink 1s ease-in-out infinite}
+.cx-wa-time{flex:none;min-width:36px;color:#fff;font-size:15px;font-variant-numeric:tabular-nums}
+.cx-wa-slide{display:flex;flex:1;align-items:center;justify-content:center;gap:2px;color:#9a9a9c;font-size:14px;white-space:nowrap;animation:cx-wa-nudge 1.4s ease-in-out infinite}
+@keyframes cx-wa-nudge{50%{margin-inline-start:-10px}}
+.cx-wa-wave{display:flex;flex:1;align-items:center;gap:3px;height:28px;overflow:hidden}
+.cx-wa-wave i{flex:1;max-width:3px;height:5px;border-radius:2px;background:#d1d1d6;animation:cx-rec-wave .7s ease-in-out infinite alternate}
+.cx-wa-trash{display:grid;flex:none;place-items:center;width:34px;height:34px;border:0;border-radius:50%;background:transparent;color:#ff453a;cursor:pointer}
+.cx-wa-lock{position:absolute;inset-inline-end:5px;bottom:58px;z-index:4;display:flex;flex-direction:column;align-items:center;gap:2px;width:34px;padding:8px 0;border-radius:999px;background:#2c2c2e;color:#d1d1d6;animation:cx-wa-rise .22s ease-out;pointer-events:none}
+.cx-wa-up{transform:rotate(90deg);animation:cx-wa-bob 1s ease-in-out infinite}
+@keyframes cx-wa-rise{from{opacity:0;transform:translateY(16px)}to{opacity:1}}
+@keyframes cx-wa-bob{50%{translate:0 -3px}}
