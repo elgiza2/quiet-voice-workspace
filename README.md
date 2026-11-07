@@ -203,3 +203,4 @@ bunx vitest run
 - التداول: Solana عبر Jupiter، وEthereum/BNB/Polygon/Base/Arbitrum/Avalanche عبر KyberSwap (الرسوم داخل المسار).
 - الوكيل: `wallet_overview` للقراءة و`wallet_propose_send|trade` يعرضون بطاقة تأكيد؛ لا تنفيذ بدون ضغطة المستخدم.
 - التحقق: اختبارات الاشتقاق، استجابة KyberSwap وTronGrid الحية. لم تُنفذ أي معاملة بأموال حقيقية. غير مدعوم: Robinhood Chain، تداول TON/BTC.
+- 15:30 UTC: تداول TON (STON.fi) وBitcoin↔ETH (THORChain) مضاف مع رسوم 0.5%؛ الأسهم غير القابلة للتداول مخفية عبر `/api/tradeable-assets`؛ روابط مجتمع Telegram وX في الإعدادات. الأسعار الحية اختُبرت؛ لا معاملات حقيقية بعد.
