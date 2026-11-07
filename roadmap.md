@@ -239,4 +239,4 @@
 - [x] Home header: transparent, no borders, floating buttons
 - [x] Replace Inngest with free built-in background jobs
 
-- [ ] Live voice call via Deepgram Voice Agent — built; blocked on a Deepgram key with Member role (current key cannot mint browser tokens).
+- [x] Live voice call via Deepgram Voice Agent — key with Member role saved; server-side Arabic round trip verified. Phone test pending.

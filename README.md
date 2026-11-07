@@ -159,4 +159,4 @@ bunx vitest run
 انظر `roadmap.md` لحالة الطلب الحالي؛ الأقسام التاريخية فيه ليست قائمة حقائق حديثة وقد تتعارض بسبب نقل المساحات والخدمات.
 
 ## Current work
-- Voice calls switched to Deepgram Voice Agent (src/lib/audio/liveAgentCall.ts). Verified with a server-side Arabic test; browser call blocked until the Deepgram key has Member permission.
+- Voice calls switched to Deepgram Voice Agent (src/lib/audio/liveAgentCall.ts). Verified with a server-side Arabic test; Member key saved; Arabic speech in → Arabic spoken reply verified via the same browser token path. Not yet tested on a phone.
