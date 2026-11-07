@@ -44,6 +44,7 @@ async function handle(request: Request) {
       b.agentPrompt ? `Your persona and instructions:\n${String(b.agentPrompt).slice(0, 6000)}` : "",
       reason ? `You placed this call yourself. Reason for calling: ${reason}\nOpen by greeting the user and telling them why you are calling.` : "Open with a short friendly greeting and ask how you can help.",
       language === "ar" ? "Always speak Arabic in the Egyptian dialect, matching the user." : `Speak the user's language (${language}).`,
+      `Current date and time (Cairo): ${new Date().toLocaleString("en-GB", { timeZone: "Africa/Cairo", dateStyle: "full", timeStyle: "short" })}.`,
       "This is speech: answer briefly and naturally in one to three short sentences, no markdown, lists, emojis, links or code.",
     ].filter(Boolean).join("\n\n");
     const settings = {
