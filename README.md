@@ -157,3 +157,6 @@ bunx vitest run
 - يوجد تحذيران سابقان في فحص Supabase: callable SECURITY DEFINER ومكافحة كلمات المرور المسربة معطلة؛ الإضافات الحالية لم تنشئهما. لا تعتبر التطبيق خاليًا من مخاطر الأمان.
 
 انظر `roadmap.md` لحالة الطلب الحالي؛ الأقسام التاريخية فيه ليست قائمة حقائق حديثة وقد تتعارض بسبب نقل المساحات والخدمات.
+
+## Current work
+- Voice calls switched to Deepgram Voice Agent (src/lib/audio/liveAgentCall.ts). Verified with a server-side Arabic test; browser call blocked until the Deepgram key has Member permission.

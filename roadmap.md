@@ -238,3 +238,5 @@
 - [x] Fix lag + reply restarting from the beginning (group chat stream)
 - [x] Home header: transparent, no borders, floating buttons
 - [x] Replace Inngest with free built-in background jobs
+
+- [ ] Live voice call via Deepgram Voice Agent — built; blocked on a Deepgram key with Member role (current key cannot mint browser tokens).

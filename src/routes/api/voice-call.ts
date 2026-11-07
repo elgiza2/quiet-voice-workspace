@@ -21,6 +21,47 @@ async function handle(request: Request) {
   const body = await request.json().catch(() => null) as { action?: string } | null;
   const { getProviderKey } = await import("@/lib/keys/providerKey");
 
+  if (body?.action === "agent") {
+    const b = body as { agentName?: string; agentPrompt?: string; reason?: string; voiceId?: string; language?: string };
+    const [dgKey, ctKey] = await Promise.all([getProviderKey("deepgram"), getProviderKey("cartesia")]);
+    if (!dgKey) return Response.json({ error: "Deepgram is not connected" }, { status: 503, headers: noStore });
+    if (!ctKey) return Response.json({ error: "Cartesia is not connected" }, { status: 503, headers: noStore });
+    const [grant, ct] = await Promise.all([
+      fetch("https://api.deepgram.com/v1/auth/grant", { method: "POST", signal: request.signal, headers: { Authorization: `Token ${dgKey}`, "Content-Type": "application/json" }, body: JSON.stringify({ ttl_seconds: 300 }) }),
+      fetch("https://api.cartesia.ai/access-token", { method: "POST", signal: request.signal, headers: { Authorization: `Bearer ${ctKey}`, "Cartesia-Version": "2026-08-14", "Content-Type": "application/json" }, body: JSON.stringify({ grants: { tts: true }, expires_in: 3600 }) }),
+    ]);
+    if (grant.status === 403) return Response.json({ error: "مفتاح Deepgram محتاج صلاحية Member أو أعلى عشان المكالمة تشتغل." }, { status: 502, headers: noStore });
+    if (!grant.ok || !ct.ok) return Response.json({ error: "Voice service refused the call." }, { status: 502, headers: noStore });
+    const { access_token } = await grant.json() as { access_token?: string };
+    const { token: ctToken } = await ct.json() as { token?: string };
+    if (!access_token || !ctToken) return Response.json({ error: "Voice service unavailable" }, { status: 502, headers: noStore });
+    const { callLanguage } = await import("@/lib/calls/callLanguage.server");
+    const language = await callLanguage(auth.db, auth.userId, String(b.language || ""));
+    const name = String(b.agentName || "").slice(0, 120);
+    const reason = String(b.reason || "").slice(0, 2000);
+    const prompt = [
+      `You are ${name || "the assistant"}, talking with the user on a live phone call.`,
+      b.agentPrompt ? `Your persona and instructions:\n${String(b.agentPrompt).slice(0, 6000)}` : "",
+      reason ? `You placed this call yourself. Reason for calling: ${reason}\nOpen by greeting the user and telling them why you are calling.` : "Open with a short friendly greeting and ask how you can help.",
+      language === "ar" ? "Always speak Arabic in the Egyptian dialect, matching the user." : `Speak the user's language (${language}).`,
+      "This is speech: answer briefly and naturally in one to three short sentences, no markdown, lists, emojis, links or code.",
+    ].filter(Boolean).join("\n\n");
+    const settings = {
+      type: "Settings",
+      audio: { input: { encoding: "linear16", sample_rate: 16000 }, output: { encoding: "linear16", sample_rate: 24000, container: "none" } },
+      agent: {
+        language: language === "ar" ? "ar" : language === "en" ? "en" : "multi",
+        listen: { provider: { type: "deepgram", model: "nova-3" } },
+        think: { provider: { type: "open_ai", model: "gpt-4o-mini" }, prompt },
+        speak: {
+          provider: { type: "cartesia", model_id: "sonic-3", voice: { mode: "id", id: String(b.voiceId || "a0e99841-438c-4a64-b679-ae501e7d6091") }, language },
+          endpoint: { url: "https://api.cartesia.ai/tts/bytes", headers: { Authorization: `Bearer ${ctToken}` } },
+        },
+      },
+    };
+    return Response.json({ token: access_token, settings }, { headers: noStore });
+  }
+
   if (body?.action === "token") {
     const key = await getProviderKey("cartesia");
     if (!key) return Response.json({ error: "Cartesia is not connected" }, { status: 503, headers: noStore });
