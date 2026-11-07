@@ -1,3 +1,10 @@
+## Chat, one-time ringing and call settings — 2026-11-07 12:32 UTC
+- [ ] Upgrade the active chat model to a stronger available model without changing call providers.
+- [ ] Prevent answered/declined/missed calls and old one-time requests from ringing again; add regression tests.
+- [ ] Use in-app language/voice lists and restrict voices to the selected language.
+- [ ] Redesign voice, video and incoming screens using the supplied references; verify mobile and desktop.
+- [ ] Run targeted tests and update the current verification handoff.
+
 ## Live calls + header order — 2026-11-07 12:06 UTC
 - [x] Header order: voice/video on the left, three-dot button at the far right, joined cleanly.
 - [x] Call waiting/voice background: slow multi-color moving gradient instead of the bright avatar.
